@@ -4,6 +4,8 @@ This section is the **evidence-backed map of forked Grok Build** inside `/home/d
 
 **Purpose for do:** know patterns to adopt, surfaces we can extend, and hard limits that require deep fork (or should not be fought).
 
+**Sealed:** F-GROK-001 / VAL-GROK-001 (M0). Content is from the **forked tree** under `crates/`; not aspirational APIs.
+
 ## Documents
 
 | Doc | Owns |
@@ -25,10 +27,10 @@ This section is the **evidence-backed map of forked Grok Build** inside `/home/d
 
 | Tree | Path | Role |
 |------|------|------|
-| Fork (writable) | `/home/datht/code/do` | Primary evidence after F-FORK-001 |
+| Fork (writable) | `/home/datht/code/do` | **Primary evidence** (post F-FORK-001) |
 | Upstream (read-only) | `/home/datht/code/grok-build` | Sibling reference only — never modify |
 
-Stubs below were filled from the **forked tree** under `crates/codegen/` and `crates/common/`. Workers expand with more file paths as scouts deepen; do not invent APIs.
+All crate paths below are relative to `/home/datht/code/do` unless absolute.
 
 ## Related product docs
 

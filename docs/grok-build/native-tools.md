@@ -23,86 +23,150 @@ Fully-qualified IDs look like `"GrokBuild:run_terminal_cmd"` (`versions.rs`, `To
 
 Same file — capability filtering uses kind (not hardcoded IDs when kind is populated):
 
-| Kind | Typical tools |
-|------|----------------|
-| `Read` / `Edit` / `Write` / `Delete` / `Move` | read_file, search_replace, … |
-| `ListDir` / `Search` | list_dir, grep |
-| `Execute` | run_terminal_cmd / bash |
-| `Plan` | todo_write |
-| `EnterPlan` / `ExitPlan` | enter_plan_mode, exit_plan_mode |
-| `AskUser` | ask_user_question |
-| `Task` / `BackgroundTaskAction` / `WaitTasksAction` / `KillTaskAction` | task, task_output, kill_task |
-| `GoalUpdate` | update_goal |
+| Kind | Role |
+|------|------|
+| `Read` / `Edit` / `Write` / `Delete` / `Move` | Filesystem mutations |
+| `ListDir` / `Search` / `List` | Directory / search |
+| `Execute` | Shell / bash |
+| `Plan` | `todo_write` |
+| `EnterPlan` / `ExitPlan` | Plan mode pair |
+| `AskUser` | `ask_user_question` |
+| `Task` / `BackgroundTaskAction` / `WaitTasksAction` / `KillTaskAction` | Subagents + background tasks |
+| `GoalUpdate` | `update_goal` |
 | `Monitor` | monitor |
 | `Skill` | skill tools |
-| `WebSearch` / `WebFetch` | web_search, web_fetch |
-| `Lsp` | lsp |
-| `SearchTool` / `UseTool` | search_tool, use_tool (MCP) |
-| `MemorySearch` / `MemoryGet` | memory tools |
-| Image/video/deploy | image_gen, video_gen, deploy_app stubs |
-| `Other` | serde sink for unknown kinds |
+| `WebSearch` / `WebFetch` | Network |
+| `Lsp` | Language server |
+| `SearchTool` / `UseTool` | MCP discover / invoke |
+| `MemorySearch` / `MemoryGet` | Memory tools |
+| `ImageGen` / `VideoGen` / `ImageToVideo` / `ReferenceToVideo` / `DeployApp` | Media / deploy |
+| `Other` | Serde sink for unknown kinds |
+
+## Registration source of truth
+
+All built-ins below are registered in **`ToolRegistryBuilder::new()`**:
+
+`crates/codegen/xai-grok-tools/src/registry/types.rs` (approx. lines 663–741).
+
+External packs run after built-ins via `for pack in tool_packs().lock().iter()`.
 
 ## GrokBuild namespace (primary)
 
-Registered under `implementations/grok_build/` (module docs call these **NewTool** architecture tools). Modules present:
+Modules under `implementations/grok_build/` (module docs: **NewTool** architecture; old `Tool` paths may still live under `implementations/<tool>/` during migration).
 
-| Module / tool | Notes |
-|---------------|--------|
-| `bash` / run_terminal_cmd | Execute; version-managed (`versions.rs`) |
-| `read_file`, `search_replace`, `list_dir`, `grep` | Filesystem |
-| `todo` (`todo_write`) | Plan/todos continuum |
-| `enter_plan_mode`, `exit_plan_mode` | Plan mode pair |
-| `update_goal` | Goal classifier integration (`UPDATE_GOAL_TOOL_NAME`) |
-| `ask_user_question` | User questions |
-| `task`, `task_output`, `kill_task` | Subagents + background tasks |
-| `scheduler` (create/delete/list) | Scheduled / loop tasks |
-| `monitor` | Monitor kind |
-| `lsp` | Language server |
-| `web_search`, `web_fetch` | Network |
-| `image_gen`, `image_edit`, `video_gen` | Media (product-coupled) |
-| `deploy_app` | Stub / deployer config |
+| Registered type (builder) | Module | Notes |
+|---------------------------|--------|--------|
+| `BashTool` | `bash/` | Execute; version-managed as `GrokBuild:run_terminal_cmd` |
+| `ReadFileTool` | `read_file/` | Filesystem read |
+| `SearchReplaceTool` | `search_replace/` | Edit |
+| `ListDirTool` | `list_dir/` | List |
+| `GrepTool` | `grep/` | Search |
+| `KillTaskTool` / `KillTerminalCommandTool` | `kill_task/` | Kill |
+| `TodoWriteTool` | `todo/` | Plan continuum |
+| `UpdateGoalTool` | `update_goal/` | `UPDATE_GOAL_TOOL_NAME` re-export |
+| `TaskOutputTool` / `GetTerminalCommandOutputTool` / `WaitTasksTool` | `task_output/` | Task I/O |
+| `TaskTool` | `task/` | Subagent spawn |
+| `WebSearchTool` / `WebFetchTool` | `web_search/`, `web_fetch/` | Network |
+| `LspTool` | `lsp/` | LSP |
+| `ImageGenTool` / `ImageEditTool` / `ImageToVideoTool` / `ReferenceToVideoTool` | media modules | Product-coupled |
+| `EnterPlanModeTool` / `ExitPlanModeTool` | `enter_plan_mode/`, `exit_plan_mode/` | Plan mode pair |
+| `AskUserQuestionTool` | `ask_user_question/` | User questions |
+| `MonitorTool` | `monitor/` | Monitor |
+| `SchedulerCreateTool` / `SchedulerDeleteTool` / `SchedulerListTool` | `scheduler/` | Scheduled / loop tasks |
 
-Entry re-exports: `implementations/grok_build/mod.rs`, `implementations/mod.rs`.
+Also present as module (deploy stub): `deploy_app` / `DEPLOY_APP_TOOL_NAME` (exported; product-coupled).
+
+Entry re-exports: `implementations/grok_build/mod.rs`.
+
+### Version-managed GrokBuild IDs
+
+From `crates/codegen/xai-grok-tools/src/versions.rs` (`MANAGED_TOOLS`):
+
+- `GrokBuild:run_terminal_cmd`
+- `GrokBuild:read_file`
+- `GrokBuild:search_replace`
+- `GrokBuild:list_dir`
+- `GrokBuild:grep`
+- `GrokBuild:kill_task`
+- `GrokBuild:get_task_output`
+
+Presets include `"current"` and `"legacy-0.4.10"` (grep is managed but may only have `"current"`).
 
 ## GrokBuildHashline
 
-`implementations/grok_build_hashline/` — hashline-aware read/edit/grep/mutate:
+`implementations/grok_build_hashline/` — hashline-anchored read/edit/grep:
 
-- `read_file`, `edit/`, `grep`, `mutate`, `anchor`, `scheme`, `config`, `benchmark`
+| Tool type | FQ ID (when selected) |
+|-----------|------------------------|
+| `HashlineReadTool` | `GrokBuildHashline:hashline_read` |
+| `HashlineEditTool` | `GrokBuildHashline:hashline_edit` |
+| `HashlineGrepTool` | `GrokBuildHashline:hashline_grep` |
 
-Prefer hashline for precise edits when the session toolset includes this namespace.
+Supporting modules: `anchor.rs`, `scheme.rs`, `mutate.rs`, `edit/`, `config.rs`, `benchmark.rs`.
+
+**File toolset selection (mutually exclusive):** shell config `FileToolset::{Standard, Hashline}` in `crates/codegen/xai-grok-shell/src/tools/config.rs`:
+
+- Default: **`Standard`** (`read_file`, `search_replace`, `grep`)
+- `file_toolset = "hashline"`: swaps in the three hashline tools (see config comments under `[toolset]` / `[toolset.hashline]`)
 
 ## GrokBuildConcise
 
-`implementations/grok_build_concise/` — concise variants of bash / read_file / search_replace (shorter I/O surface for constrained contexts).
+Registered concise variants (shorter I/O surface):
+
+- `ReadFileConciseTool`
+- `SearchReplaceConciseTool`
+- `BashConciseTool`
+
+Path: `implementations/grok_build_concise/`.
 
 ## Codex namespace
 
-`implementations/codex/`: `apply_patch`, `grep_files`, `list_dir`, `read_file` — Codex-compatible tool shapes.
+Registered in the same builder:
+
+| Type | Module |
+|------|--------|
+| `ApplyPatchTool` | `codex/apply_patch/` |
+| `CodexListDirTool` | `codex/list_dir/` |
+| `CodexGrepFilesTool` | `codex/grep_files/` |
+| `CodexReadFileTool` | `codex/read_file/` |
 
 ## OpenCode namespace
 
-`implementations/opencode/`: bash, edit, glob, grep, read, skill, todowrite, write — OpenCode-compatible names for interop / presets.
+| Type | Module |
+|------|--------|
+| `OpenCodeBashTool` | `opencode/bash/` |
+| `OpenCodeReadTool` | `opencode/read/` |
+| `OpenCodeEditTool` | `opencode/edit/` |
+| `OpenCodeWriteTool` | `opencode/write/` |
+| `OpenCodeGrepTool` | `opencode/grep/` |
+| `OpenCodeGlobTool` | `opencode/glob/` |
+| `OpenCodeTodoWriteTool` | `opencode/todowrite/` |
+| `OpenCodeSkillTool` | `opencode/skill/` |
 
-## MCP surface (not a static pack)
+OpenCode-compatible names for interop / presets.
 
-| Tool | Role | Path |
+## Memory + MCP surface
+
+| Type | Path | Role |
 |------|------|------|
-| `search_tool` | Index/discover MCP tools | `implementations/search_tool/` |
-| `use_tool` | Invoke MCP (or detect mis-routed native calls) | `implementations/use_tool/` |
-| MCP bridge | Register MCP tools into toolset | `xai-grok-tools/src/bridge.rs` (`register_mcp_tools`) |
+| `MemorySearchImpl` / `MemoryGetImpl` | `implementations/memory/` | Memory search/get |
+| `SearchTool` | `implementations/search_tool/` | Discover MCP tools |
+| `UseTool` | `implementations/use_tool/` | Invoke MCP (or detect mis-routed native calls) |
+| MCP bridge | `xai-grok-tools/src/bridge.rs` | Register MCP tools into toolset |
 
-MCP servers: `crates/codegen/xai-grok-mcp/` + computer-hub MCP adapter under `crates/common/`.
+MCP servers: `crates/codegen/xai-grok-mcp/` + computer-hub MCP adapter under `crates/common/xai-computer-hub-mcp-adapter/`.
 
-## Cross-cutting
+## Cross-cutting reminders
 
-| Piece | Path |
-|-------|------|
-| Skills tool + SkillInfo | `implementations/skills/` |
-| Skill discovery reminders | `reminders/` + `SkillDiscoveryReminder` in registry |
-| Claude/Cursor aliases | `types/claude_alias.rs` (Bash→Execute, TodoWrite→Plan, …) |
-| Version-managed tools | `versions.rs` (e.g. `GrokBuild:run_terminal_cmd`) |
-| Tool packs (external) | `registry/types.rs` → `register_tool_pack` |
+Registered at end of `ToolRegistryBuilder::new()`:
+
+| Reminder | Purpose |
+|----------|---------|
+| `LspDiagnosticsReminder` | Post-tool LSP diagnostics |
+| `TaskCompletionReminder` | Task completion signals |
+| `SkillDiscoveryReminder` | Progressive skill discovery (`reminders/` + registry) |
+
+Also: skills tool + `SkillInfo` under `implementations/skills/`; Claude/Cursor aliases in `types/claude_alias.rs`.
 
 ## Toolsets and config
 
@@ -112,27 +176,19 @@ MCP servers: `crates/codegen/xai-grok-mcp/` + computer-hub MCP adapter under `cr
 | `ToolConfig` | Fully-qualified `id`, `name_override`, `params_*`, `kind`, `behavior_version` |
 | Session finalization | `SessionContext` + `FinalizedToolset` (same registry module; used by workspace hub) |
 | Capability modes | Filter by `ToolKind`; tools with `kind: None` preserved (extensibility) |
+| Shell toolset knobs | `xai-grok-shell/src/tools/config.rs` — `[toolset.bash]`, `[toolset.web_fetch]`, `[toolset.ask_user_question]`, `file_toolset`, `[toolset.hashline]` |
 | Workspace toolset swap | `xai-grok-workspace` hub/server tests reference `ToolServerConfig` with `GrokBuild:*` ids |
-
-Default/product toolset composition is built via `grok_build` registration (`register_all` described in `grok_build/mod.rs`) plus shell/session config — **TODO expand**: exact default ID lists from shell presets.
 
 ## What do should use (not reinvent)
 
 From product architecture (aligned with this inventory):
 
-- Filesystem + hashline + grep/list
+- Filesystem + optional hashline + grep/list
 - Shell execute
 - `todo_write`, `enter_plan_mode` / `exit_plan_mode`, `update_goal`
 - `task` + subagent resolution
 - Multi-model config (TOML), not a second registry
 - Plugins / hooks / skills / MCP for extension
-
-## TODO expand (workers)
-
-- [ ] Exhaustive table of every `GrokBuild:<id>` registered in `register_all`
-- [ ] Default toolset presets used by interactive vs headless sessions
-- [ ] Hashline scheme defaults and when hashline namespace is enabled
-- [ ] Memory tools paths and enablement flags
 
 ## See also
 

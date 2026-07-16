@@ -9,7 +9,7 @@ Evidence paths are under `/home/datht/code/do` (forked tree) unless noted.
 | What | Where (product) | Discovery target (runtime) |
 |------|-----------------|----------------------------|
 | Agents | `do-harness/agents/` | Must land on `.grok/agents` / `~/.grok/agents` discovery paths |
-| Hooks | `do-harness/hooks/` | Hook config / plugin install paths |
+| Hooks | `do-harness/hooks/` | Hook config / `~/.grok/hooks/` / project `.grok/hooks/` |
 | Skills | `do-harness/skills/` | Skills discovery used by Skill tool + reminders |
 | Prompts | `do-harness/prompts/` | Agent/role prompt fragments |
 | Model assignment YAML | `do-harness/config.models.yaml` | Maps to TOML + agent frontmatter (M1 wire) |
@@ -22,10 +22,12 @@ Evidence paths are under `/home/datht/code/do` (forked tree) unless noted.
 |------|----------|
 | Agent file discovery | `crates/codegen/xai-grok-agent/src/discovery.rs` |
 | Project dirs | `.grok/agents/`, `.claude/agents/` (walk cwd → repo root) |
-| User dirs | `~/.grok/agents/`, `~/.claude/agents/` |
+| User dirs | `~/.grok/agents/` (GROK_HOME-aware), `~/.claude/agents/` |
 | Bundled | `~/.grok/bundled/agents/` (lowest priority) |
-| GROK_HOME | Discovery is GROK_HOME-aware; legacy `~/.grok` still considered |
+| Merge priority | Project user agents can shadow built-ins; user-level and bundled **cannot** shadow built-in names (`merge_subagents` docs in discovery.rs) |
+| Search order (discover) | 1) project `.grok`/`.claude` walk → 2) user grok agents → 3) `.claude` user → 4) bundled |
 | Frontmatter model | Agent defs can pin model (stock multi-model path) |
+| Subagent toggles | `[subagents.toggle]` filters enabled agents (`all_subagents`) |
 
 **do use:** proof intake agent (F-EXT-001); role profiles for M1; role→model from YAML into agent frontmatter.
 
@@ -33,10 +35,13 @@ Evidence paths are under `/home/datht/code/do` (forked tree) unless noted.
 
 | Seam | Evidence |
 |------|----------|
-| Hook events | `crates/codegen/xai-hooks-plugins-types/src/lib.rs` — `HookEvent` |
-| Key events | `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `SessionStart`/`End`, `Stop`, `UserPromptSubmit`, `PermissionDenied`, `SubagentStart`/`Stop`, `PreCompact`/`PostCompact`, … |
-| Runtime | `crates/codegen/xai-grok-hooks/` (discovery, dispatcher, matcher, runner) |
-| Telemetry gate outcomes | `xai-grok-telemetry` PreToolUse deny semantics |
+| Hook events (plugin types) | `crates/codegen/xai-hooks-plugins-types/src/lib.rs` — `HookEvent` |
+| Key events | `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `SessionStart`/`SessionEnd`, `Stop`/`StopFailure`, `UserPromptSubmit`, `PermissionDenied`, `SubagentStart`/`SubagentStop`, `PreCompact`/`PostCompact`, `Notification` |
+| Runtime | `crates/codegen/xai-grok-hooks/` — `discovery.rs`, `dispatcher.rs`, `matcher.rs`, `runner/` (command + http) |
+| Hook sources | `HookSource::SettingsFile` and `HookSource::Directory` of `*.json` (e.g. `~/.grok/hooks/`) |
+| Workspace config | `xai-grok-workspace/src/config.rs` — global vs project hook sources |
+| Wire names | `xai-grok-workspace-types/src/rpc/hooks.rs` — `HookEventNameWire` (includes `SubagentEnd`, `Unknown` sink) |
+| Telemetry | `xai-grok-telemetry` PreToolUse deny semantics |
 
 **do use:** guided PreToolUse hook with `[GATE: …]` + **Do this instead** (F-EXT-002); never bare “Permission denied”.
 
@@ -46,7 +51,8 @@ Evidence paths are under `/home/datht/code/do` (forked tree) unless noted.
 |------|----------|
 | Plugin types | `xai-hooks-plugins-types` |
 | Marketplace / install | `crates/codegen/xai-grok-plugin-marketplace/` |
-| Agent plugin discovery | `xai-grok-agent` plugins module + discovery |
+| Agent plugin discovery | `xai-grok-agent` plugins module; workspace `discovery.rs` → `discover_plugins` |
+| Shell plugin surface | `xai-grok-shell/src/plugin.rs`, `extensions/` |
 
 **do use:** optional installable bundles; package do-harness pieces as plugin when appropriate.
 
@@ -55,9 +61,11 @@ Evidence paths are under `/home/datht/code/do` (forked tree) unless noted.
 | Seam | Evidence |
 |------|----------|
 | Skill tool + SkillInfo | `xai-grok-tools/src/implementations/skills/` |
-| Bundled skills (examples) | `crates/codegen/xai-grok-shell/skills/` (e.g. best-of-n, code-review, create-skill, …) |
-| Discovery reminders | `SkillDiscoveryReminder` wired in `registry/types.rs` |
+| Listing implementation | `xai-grok-agent` prompt skills (`list_skills`); workspace `discovery.rs` → `discover_skills` |
+| Bundled skills (examples) | `crates/codegen/xai-grok-shell/skills/` — `best-of-n`, `check-work`, `code-review`, `create-skill`, `help`, `imagine` |
+| Discovery reminders | `SkillDiscoveryReminder` registered in `ToolRegistryBuilder::new()` |
 | SessionContext.skills | Passed at toolset finalization |
+| Paths | Project/user `~/.grok/skills/` patterns exercised in workspace discovery tests |
 
 **do use:** progressive catalog via config/ignore + reminders first (L4); avoid dumping full skill text always-on.
 
@@ -66,10 +74,12 @@ Evidence paths are under `/home/datht/code/do` (forked tree) unless noted.
 | Seam | Evidence |
 |------|----------|
 | Config load | `crates/codegen/xai-grok-config/`, `xai-grok-config-types/` |
-| Persist helpers | `xai-grok-shell` managed_config / util/config |
+| Project config | `<root>/.grok/config.toml` (`xai-grok-workspace/src/discovery.rs`) |
+| Persist helpers | `xai-grok-shell` `managed_config` / util/config |
 | Multi-model | Many `[model.<name>]`, `[models] default` — see [../models-and-config.md](../models-and-config.md) |
-| Toolset sections | e.g. `[toolset.ask_user_question]` merge in shell persist |
-| Permissions | `xai-grok-workspace/src/permission/` (policy, auto_mode, rules, shell_access) |
+| Goal role models | `xai-grok-config-types` remote settings: planner/strategist/goal_skeptic model pools |
+| Toolset sections | Shell `tools/config.rs`: `[toolset.bash]`, `[toolset.web_fetch]`, `[toolset.ask_user_question]`, `file_toolset`, `[toolset.hashline]` |
+| Permissions | `xai-grok-workspace/src/permission/` (`policy`, `auto_mode`, `rules`, `shell_access`, `manager`, …) |
 
 **do use:** document mapping from `config.models.yaml` → TOML; do not replace TOML registry.
 
@@ -81,7 +91,8 @@ Evidence paths are under `/home/datht/code/do` (forked tree) unless noted.
 | Type | `ToolPack = fn(&mut ToolRegistryBuilder)` |
 | Function | `register_tool_pack(pack)` |
 | Ordering | **MUST** run before first `ToolRegistryBuilder::new()` |
-| Idempotency | Caller’s responsibility |
+| Application | Packs applied at end of `ToolRegistryBuilder::new()` |
+| Idempotency | Caller’s responsibility (double register = double tools) |
 
 **do use:** new in-process tools when hooks/plugins cannot express behavior; implement `Tool` via `xai-tool-runtime` / grok tools metadata (`ToolNamespace`, `ToolKind`).
 
@@ -91,6 +102,7 @@ Evidence paths are under `/home/datht/code/do` (forked tree) unless noted.
 |------|----------|
 | Config struct | `ToolServerConfig { tools, behavior_preset }` in `registry/types.rs` |
 | Per-tool | `ToolConfig` id, overrides, kind, behavior_version |
+| File toolset swap | `FileToolset` in shell `tools/config.rs` (Standard vs Hashline) |
 | Workspace | Hub/session bind + toolset swap (`xai-grok-workspace`) |
 
 **do use:** capability modes, name overrides, presets — configure before writing new tools.
@@ -100,19 +112,23 @@ Evidence paths are under `/home/datht/code/do` (forked tree) unless noted.
 | Seam | Evidence |
 |------|----------|
 | Client/server crate | `crates/codegen/xai-grok-mcp/` |
-| Tools | `search_tool`, `use_tool` |
+| Tools | `search_tool`, `use_tool` (registered in builder) |
 | Bridge | `xai-grok-tools/src/bridge.rs` |
 | Computer hub adapter | `crates/common/xai-computer-hub-mcp-adapter/` |
+| Shell doctor | `xai-grok-shell/src/mcp_doctor.rs` |
 
-**do use:** CodeGraph / external services as MCP first (L7), native tool only if MCP insufficient.
+**do use:** CodeGraph / external services as MCP first (L7), native tool only if MCP insufficient. Note: `xai-codebase-graph` already exists as a crate — gap is agent exposure, not absence of graph code.
 
 ## 10. Subagent resolution (roles / personas / models)
 
 | Seam | Evidence |
 |------|----------|
 | Pure resolution crate | `crates/codegen/xai-grok-subagent-resolution/` |
-| Precedence | explicit override > role > persona > parent |
+| Precedence | explicit override > role > persona > parent (`lib.rs` docs + `overrides.rs`) |
 | Types | `SubagentRole`, `SubagentPersona`, `EffectiveRuntimeConfig` |
+| Persona fail-closed | Unreadable persona instructions file aborts spawn early |
+| Role prompt soft-fail | Missing role `prompt_file` warns but continues |
+| Spawn surface | `TaskTool` in `implementations/grok_build/task/` |
 
 **do use:** wire role→model policy here / via agent defs; primary-session role cycle is a separate M1 product gap (L1).
 
@@ -136,13 +152,6 @@ Evidence paths are under `/home/datht/code/do` (forked tree) unless noted.
 | External capability | MCP |
 | Model per role | agent frontmatter + YAML→TOML map (L13) |
 | Still impossible | See [hard-limits.md](./hard-limits.md) → patch-matrix |
-
-## TODO expand (workers)
-
-- [ ] Exact hook file layout / matcher syntax examples from `xai-grok-hooks`
-- [ ] Plugin manifest schema
-- [ ] Skill discovery path order (project vs user vs bundled)
-- [ ] Permission rule file formats
 
 ## See also
 

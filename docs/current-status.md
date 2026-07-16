@@ -24,19 +24,24 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
   - Template: `do-harness/config.models.yaml` (`models.registry` + `assignment`)
   - L13 folded into `docs/limitations.md` + `docs/patch-matrix.md`
 - **Role switch lock** product rule **sealed** (F-ROLE-001 / VAL-ROLE-001):
-  - Tab/Shift+Tab role cycle **only before first user message**
-  - **Disabled** after any conversation content (keep system/role context clean)
-  - Model re-assignment from role only while switch still allowed
-  - M0 = document (done); **M1 = implement** (session flag, keybind gate, stack freeze, role→model wire)
-  - Sources of truth: root `AGENTS.md`, `docs/prompt-system.md` (Role lifecycle + M1 note), `docs/architecture.md`
+   - Tab/Shift+Tab role cycle **only before first user message**
+   - **Disabled** after any conversation content (keep system/role context clean)
+   - Model re-assignment from role only while switch still allowed
+   - M0 = document (done); **M1 = implement** (session flag, keybind gate, stack freeze, role→model wire)
+   - Sources of truth: root `AGENTS.md`, `docs/prompt-system.md` (Role lifecycle + M1 note), `docs/architecture.md`
+- **Grok-build inventory** **sealed** (F-GROK-001 / VAL-GROK-001):
+   - `docs/grok-build/{README,overview,native-tools,extension-seams,hard-limits,patterns}.md`
+   - Fork evidence: tool registry, namespaces/kinds, hooks, agents, subagent resolution, hashline `FileToolset`, hard limits
+   - Linked from `docs/index.md` under **Grok-build inventory**
+   - **Required read before crate work**
 
 ### In progress / pending (M0)
 
 | Item | Feature | Notes |
 |------|---------|-------|
 | `cargo check -p xai-grok-pager-bin` | F-FORK-002 | **Done** — VAL-FORK-002; needs `dotslash` |
-| Grok-build inventory docs | F-GROK-001 / VAL-GROK-001 | `docs/grok-build/*` scaffolded with fork evidence; worker may deepen |
-| Evidence docs L1–L12 deep pass | F-DOC-001..003 | limitations/patch-matrix exist with L13 sealed; deepen L1–L12 + capability-map (F-DOC-003 depends on F-GROK-001) |
+| Grok-build inventory docs | F-GROK-001 / VAL-GROK-001 | **Done** — evidence-backed six-file inventory + index links |
+| Evidence docs L1–L12 deep pass | F-DOC-001..003 | limitations/patch-matrix exist with L13 sealed; deepen L1–L12 + capability-map (cite grok-build inventory) |
 | README identity + FORK policy expansion | F-DOC-004 | Partial README; FORK.md pending |
 | Proof intake agent + guided hook | F-EXT-001..003 | do-harness agents/hooks |
 | M1–M3 backlog including multi-model wire + role Tab lock | F-BACK-001 | role→model wiring + post-message lock |
@@ -53,11 +58,10 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
 
 ## Near-term sequence
 
-1. Grok-build inventory verify/expand (F-GROK-001) — required before crate work
-2. Evidence inventory docs L1–L12 deep + capability-map (F-DOC-001..003)
-3. README identity + FORK policy expansion (F-DOC-004)
-4. Extension proof path (F-EXT-001..003)
-5. Backlog + M0 seal commit
+1. Evidence inventory docs L1–L12 deep + capability-map (F-DOC-001..003)
+2. README identity + FORK policy expansion (F-DOC-004)
+3. Extension proof path (F-EXT-001..003)
+4. Backlog + M0 seal commit
 
 ## Links
 

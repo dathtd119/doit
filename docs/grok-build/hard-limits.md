@@ -16,30 +16,31 @@ Surfaces that **do must not casually fight**. Prefer extension seams ([extension
 | Limit | Why hard | Where it shows up |
 |-------|----------|-------------------|
 | **Main-session role machine gaps (L1)** | Agents/personas are strong for **subagents**; primary-session intake→orchestrator role cycle + **Tab lock after first message** are product work, not free | `xai-grok-agent`, `xai-grok-subagent-resolution`; product rule in `AGENTS.md` / `docs/prompt-system.md` |
-| **No TS harness factories (L3)** | Always-on behavior is Rust + plugins/hooks, not pi-ness-style TS factories | Monolithic `xai-grok-tools` registry |
+| **No TS harness factories (L3)** | Always-on behavior is Rust + plugins/hooks, not pi-ness-style TS factories | Monolithic `xai-grok-tools` registry + `ToolRegistryBuilder::new()` |
 | **No unified continuation coordinator (L5)** | Goal classifier, plan mode, todos exist **separately** | `update_goal`, plan tools, todo tools; no single priority coordinator crate |
-| **Dual Tool / NewTool migration** | Docs in `grok_build/mod.rs`: new tools implement **NewTool**; old `Tool` paths still exist during migration | `implementations/grok_build/` vs older `implementations/<tool>/` split; unified runtime `Tool` in `xai-tool-runtime` |
-| **Tool pack ordering** | `register_tool_pack` **must** run before first `ToolRegistryBuilder::new()` | `registry/types.rs` |
+| **Dual Tool / NewTool migration** | `grok_build/mod.rs`: new tools implement **NewTool**; old `Tool` paths still exist during migration under `implementations/<tool>/` | Migration split + unified runtime `Tool` in `xai-tool-runtime` |
+| **Tool pack ordering** | `register_tool_pack` **must** run before first `ToolRegistryBuilder::new()` | `registry/types.rs` ordering contract |
 | **Deep pager / TUI fork** | Last resort; high cost (ratatui stack) | `xai-grok-pager*`, L11; M0–M1: **no OpenTUI port** |
-| **xAI / GrokBuild environment coupling** | Production gateway URLs, update channels, deployment IDs, asset servers | `GrokBuildEnvironment` in shell/update crates (`xai-grok-shell-base/src/env.rs`, update version paths) |
+| **xAI / GrokBuild environment coupling** | Production gateway URLs, update channels, deployment IDs, asset servers | `GrokBuildEnvironment` in `xai-grok-shell-base/src/env.rs`; update crates |
 | **Auth stock paths (M0)** | Keep stock auth; multi-provider beyond stock is future | `xai-grok-auth` |
-| **Windows best-effort** | Some tool bundling/search helpers are Unix-gated | e.g. `xai-grok-tools/build.rs` embeds bfs/ugrep under `#[cfg(unix)]` consumers |
-| **Capability mode + unknown kinds** | Unknown `ToolKind` → `Other` and may be **dropped** in restrictive modes | `ToolConfig` kind deserialize warnings in `registry/types.rs` |
-| **MCP mis-routing** | Native tools wrongly called via `use_tool` need corrective errors | `use_tool` + resources comments in tools crate |
+| **Windows best-effort** | Some tool bundling/search helpers are Unix-gated | e.g. tools build helpers under `#[cfg(unix)]` consumers |
+| **Capability mode + unknown kinds** | Unknown `ToolKind` → `Other` and may be **dropped** in restrictive modes | `ToolConfig` kind deserialize notes in `registry/types.rs` |
+| **MCP mis-routing** | Native tools wrongly called via `use_tool` need corrective errors | `use_tool` implementation comments |
+| **Hashline vs standard exclusivity** | `FileToolset` Standard and Hashline are **mutually exclusive** for read/edit/grep | `xai-grok-shell/src/tools/config.rs` `FileToolset` docs |
 
 ## What not to reinvent
 
 | Already native | Do not build a parallel… |
 |----------------|---------------------------|
-| `plan` / enter/exit plan mode | Second plan protocol |
+| `enter_plan_mode` / `exit_plan_mode` | Second plan protocol |
 | `update_goal` + classifier | Second goal state machine (unless coordinating **on top**) |
-| hashline namespace | Alternate edit addressing without reason |
+| hashline namespace + `file_toolset` | Alternate edit addressing without reason |
 | `task` + subagent resolution | Second spawn stack |
 | multi-`[model.*]` TOML | Competing runtime model registry (YAML **overlays** only) |
 | MCP search/use | Parallel MCP client in do-harness |
 | `xai-codebase-graph` crate | Ignoring existing graph package when adding CodeGraph (still may need MCP/API productization — L7) |
 
-Note: `xai-codebase-graph` **exists** in the fork (`crates/codegen/xai-codebase-graph/`). L7 gap is productized lean tools / agent exposure, not “zero graph code.”
+Note: `xai-codebase-graph` **exists** in the fork (`crates/codegen/xai-codebase-graph/` — `index_manager.rs`, `navigation.rs`, `scope_graph/`). L7 gap is productized lean tools / agent exposure, not “zero graph code.”
 
 ## Config dual-surface rule
 
@@ -53,13 +54,6 @@ Note: `xai-codebase-graph` **exists** in the fork (`crates/codegen/xai-codebase-
 2. Placement asked / recorded (Native vs Extension vs Crate Patch in `AGENTS.md`).
 3. Entry added to `docs/patch-matrix.md` with risk + order.
 4. Prefer surgical diffs; avoid deep pager forks until M2+ with explicit decision.
-
-## TODO expand (workers)
-
-- [ ] List generated vs hand-owned files under `crates/codegen` codegen pipeline
-- [ ] Windows-specific `cfg` inventory for tools we care about
-- [ ] Exact auth provider list (stock only for M0)
-- [ ] Document NewTool vs Tool trait method parity checklist
 
 ## See also
 

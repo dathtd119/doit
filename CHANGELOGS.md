@@ -4,6 +4,47 @@ Append-only ship log for **do**. Not a status essay — one entry per substantiv
 
 ---
 
+## 2026-07-16 — F-GROK-001 grok-build inventory seal
+
+**Scope:** docs only (`docs/grok-build/*`, index already linked, living status)  
+**Feature:** F-GROK-001 · **VAL:** VAL-GROK-001
+
+### Sealed
+
+- `docs/grok-build/` complete and evidence-backed from forked tree:
+  - `README.md` — section index + how to use
+  - `overview.md` — crate map, entry points (pager-bin → shell headless/leader/stdio), multi-model + registry note
+  - `native-tools.md` — namespaces, `ToolKind`, full builder registration list, version-managed IDs, hashline vs standard `FileToolset`
+  - `extension-seams.md` — do-harness, agents, hooks, plugins, skills, config, `register_tool_pack`, MCP, subagent resolution, ACP
+  - `hard-limits.md` — process + architecture limits; dual-registry ban; what not to reinvent
+  - `patterns.md` — plan/goal/task/hashline/hooks/registry/MCP/scheduler/ACP patterns + anti-patterns
+- All six files linked from `docs/index.md` under **Grok-build inventory**
+- Living status updated (root `AGENTS.md`, `docs/current-status.md`)
+
+### Evidence highlights (fork paths)
+
+- `ToolRegistryBuilder::new()` registration: `crates/codegen/xai-grok-tools/src/registry/types.rs`
+- `ToolNamespace` / `ToolKind`: `crates/codegen/xai-grok-tools/src/types/tool.rs`
+- Agent discovery order: `crates/codegen/xai-grok-agent/src/discovery.rs`
+- Subagent precedence: `crates/codegen/xai-grok-subagent-resolution/`
+- Hooks: `xai-hooks-plugins-types` + `xai-grok-hooks`
+- Hashline config: `xai-grok-shell/src/tools/config.rs` (`FileToolset`)
+
+### Not in scope
+
+- L1–L12 deep limitations rewrite (F-DOC-001)
+- capability-map (F-DOC-003)
+- Runtime wiring of do-harness
+
+### Files
+
+- `docs/grok-build/*` (six docs)
+- Root `AGENTS.md` living status + next steps
+- `docs/current-status.md`
+- This CHANGELOGS entry
+
+---
+
 ## 2026-07-16 — F-FORK-002 cargo check smoke seal
 
 **Scope:** build environment + docs note (no product crate patches)  

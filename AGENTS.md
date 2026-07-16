@@ -209,20 +209,19 @@ Date: 2026-07-16
 - **Multi-model (L13)** — **sealed** (F-MODEL-001 / VAL-MODEL-001..002): `docs/models-and-config.md` (fork evidence + OpenCode gap + YAML schema + TOML map); template `do-harness/config.models.yaml`; L13 in `docs/limitations.md` + `docs/patch-matrix.md`
 - **Role switch lock** — **sealed** (F-ROLE-001 / VAL-ROLE-001): Tab/Shift+Tab **only pre-message**; disabled after first user message / conversation content; M1 implements (see `docs/prompt-system.md` Role lifecycle + M1 note)
 - **Scout** — pi-ness harness ideas + grok native tools inventory in mission architecture / L1–L12 sketch; L13 assignment UX documented
-- **Grok-build inventory** — `docs/grok-build/` (overview, native-tools, extension-seams, hard-limits, patterns) scaffolded with fork evidence paths; expand under F-GROK-001 / VAL-GROK-001
+- **Grok-build inventory** — **sealed** (F-GROK-001 / VAL-GROK-001): `docs/grok-build/` README + overview, native-tools, extension-seams, hard-limits, patterns — fork evidence paths; linked from `docs/index.md`
 - **Not yet** — L1–L12 deep evidence (F-DOC-001..003); capability-map; do-harness proof agent + guided hook; YAML→agent wiring (M1); M0 seal commit
 - **Process** — git at do; commit every milestone; docs under `/docs`; English + conventional commits
 
 ### Next steps
 
-1. M0: expand/verify `docs/grok-build/` inventory (F-GROK-001 / VAL-GROK-001) — **required read before crate work**
-2. M0: deepen L1–L12 in limitations/patch-matrix + write capability-map (F-DOC-001..003)
-3. M0: README identity + `FORK.md` policy expansion (F-DOC-004)
-4. M0: proof intake agent + guided PreToolUse hook + discovery verification
-5. M0: `docs/backlog-m1-m3.md` including multi-model assignment wiring + **role Tab cycle + post-message lock** + seal commit
-6. M1: roles + prompt layers on grok seams; **wire role→model from do YAML into agents**; **implement Tab/Shift+Tab role cycle with post-first-message lock**
-7. M2: continuation coordinator + guided-block safety
-8. M3: native power tools (CodeGraph, hashline default policy)
+1. M0: deepen L1–L12 in limitations/patch-matrix + write capability-map (F-DOC-001..003) — cite `docs/grok-build/*`
+2. M0: README identity + `FORK.md` policy expansion (F-DOC-004)
+3. M0: proof intake agent + guided PreToolUse hook + discovery verification
+4. M0: `docs/backlog-m1-m3.md` including multi-model assignment wiring + **role Tab cycle + post-message lock** + seal commit
+5. M1: roles + prompt layers on grok seams; **wire role→model from do YAML into agents**; **implement Tab/Shift+Tab role cycle with post-first-message lock**
+6. M2: continuation coordinator + guided-block safety
+7. M3: native power tools (CodeGraph, hashline default policy)
 
 ### Future Plan
 
