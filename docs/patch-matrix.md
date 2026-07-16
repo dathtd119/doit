@@ -275,6 +275,7 @@ Scout: [`plans/reports/scout-config-home-xdg-do-260716.md`](../plans/reports/sco
 | Date | ID | Status | Crate / path | Reason | Risk | Alternatives exhausted |
 |------|----|--------|--------------|--------|------|------------------------|
 | 2026-07-16 | **P-CFG-HOME** | **applied** | `xai-grok-config` `paths.rs` (`default_grok_home` → `.config/do`, `DEFAULT_USER_HOME_REL`); `xai-fast-worktree` `db/mod.rs` `resolve_grok_home` (synced); `xai-grok-workspace` `worktree/mod.rs` fallback join; `xai-grok-agent` `discovery.rs` drop legacy `~/.grok` dual-read in `user_agent_dirs` | Product default user config/session/home root is XDG-style `~/.config/do`; no silent `~/.grok` fallback for default resolve or agent scan | Medium | Env-only `GROK_HOME=~/.config/do` leaves stock default `~/.grok`; extension/docs cannot change `default_grok_home` / `resolve_grok_home` hardcodes |
+| 2026-07-16 | **P-CFG-HOME-DOIT** | **applied** | `xai-grok-config` `paths.rs` (`DEFAULT_USER_HOME_REL` → `.config/doit`, unit tests); `xai-fast-worktree` `db/mod.rs` `resolve_grok_home` (synced); `xai-grok-workspace` `worktree/mod.rs` fallback join; agent discovery fixtures/comments | Product default user home is XDG-style `~/.config/doit` (CFG-DOIT / VAL-CFG-001); `GROK_HOME` still full override; no silent dual-read of `~/.config/do` or `~/.grok` | Medium | Extension/docs cannot change hardcoded default resolvers; host migrate of live `~/.config/do` is F-CFG-MIGRATE |
 
 ### Applied — P-CFG-PROJECT (CFG F-CFG-PROJECT)
 

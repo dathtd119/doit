@@ -623,13 +623,13 @@ pub fn resolve_label_collision(base_dir: &Path, label: &str) -> String {
 /// dirs and the metadata DB always live under the same tree. That resolver
 /// canonicalizes its `$HOME` fallback to match `xai_grok_config::grok_home()`,
 /// so worktree paths also agree with trust/hooks and other home paths.
-/// Default (no `$GROK_HOME`): `~/.config/do` only — no `~/.grok` fallback.
+/// Default (no `$GROK_HOME`): `~/.config/doit` only — no `~/.config/do` or `~/.grok` fallback.
 fn grok_home() -> std::path::PathBuf {
     xai_fast_worktree::resolve_grok_home().unwrap_or_else(|_| {
         dirs::home_dir()
             .unwrap_or_else(|| std::path::PathBuf::from("/tmp"))
             .join(".config")
-            .join("do")
+            .join("doit")
     })
 }
 

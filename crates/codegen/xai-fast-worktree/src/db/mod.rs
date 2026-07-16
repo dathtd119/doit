@@ -344,14 +344,14 @@ pub fn resolve_grok_home() -> Result<PathBuf> {
     let home = PathBuf::from(std::env::var("HOME").context("neither $GROK_HOME nor $HOME is set")?);
     // Canonicalize the home dir so worktree paths share the same physical user
     // home as trust/hooks even when it is symlinked. The dunce
-    // canonicalization and default relative path (`.config/do`) must stay in
+    // canonicalization and default relative path (`.config/doit`) must stay in
     // sync with xai_grok_config::default_grok_home();
     // home resolution deliberately differs ($HOME here vs std::env::home_dir()).
-    // CFG: default is ~/.config/do only — no ~/.grok fallback.
+    // CFG-DOIT: default is ~/.config/doit only — no ~/.config/do or ~/.grok fallback.
     Ok(dunce::canonicalize(&home)
         .unwrap_or(home)
         .join(".config")
-        .join("do"))
+        .join("doit"))
 }
 
 /// Serializes tests that mutate the process-global `GROK_HOME` env var so they

@@ -1,7 +1,7 @@
 //! Agent definition file discovery.
 //!
 //! Searches `.do/agents/` and `.claude/agents/` from cwd to repo root,
-//! then `$GROK_HOME/agents/` (default `~/.config/do/agents/`), then
+//! then `$GROK_HOME/agents/` (default `~/.config/doit/agents/`), then
 //! `~/.claude/agents/`. Name-based dedup keeps highest priority.
 
 use std::collections::HashMap;
@@ -192,7 +192,7 @@ fn merge_subagents(
 /// Deduplicates by name — higher-priority definitions win.
 /// User-level agent directories in priority order: user config home agents,
 /// `.claude` compat agents, then bundled. User dirs resolve from `grok_home`
-/// (`$GROK_HOME` or default `~/.config/do`); `.claude` resolves from `home`.
+/// (`$GROK_HOME` or default `~/.config/doit`); `.claude` resolves from `home`.
 /// CFG (P-CFG-HOME): no dual-read of literal `~/.grok`.
 pub(crate) fn user_agent_dirs(
     home: Option<&Path>,
@@ -753,7 +753,7 @@ mod tests {
     #[test]
     fn user_agent_dirs_does_not_dual_read_literal_dot_grok() {
         let home = Path::new("/home/u");
-        let grok = Path::new("/home/u/.config/do");
+        let grok = Path::new("/home/u/.config/doit");
         let paths: Vec<_> = user_agent_dirs(Some(home), Some(grok))
             .into_iter()
             .map(|(p, _)| p)
@@ -764,7 +764,7 @@ mod tests {
         assert!(
             !paths
                 .iter()
-                .any(|p| p.components().any(|c| c.as_os_str() == ".do")),
+                .any(|p| p.components().any(|c| c.as_os_str() == ".grok")),
             "no default dual-read of ~/.grok agents: {paths:?}"
         );
     }
@@ -772,7 +772,7 @@ mod tests {
     #[test]
     fn user_agent_dirs_uses_grok_home_only_once() {
         let home = Path::new("/home/u");
-        let grok = home.join(".config").join("do");
+        let grok = home.join(".config").join("doit");
         let count = user_agent_dirs(Some(home), Some(&grok))
             .into_iter()
             .filter(|(p, _)| *p == grok.join("agents"))

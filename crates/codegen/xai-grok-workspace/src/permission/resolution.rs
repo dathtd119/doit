@@ -245,7 +245,7 @@ fn find_project_grok_configs(cwd: &Path) -> Vec<PathBuf> {
 
 /// Load `[permission]` rules from native Grok TOML config files:
 ///
-///   * user `$GROK_HOME/config.toml` (lowest priority; default `~/.config/do`)
+///   * user `$GROK_HOME/config.toml` (lowest priority; default `~/.config/doit`)
 ///   * Each `.do/config.toml` from the git repo root down to `cwd`
 ///     (highest priority last)
 ///

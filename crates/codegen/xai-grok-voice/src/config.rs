@@ -9,7 +9,7 @@ use crate::error::VoiceError;
 /// `[endpoints].xai_api_base_url` so enterprise proxies need no second knob.
 ///
 /// Carries the transport knobs parsed from optional `[voice]` in product
-/// config (`~/.config/do/config.toml` / `$GROK_HOME`) — STT URL pieces,
+/// config (`~/.config/doit/config.toml` / `$GROK_HOME`) — STT URL pieces,
 /// language, sample rate, endpointing — plus two `#[serde(skip)]`
 /// request-identity fields the pager stamps in after parsing. Whether voice
 /// is available is resolved by the pager (GA default on; remote kill switch /

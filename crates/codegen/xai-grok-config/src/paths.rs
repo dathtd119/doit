@@ -11,14 +11,15 @@ const CLAUDE_MANAGED_SETTINGS_PATH: &str =
 #[cfg(target_os = "linux")]
 const CLAUDE_MANAGED_SETTINGS_PATH: &str = "/etc/claude-code/managed-settings.json";
 
-/// Relative path under `$HOME` for the product user config home (`~/.config/do`).
+/// Relative path under `$HOME` for the product user config home (`~/.config/doit`).
 ///
-/// CFG rebrand (P-CFG-HOME): default is XDG-style `~/.config/do` only. There is
-/// **no** silent dual-read or write fallback to `~/.grok`. Relocate the root with
-/// **`GROK_HOME`** (full override; same family as stock). `DO_HOME` is not wired.
-pub const DEFAULT_USER_HOME_REL: &str = ".config/do";
+/// CFG-DOIT rebrand (P-CFG-HOME-DOIT): default is XDG-style `~/.config/doit` only.
+/// There is **no** silent dual-read or write fallback to `~/.config/do` or
+/// `~/.grok`. Relocate the root with **`GROK_HOME`** (full override; same family
+/// as stock). `DO_HOME` is not wired.
+pub const DEFAULT_USER_HOME_REL: &str = ".config/doit";
 
-/// The default user config directory (`~/.config/do`, canonicalized) used when
+/// The default user config directory (`~/.config/doit`, canonicalized) used when
 /// `GROK_HOME` is unset. Exposed so callers (e.g. display helpers) can detect
 /// whether [`grok_home()`] is the default without duplicating the computation.
 ///
@@ -41,7 +42,7 @@ pub fn default_grok_home() -> PathBuf {
         .join(DEFAULT_USER_HOME_REL)
 }
 
-/// Per-user config directory: `$GROK_HOME` or `~/.config/do`. Created if needed.
+/// Per-user config directory: `$GROK_HOME` or `~/.config/doit`. Created if needed.
 pub fn grok_home() -> PathBuf {
     GROK_HOME
         .get_or_init(|| {
@@ -323,8 +324,8 @@ mod tests {
         let home = default_grok_home();
         assert!(!home.to_string_lossy().starts_with(r"\\?\"));
         assert!(
-            home.ends_with(DEFAULT_USER_HOME_REL) || home.ends_with("do"),
-            "default user home must be ~/.config/do (got {})",
+            home.ends_with(DEFAULT_USER_HOME_REL) || home.ends_with("doit"),
+            "default user home must be ~/.config/doit (got {})",
             home.display()
         );
         assert!(
@@ -332,19 +333,29 @@ mod tests {
             "default must not be ~/.grok (got {})",
             home.display()
         );
+        // Last path component must be `doit`, not legacy `do`.
+        assert!(
+            home.file_name().and_then(|n| n.to_str()) == Some("doit"),
+            "default last component must be doit, not legacy do (got {})",
+            home.display()
+        );
     }
 
     #[test]
-    fn default_grok_home_is_xdg_do_not_legacy_dot_grok() {
+    fn default_grok_home_is_xdg_doit_not_legacy_dot_grok() {
         let home = default_grok_home();
         let display = home.to_string_lossy();
         assert!(
-            display.contains(".config") && display.ends_with("do"),
-            "expected ~/.config/do default, got {display}"
+            display.contains(".config") && home.file_name().and_then(|n| n.to_str()) == Some("doit"),
+            "expected ~/.config/doit default, got {display}"
         );
         assert!(
             !display.ends_with(".grok"),
             "no default dual-read or fallback to ~/.grok"
+        );
+        assert!(
+            home.file_name().and_then(|n| n.to_str()) != Some("do"),
+            "no default dual-read or fallback to legacy ~/.config/do: {display}"
         );
     }
 
