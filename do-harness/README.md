@@ -11,10 +11,11 @@ See root [`AGENTS.md`](../AGENTS.md) Customization Order and
 
 | Path | Role |
 |------|------|
-| `agents/` | Agent profiles (`.md` with YAML frontmatter) |
+| `agents/` | Product roster agent profiles (`.md` with YAML frontmatter) |
 | `hooks/` | PreToolUse / other hook JSON + command scripts |
 | `config.models.yaml` | Multi-model registry + role→model assignment template (M1 wire) |
-| `scripts/verify-discovery.sh` | **F-EXT-003** end-to-end discovery path check |
+| `scripts/verify-discovery.sh` | **F-EXT-003** end-to-end discovery path check (intake + guided hook) |
+| `scripts/verify-roster.sh` | **F-M1-ROSTER / VAL-M1-ROSTER-001** five-agent roster discovery |
 
 ## Discovery paths (stock grok)
 
@@ -29,6 +30,32 @@ paths the forked binary already walks:
 **M0 install pattern:** symlink from project `.grok/` into `do-harness/` so the
 repo is the single source of truth.
 
+## Product roster (M1 — F-M1-ROSTER / VAL-M1-ROSTER-001)
+
+Five primary-session roles under [`agents/`](./agents/). Source of truth is
+`do-harness/agents/`; install onto project `.grok/agents/` (symlinks preferred).
+
+| Role | Source | Typical use | Tool floor (M1 stub OK) |
+|------|--------|-------------|-------------------------|
+| **intake** | [`agents/intake.md`](./agents/intake.md) | Clarify intent; Intent Pack; no implementation | plan; read/list/grep; no edits |
+| **orchestrator** | [`agents/orchestrator.md`](./agents/orchestrator.md) | Goal/plan/todo; spawn specialists | continuum + task; no bulk write |
+| **explorer** | [`agents/explorer.md`](./agents/explorer.md) | Fast scout / maps / citations | plan; read-only scout |
+| **worker** | [`agents/worker.md`](./agents/worker.md) | Implementation + targeted verify | default; full edit surface |
+| **oracle** | [`agents/oracle.md`](./agents/oracle.md) | Architecture / hard decisions | plan; analysis; no bulk edit |
+
+Model pins: `config.models.yaml` `assignment.<role>` (apply script lands in
+**F-M1-MODEL-APPLY**). Until apply is wired, frontmatter uses `model: inherit`.
+
+Role switch lock (product policy): Tab/Shift+Tab **only pre-message**; locked
+after first user message — see root `AGENTS.md` / `docs/prompt-system.md`.
+
+### Verify roster
+
+```sh
+bash do-harness/scripts/verify-roster.sh
+# expect: exit 0 and "VAL-M1-ROSTER-001: PASS"
+```
+
 ## Proof assets (M0)
 
 ### Intake agent (F-EXT-001 / VAL-EXT-001)
@@ -36,6 +63,7 @@ repo is the single source of truth.
 - Source: [`agents/intake.md`](./agents/intake.md)
 - Discovery: `.grok/agents/intake.md` → symlink to source
 - Role: clarify-only intake; `permissionMode: plan`; no file edits
+- **M1:** intake remains part of the five-role product roster (above)
 
 ### Guided dangerous-shell hook (F-EXT-002 / VAL-EXT-002)
 
@@ -51,11 +79,13 @@ repo is the single source of truth.
 From the **do** repo root:
 
 ```sh
-# Agent
+# Full product roster (M1)
 mkdir -p .grok/agents
-ln -sfn ../../do-harness/agents/intake.md .grok/agents/intake.md
+for role in intake orchestrator explorer worker oracle; do
+  ln -sfn ../../do-harness/agents/${role}.md .grok/agents/${role}.md
+done
 
-# Hook
+# Hook (M0 proof; still recommended)
 mkdir -p .grok/hooks/bin
 ln -sfn ../../do-harness/hooks/guided-dangerous-shell.json \
   .grok/hooks/guided-dangerous-shell.json
@@ -70,7 +100,9 @@ Project hooks may require `/hooks-trust` in a live session (stock grok).
 
 ```sh
 mkdir -p ~/.grok/agents ~/.grok/hooks/bin
-cp do-harness/agents/intake.md ~/.grok/agents/
+for role in intake orchestrator explorer worker oracle; do
+  cp do-harness/agents/${role}.md ~/.grok/agents/
+done
 cp do-harness/hooks/guided-dangerous-shell.json ~/.grok/hooks/
 cp do-harness/hooks/bin/guided-dangerous-shell.py ~/.grok/hooks/bin/
 chmod +x ~/.grok/hooks/bin/guided-dangerous-shell.py
@@ -133,9 +165,10 @@ python3 do-harness/hooks/bin/guided-dangerous-shell.py --self-test
 Maps to stock `~/.grok/config.toml` `[model.*]` and agent frontmatter `model`
 in M1. See [`docs/models-and-config.md`](../docs/models-and-config.md).
 
-## Non-goals (M0)
+## Non-goals
 
-- Wiring YAML assignment into the binary (M1)
-- Full role roster + Tab cycle (M1)
+- Wiring YAML assignment into the binary runtime (M1 apply script is separate)
+- Tab cycle + post-message lock implementation (M1 crate/session; not this roster file set)
 - Always-on guided-block productization (M2)
 - Deep crate patches for discovery (extension path is enough)
+- Role permission floors productization beyond stub floors (M2 F-M2-PERM)

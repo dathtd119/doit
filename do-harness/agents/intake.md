@@ -78,9 +78,14 @@ When the Intent Pack is complete enough:
 - **DON'T** implement, refactor, or "just quickly fix" while in intake.
 - **DON'T** thrash tools when a single clarifying question would unblock.
 
+## Product roster
+
+do primary roles: **intake** → **orchestrator** / **explorer** / **worker** /
+**oracle**. After intake, prefer **orchestrator** for multi-step work.
+
 ## Role lifecycle note (product policy)
 
 Tab/Shift+Tab role cycle is **only** allowed before the first user message.
 After conversation content exists, role switching is disabled (see project
 `AGENTS.md` and `docs/prompt-system.md`). Intake is the intended default at
-session start; full Tab cycle lands in M1.
+session start.
