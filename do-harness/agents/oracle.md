@@ -8,7 +8,8 @@ permissionMode: plan
 agentsMd: true
 discoverSkills: true
 # Model pin from do-harness/config.models.yaml assignment.oracle (M1 wire).
-model: inherit
+# Applied by: bash do-harness/scripts/apply-models.sh --apply
+model: combo-big
 # Analysis floor — read-heavy; no bulk implementation.
 tools:
   - read_file

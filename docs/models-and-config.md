@@ -1,6 +1,9 @@
 # Models and config control
 
-**Status:** M0 design + template sealed (F-MODEL-001 / VAL-MODEL-001..002). Runtime wiring of do YAML → agents is **M1**.  
+**Status:** M0 design + template sealed (F-MODEL-001). M1 apply script ships
+`do-harness/scripts/apply-models.sh` (F-M1-MODEL-APPLY / VAL-M1-MODEL-001): maps
+YAML `assignment` → agent frontmatter. Binary auto-apply and mid-session re-pin
+remain later (role lock + F-M1-MODEL-RESOLVE).  
 **Limitation ID:** **L13**
 
 ## Summary
@@ -12,7 +15,7 @@ Grok-build already supports **multiple custom models**. The product gap is not �
 | Multi-model registry | **Exists** in stock grok (`[model.<name>]` × N + `[models] default`) |
 | Subagent model resolution | **Exists** — spawn override > role > persona > parent |
 | OpenCode-like assignment table | **Gap** — no single product file that pins role → model (+ effort) |
-| do YAML overlay | **M0 template** at `do-harness/config.models.yaml`; **not** auto-applied yet |
+| do YAML overlay | **Template + apply script** at `do-harness/config.models.yaml` + `scripts/apply-models.sh`; stock TOML remains runtime SoT |
 
 ## Evidence (forked tree)
 
@@ -203,8 +206,8 @@ assignment:
 | spawn-time override | Unchanged — still wins over role/persona/parent |
 
 **M0:** document + ship template under `do-harness/config.models.yaml`; operators may hand-sync to TOML.  
-**M1:** tooling or harness convention applies assignment into agent frontmatter / role files (and optionally emits/diff-checks TOML).  
-**Later:** optional `do models apply` / validate command; still no second runtime that bypasses grok.
+**M1:** `do-harness/scripts/apply-models.sh` (`--dry-run` / `--validate` / `--apply`) maps `assignment` into `do-harness/agents/*.md` frontmatter; validate exits non-zero on missing registry names.  
+**Later:** optional binary-integrated `do models apply`; still no second runtime that bypasses grok.
 
 ### Validation principles
 
@@ -231,8 +234,9 @@ Also listed in [architecture.md](./architecture.md) L1–L13 table. Full invento
 | Path | Role |
 |------|------|
 | `do-harness/config.models.yaml` | Product template (registry + assignment) |
+| `do-harness/scripts/apply-models.sh` | Validate + apply assignment → agent frontmatter |
 | `~/.grok/config.toml` | Native multi-model runtime |
-| `do-harness/agents/*` | Role profiles; receive `model` pins (M1) |
+| `do-harness/agents/*` | Role profiles; receive `model` pins via apply |
 | [architecture.md](./architecture.md) | L1–L13 table |
 | [limitations.md](./limitations.md) | Evidence inventory including L13 |
 | [patch-matrix.md](./patch-matrix.md) | Gap → path / risk / order |

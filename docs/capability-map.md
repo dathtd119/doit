@@ -174,7 +174,7 @@ Disk layout contract: [workspace.md](./workspace.md) (M1 non-stub) + L9.
 | Default model | Default provider model | `[models] default` | `models.default` | **Mapped** |
 | api_backend / base_url | Provider config | Per-model fields (user-guide §11) | YAML registry fields | **Mapped** |
 | Subagent model resolution | Agent model pins | **spawn > role > persona > parent** (`xai-grok-subagent-resolution`) | Must respect this chain | **Mapped** |
-| Role → model pin | `agent.model` / OpenCode table | `[subagents.roles.*.model]`, agent frontmatter `model` | `assignment.<role>` in YAML | **Partial** — not auto-applied (M1) |
+| Role → model pin | `agent.model` / OpenCode table | `[subagents.roles.*.model]`, agent frontmatter `model` | `assignment.<role>` in YAML + `scripts/apply-models.sh` | **Partial** — apply script ships (M1); binary auto-apply later |
 | Reasoning effort | effort on agent | `reasoning_effort` on role/persona | `assignment.<role>.effort` (schema) | **Partial** |
 | Primary-session model from role | Tab role + model | Weak primary role machine | Apply assignment only while role switch allowed | **`"gap"`** wire + lock (M1) |
 | Competing second registry | — | — | **Forbidden** — YAML overlays; TOML remains runtime SoT | **Policy** |

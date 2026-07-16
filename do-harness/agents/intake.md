@@ -9,8 +9,8 @@ permissionMode: plan
 agentsMd: true
 discoverSkills: true
 # Model pin from do-harness/config.models.yaml assignment.intake (M1 wire).
-# M0: inherit parent/default; operators may set model: <registry-name> by hand.
-model: inherit
+# Applied by: bash do-harness/scripts/apply-models.sh --apply
+model: combo-small
 # Read/clarify floor — no file edits. Shell only for light orientation (ls/git status).
 tools:
   - read_file

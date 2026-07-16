@@ -9,7 +9,8 @@ permissionMode: default
 agentsMd: true
 discoverSkills: true
 # Model pin from do-harness/config.models.yaml assignment.orchestrator (M1 wire).
-model: inherit
+# Applied by: bash do-harness/scripts/apply-models.sh --apply
+model: combo-big
 # Coordination floor — continuum + spawn; heavy edits deferred to worker.
 tools:
   - read_file

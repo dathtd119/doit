@@ -8,7 +8,8 @@ permissionMode: plan
 agentsMd: true
 discoverSkills: true
 # Model pin from do-harness/config.models.yaml assignment.explorer (M1 wire).
-model: inherit
+# Applied by: bash do-harness/scripts/apply-models.sh --apply
+model: combo-small
 # Read/scout floor — no file edits; shell for light status only.
 tools:
   - read_file

@@ -9,7 +9,8 @@ permissionMode: default
 agentsMd: true
 discoverSkills: true
 # Model pin from do-harness/config.models.yaml assignment.worker (M1 wire).
-model: inherit
+# Applied by: bash do-harness/scripts/apply-models.sh --apply
+model: combo-big
 # Implementation floor — full edit surface; continuum updates optional.
 tools:
   - read_file

@@ -1,21 +1,22 @@
-# do product model overlay (M0 template)
+# do product model overlay (policy + assignment)
 #
 # Purpose:
 #   - Human-friendly registry + role → model assignment (OpenCode-like pins)
-#   - Maps to stock grok ~/.grok/config.toml [model.*] + agent/role model fields
-#   - NOT auto-applied by the binary in M0; operators may hand-sync
-#   - M1: wire assignment into do-harness agent profiles / subagent roles
+#   - Maps to stock grok ~/.grok/config.toml [model.*] + agent frontmatter
+#   - NOT a second runtime registry — stock config.toml remains runtime SoT
+#   - Apply: bash do-harness/scripts/apply-models.sh --apply
+#     (writes assignment into do-harness/agents/<role>.md model: pins)
 #
 # Schema (see docs/models-and-config.md):
 #   models.default          → [models] default
 #   models.registry.<name>  → [model.<name>] block
 #   assignment.<role>       → role/agent model pin (short form: registry name)
-#   assignment.<role>.model + .effort → model + reasoning_effort when structured
+#   assignment.<role>.model + .effort → frontmatter model: + effort:
 #
 # Secrets: use env var names only — never commit API keys.
-# Limitation: L13  |  Feature: F-MODEL-001
+# Limitation: L13  |  Features: F-MODEL-001 (M0), F-M1-MODEL-APPLY (M1)
 #
-# Example below: ≥2 models, ≥3 role assignments (full product roster).
+# Example below: ≥2 models, five product role assignments.
 
 models:
   default: combo-big

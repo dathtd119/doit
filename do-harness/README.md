@@ -14,7 +14,8 @@ See root [`AGENTS.md`](../AGENTS.md) Customization Order and
 | `agents/` | Product roster agent profiles (`.md` with YAML frontmatter) |
 | `prompts/` | **L0/L1 fragments** + named gates (`docs/prompt-system.md` map; F-M1-PROMPT) |
 | `hooks/` | PreToolUse / other hook JSON + command scripts |
-| `config.models.yaml` | Multi-model registry + role→model assignment template (M1 wire) |
+| `config.models.yaml` | Multi-model registry + role→model assignment (policy overlay) |
+| `scripts/apply-models.sh` | **F-M1-MODEL-APPLY / VAL-M1-MODEL-001** YAML assignment → agent frontmatter |
 | `scripts/verify-discovery.sh` | **F-EXT-003** end-to-end discovery path check (intake + guided hook) |
 | `scripts/verify-roster.sh` | **F-M1-ROSTER / VAL-M1-ROSTER-001** five-agent roster discovery |
 
@@ -44,8 +45,10 @@ Five primary-session roles under [`agents/`](./agents/). Source of truth is
 | **worker** | [`agents/worker.md`](./agents/worker.md) | Implementation + targeted verify | default; full edit surface |
 | **oracle** | [`agents/oracle.md`](./agents/oracle.md) | Architecture / hard decisions | plan; analysis; no bulk edit |
 
-Model pins: `config.models.yaml` `assignment.<role>` (apply script lands in
-**F-M1-MODEL-APPLY**). Until apply is wired, frontmatter uses `model: inherit`.
+Model pins: `config.models.yaml` `assignment.<role>` applied into agent
+frontmatter via `scripts/apply-models.sh` (**F-M1-MODEL-APPLY** / VAL-M1-MODEL-001).
+Stock `~/.grok/config.toml` remains the runtime multi-model registry — this
+script does **not** invent a second runtime.
 
 Role switch lock (product policy): Tab/Shift+Tab **only pre-message**; locked
 after first user message — see root `AGENTS.md` / `docs/prompt-system.md`.
@@ -171,16 +174,61 @@ checks remain the authoritative M0 proof when no binary is present.
 python3 do-harness/hooks/bin/guided-dangerous-shell.py --self-test
 ```
 
-## Model assignment template
+## Model assignment apply (F-M1-MODEL-APPLY / VAL-M1-MODEL-001)
 
-[`config.models.yaml`](./config.models.yaml) — registry + role→model table.
-Maps to stock `~/.grok/config.toml` `[model.*]` and agent frontmatter `model`
-in M1. See [`docs/models-and-config.md`](../docs/models-and-config.md).
+Policy file: [`config.models.yaml`](./config.models.yaml) — registry ergonomics
++ role→model table. Runtime multi-model still lives in stock
+`~/.grok/config.toml` (`[model.*]` + default). The apply script maps
+`assignment.<role>` into `agents/<role>.md` frontmatter `model:` (and optional
+`effort:` for structured pins). See
+[`docs/models-and-config.md`](../docs/models-and-config.md).
+
+### Commands
+
+```sh
+# Dry-run: print role → registry map (default; no writes)
+bash do-harness/scripts/apply-models.sh
+# or: python3 do-harness/scripts/apply-models.py
+
+# Validate: exit non-zero on missing registry names / broken assignment
+bash do-harness/scripts/apply-models.sh --validate
+# expect: exit 0 and "validate: PASS" for the stock template
+
+# Apply: write model pins into do-harness/agents/*.md frontmatter
+bash do-harness/scripts/apply-models.sh --apply
+```
+
+Optional flags (Python script):
+
+| Flag | Effect |
+|------|--------|
+| `--config PATH` | Alternate YAML (default: `do-harness/config.models.yaml`) |
+| `--agents-dir PATH` | Alternate agent directory |
+| `--allow-partial-roster` | Skip requiring all five product roles |
+
+**Validate fails when** (exit 1):
+
+- `assignment.<role>` names a model not in `models.registry`
+- `models.default` is not in the registry
+- Product roster roles are missing from `assignment` (unless partial allowed)
+- Assigned role has no agent file under `agents/`
+
+**Does not:** rewrite `~/.grok/config.toml`, invent a second runtime registry,
+or re-pin mid-session (role lock is F-M1-LOCK / F-M1-MODEL-RESOLVE).
+
+### After editing assignment
+
+1. Ensure registry names exist in both YAML and stock TOML (hand-sync TOML).
+2. `bash do-harness/scripts/apply-models.sh --validate`
+3. `bash do-harness/scripts/apply-models.sh --apply`
+4. Agents under `.grok/agents/` already symlink to `do-harness/agents/` — no
+   re-link required for project install.
 
 ## Non-goals
 
-- Wiring YAML assignment into the binary runtime (M1 apply script is separate)
-- Tab cycle + post-message lock implementation (M1 crate/session; not this roster file set)
+- Auto-applying YAML inside the binary on every session start (harness script
+  + operator run; optional later `do models apply` CLI)
+- Tab cycle + post-message lock implementation (M1 crate/session; not this script)
 - Always-on guided-block productization (M2)
 - Deep crate patches for discovery (extension path is enough)
 - Role permission floors productization beyond stub floors (M2 F-M2-PERM)
