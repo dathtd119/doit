@@ -40,10 +40,13 @@ fi
 
 # Link sanity for relative markdown links in README.
 # Skip local-only gitignored agent paths (AGENTS.md, plans/, .opencode/, …).
+# Normalize "./AGENTS.md" → "AGENTS.md" so CI clones without the gitignored
+# file do not fail Quality gates (GHA run 29511371575).
 while read -r link; do
   path=${link#*(}
   path=${path%)}
   path=${path%%#*}
+  path=${path#./}
   [[ -z "$path" || "$path" == http* || "$path" == mailto:* ]] && continue
   case "$path" in
     AGENTS.md|CONTINUE.md|plans/*|.opencode/*|.grok/*|.claude/*|.pi/*) continue ;;
