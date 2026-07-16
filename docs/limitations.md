@@ -178,6 +178,8 @@ No BM25/RRF progressive catalog product equivalent; risk of always-on skill dump
 
 Tune discovery/reminders + config ignore lists; optional crate patch to skill prompt builder; keep MCP progressive via search-then-use.
 
+**M1 start (shipped):** product policy in [progressive-skills.md](./progressive-skills.md); overlay `do-harness/config.skills.yaml`; roster agents **intake / explorer / oracle** set `discoverSkills: false` (stock default is true). M2 deepens progressive default product-wide.
+
 ### Evidence
 
 | Side | Path |

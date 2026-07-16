@@ -46,6 +46,7 @@ Read **before crate work**. Evidence-backed map of the forked Grok Build base: p
 |-----|---------|
 | [prompt-system.md](./prompt-system.md) | L0–L6 → grok inject map + role lifecycle + fragments under `do-harness/prompts/` (**M1**) |
 | [workspace.md](./workspace.md) | Continuum contract: goal / plan / todo → `.grok` + session layout; no dual-write (**M1**) |
+| [progressive-skills.md](./progressive-skills.md) | L4 progressive skill presentation policy start + reduced firehose surfaces (**M1**) |
 
 ## Product surfaces
 

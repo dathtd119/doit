@@ -15,9 +15,11 @@ See root [`AGENTS.md`](../AGENTS.md) Customization Order and
 | `prompts/` | **L0/L1 fragments** + named gates (`docs/prompt-system.md` map; F-M1-PROMPT) |
 | `hooks/` | PreToolUse / other hook JSON + command scripts |
 | `config.models.yaml` | Multi-model registry + role→model assignment (policy overlay) |
+| `config.skills.yaml` | **F-M1-SKILL / VAL-M1-SKILL-001** progressive skill presentation policy overlay |
 | `scripts/apply-models.sh` | **F-M1-MODEL-APPLY / VAL-M1-MODEL-001** YAML assignment → agent frontmatter |
 | `scripts/verify-discovery.sh` | **F-EXT-003** end-to-end discovery path check (intake + guided hook) |
 | `scripts/verify-roster.sh` | **F-M1-ROSTER / VAL-M1-ROSTER-001** five-agent roster discovery |
+| `scripts/verify-progressive-skills.sh` | **F-M1-SKILL / VAL-M1-SKILL-001** progressive policy + reduced firehose |
 
 ## Discovery paths (stock grok)
 
@@ -224,6 +226,33 @@ or re-pin mid-session (role lock is F-M1-LOCK / F-M1-MODEL-RESOLVE).
 4. Agents under `.grok/agents/` already symlink to `do-harness/agents/` — no
    re-link required for project install.
 
+## Progressive skills (F-M1-SKILL / VAL-M1-SKILL-001)
+
+Policy: [`docs/progressive-skills.md`](../docs/progressive-skills.md)  
+Overlay: [`config.skills.yaml`](./config.skills.yaml)
+
+Stock agents default to `discoverSkills: true` (full CWD skill discovery +
+listing seed). Product roster **reduces firehose** for clarify/scout/analysis:
+
+| Role | `discoverSkills` | Mode |
+|------|------------------|------|
+| intake | **false** | progressive (no bulk dump) |
+| explorer | **false** | progressive |
+| oracle | **false** | progressive |
+| orchestrator | true | curated direction (M2 may tighten) |
+| worker | true | curated direction (M2 may tighten) |
+
+Operator ignore/disabled lists still merge into stock `~/.grok/config.toml`
+`[skills]` (see config overlay `recommended_toml`). MCP stays progressive via
+`search_tool` / `use_tool`.
+
+### Verify progressive skills
+
+```sh
+bash do-harness/scripts/verify-progressive-skills.sh
+# expect: exit 0 and "VAL-M1-SKILL-001: PASS"
+```
+
 ## Non-goals
 
 - Auto-applying YAML inside the binary on every session start (harness script
@@ -232,3 +261,4 @@ or re-pin mid-session (role lock is F-M1-LOCK / F-M1-MODEL-RESOLVE).
 - Always-on guided-block productization (M2)
 - Deep crate patches for discovery (extension path is enough)
 - Role permission floors productization beyond stub floors (M2 F-M2-PERM)
+- BM25 skill_search / skill_load product tools (M2 progressive catalog)

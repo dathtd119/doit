@@ -32,7 +32,7 @@ Exact stock assembly is **system + agent prompts + skills + plugins + reminders*
 | **L1** | Agent profile markdown body after YAML frontmatter; `promptMode: extend` appends role body onto base | `do-harness/agents/<role>.md` (discovery) + `do-harness/prompts/roles/<role>.md` (canonical L1 fragment) | ≤ **12 KiB** per role body | **Roster shipped**; pre-message cycle swaps agent → L1; freeze on lock (F-M1-LOCK) |
 | **L2** | `agentsMd: true` → project `AGENTS.md` (and nested) into context (`xai-grok-agent` prompt `agents_md`) | Root `/home/datht/code/do/AGENTS.md` + `docs/` | Prefer pointer + short rules; full AGENTS as discovered | **Mapped** — keep product rules compact in root AGENTS |
 | **L3** | Tool `description` / schema in `ToolRegistryBuilder`; role tool allow/deny lists | Agent frontmatter `tools` / `disallowedTools`; stock tool docs | Per-tool: keep descriptions lean | **Mapped** — floors on five agents (M1 stub OK) |
-| **L4** | Skill tool listing + `SkillDiscoveryReminder` | do-harness skills + config ignore (M1-S01 / M2) | Avoid full skill dump; progressive list | **Partial** — policy start in M1; firehose reduce M2 |
+| **L4** | Skill tool listing + `SkillDiscoveryReminder` | [progressive-skills.md](./progressive-skills.md) + `do-harness/config.skills.yaml` + agent `discoverSkills` (M1-S01 / M2) | Avoid full skill dump; progressive list | **M1 start** — policy + reduced roles; deepen M2 |
 | **L5** | Goal/plan/todo tool results + session state; reminders | Native `update_goal`, plan mode, `todo_write`; [workspace.md](./workspace.md) | **Pointers only** in system; re-read disk/session — no full plan paste | **Mapped tools**; unified continuation = M2 |
 | **L6** | Hook deny `reason`, plan enter/exit tool output, user message wrappers | Guided hooks (`[GATE: …]`); turn framing | Gate deny: short + **Do this instead** | **M0 proof hook**; product-wide pack M2 |
 
@@ -175,7 +175,7 @@ Agents under `do-harness/agents/` remain the **runtime discovery** profiles (`pr
 2. Prefer agent profiles + `do-harness/prompts/` over crate prompt forks.
 3. Implement role lifecycle lock with F-M1-LOCK (session flag + keybind + freeze).
 4. Crate patch only if hard fragment budgets / registry cannot be achieved via extension.
-5. Progressive skill surface (L4) policy start: M1-S01; deepen M2.
+5. Progressive skill surface (L4) policy start: **shipped M1-S01** — see [progressive-skills.md](./progressive-skills.md); deepen M2.
 
 ---
 
@@ -184,8 +184,9 @@ Agents under `do-harness/agents/` remain the **runtime discovery** profiles (`pr
 - [architecture.md](./architecture.md) L1 / L2 / Session role control  
 - [models-and-config.md](./models-and-config.md) — model re-resolve only when role switch allowed  
 - [workspace.md](./workspace.md) — continuum disk/session layout (L5/L9)  
+- [progressive-skills.md](./progressive-skills.md) — L4 progressive presentation (M1 start)  
 - [capability-map.md](./capability-map.md) — pi-ness ↔ grok layer map  
-- [limitations.md](./limitations.md) L2  
+- [limitations.md](./limitations.md) L2 / L4  
 - Root [AGENTS.md](../AGENTS.md) Hard Constraints + Session / role control  
 - [do-harness/prompts/](../do-harness/prompts/) — fragments  
-- [backlog-m1-m3.md](./backlog-m1-m3.md) M1-P01 / M1-P02  
+- [backlog-m1-m3.md](./backlog-m1-m3.md) M1-P01 / M1-P02 / M1-S01  

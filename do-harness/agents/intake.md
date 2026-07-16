@@ -7,7 +7,9 @@ description: >-
 promptMode: extend
 permissionMode: plan
 agentsMd: true
-discoverSkills: true
+# Progressive skills (F-M1-SKILL): suppress bulk discovery vs stock default true.
+# See docs/progressive-skills.md + do-harness/config.skills.yaml
+discoverSkills: false
 # Model pin from do-harness/config.models.yaml assignment.intake (M1 wire).
 # Applied by: bash do-harness/scripts/apply-models.sh --apply
 model: combo-small
