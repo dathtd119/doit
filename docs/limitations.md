@@ -407,7 +407,7 @@ Must own rebases, branding, license notices, and clear identity vs stock `grok`.
 | mission boundaries | Mission `AGENTS.md` |
 | related projects | `docs/related-projects.md` |
 | hard-limits | `docs/grok-build/hard-limits.md` (No external upstream PRs; never modify sibling trees) |
-| FORK policy | `FORK.md` (F-DOC-004; may still be expanding) |
+| FORK policy | `FORK.md` (F-DOC-004 / VAL-DOC-004 sealed) |
 
 ---
 

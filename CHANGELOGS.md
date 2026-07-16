@@ -4,6 +4,38 @@ Append-only ship log for **do**. Not a status essay — one entry per substantiv
 
 ---
 
+## 2026-07-16 — F-DOC-004 README + FORK policy seal
+
+**Scope:** docs only (`README.md`, `FORK.md`, index, living status)  
+**Feature:** F-DOC-004 · **VAL:** VAL-DOC-004
+
+### Sealed
+
+- `README.md` product intent: forked Grok Build + pi-ness harness control + OpenCode-style multi-model ergonomics; dual config; build smoke
+- `FORK.md` fork hygiene and identity:
+  - Extension-before-deep-fork order (do-harness → config/plugins → tool packs → crate patch → deep TUI)
+  - Config root **`~/.grok` reuse for M0** (brand as do in docs; optional `~/.do` later)
+  - Dual multi-model surface: stock TOML runtime + do YAML assignment overlay (L13 accurate facts)
+  - No external upstream PRs as product path; sibling trees read-only; import by copy
+  - License/notices and VAL-DOC-004 checklist
+- Cross-linked from `docs/index.md`, living status, limitations L10 pointer
+
+### Not in scope
+
+- F-EXT proof agent/hook; F-BACK-001 backlog; YAML→agent runtime wire (M1)
+
+### Files
+
+- `README.md`
+- `FORK.md` (new)
+- `docs/index.md`
+- Root `AGENTS.md` living status + next steps
+- `docs/current-status.md`
+- `docs/limitations.md` / `docs/patch-matrix.md` (FORK status cross-ref)
+- This CHANGELOGS entry
+
+---
+
 ## 2026-07-16 — F-DOC-003 capability-map seal
 
 **Scope:** docs only (`docs/capability-map.md`, index, living status)  

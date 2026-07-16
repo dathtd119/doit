@@ -15,7 +15,8 @@ Agent and human entry point for the **do** product (forked Grok Build + pi-ness 
 | [milestone-ship-discipline.md](./milestone-ship-discipline.md) | Docs + commit every milestone |
 | [related-projects.md](./related-projects.md) | pi-ness, grok-build, OpenCode learnings |
 | [../CHANGELOGS.md](../CHANGELOGS.md) | What shipped |
-| [../README.md](../README.md) | Human product overview |
+| [../README.md](../README.md) | Human product overview + identity |
+| [../FORK.md](../FORK.md) | Fork policy, `~/.grok` M0 root, dual TOML+YAML, no external upstream PRs |
 
 ## Grok-build inventory (base understanding)
 

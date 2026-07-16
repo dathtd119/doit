@@ -178,7 +178,7 @@ Each row: gap → path → risk → order → seams → avoid → links.
 | **Preferred path** | `config` + docs (`FORK.md`, README); process only |
 | **Risk** | **Low** when followed; **catastrophic** if sibling trees are modified |
 | **Order** | **1** (first — always) |
-| **Milestone** | M0 F-DOC-004 expands FORK policy |
+| **Milestone** | M0 F-DOC-004 / VAL-DOC-004 — FORK.md + README sealed |
 | **Seams** | N/A code; policy in root `AGENTS.md`, mission boundaries |
 | **Avoid** | Editing `/home/datht/code/pi-ness` or `/home/datht/code/grok-build`; external upstream PRs as product path |
 | **Evidence / design** | [limitations.md § L10](./limitations.md#l10--overlay-first-without-forking-pi--fork-hygiene-for-do); [hard-limits.md](./grok-build/hard-limits.md) process limits |

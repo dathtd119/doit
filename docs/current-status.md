@@ -44,6 +44,9 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
 - **Capability map** **sealed** (F-DOC-003 / VAL-DOC-003):
     - `docs/capability-map.md` maps pi-ness native modules, L0–L6 layer purposes, roles, continuum, and **model registry + assignment** to grok tools/APIs/hooks/config or `"gap"`
     - Includes dual TOML/YAML assignment flow; explicit gap register tied to L* / milestones
+- **README + FORK policy** **sealed** (F-DOC-004 / VAL-DOC-004):
+    - `README.md` product intent, dual config, multi-model facts, build smoke
+    - `FORK.md`: extension-before-deep-fork order; **`~/.grok` reuse for M0**; dual TOML + do YAML; no external upstream PRs; sibling trees read-only
 
 ### In progress / pending (M0)
 
@@ -54,7 +57,7 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
 | Limitations L1–L13 deep evidence | F-DOC-001 / VAL-DOC-001 | **Done** — every L1–L13 row has evidence paths |
 | patch-matrix L1–L13 | F-DOC-002 / VAL-DOC-002 | **Done** — path/risk/order for every gap; sealed |
 | capability-map | F-DOC-003 / VAL-DOC-003 | **Done** — modules + model assignment surfaces; sealed |
-| README identity + FORK policy expansion | F-DOC-004 | Partial README; FORK.md pending |
+| README identity + FORK policy expansion | F-DOC-004 / VAL-DOC-004 | **Done** — README + FORK.md sealed |
 | Proof intake agent + guided hook | F-EXT-001..003 | do-harness agents/hooks |
 | M1–M3 backlog including multi-model wire + role Tab lock | F-BACK-001 | role→model wiring + post-message lock |
 | Control plane VAL evidence | F-CTRL-001 | **Done** — VAL-CTRL-001..003; sealed in git |
@@ -70,14 +73,15 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
 
 ## Near-term sequence
 
-1. README identity + FORK policy expansion (F-DOC-004)
-2. Extension proof path (F-EXT-001..003)
-3. Backlog + M0 seal commit
+1. Proof intake agent + guided PreToolUse hook + discovery (F-EXT-001..003)
+2. M1–M3 backlog including multi-model wire + role Tab lock (F-BACK-001)
+3. M0 seal commit
 
 ## Links
 
 - [architecture.md](./architecture.md)
 - [models-and-config.md](./models-and-config.md)
+- [../FORK.md](../FORK.md)
 - [grok-build/README.md](./grok-build/README.md)
 - [future-plan.md](./future-plan.md)
 - [CHANGELOGS.md](../CHANGELOGS.md)
