@@ -88,7 +88,7 @@ M2 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full
 
 M3 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-M3-SHIP.
 
-### Brand mission (`mis_89367de7`) — ORIGIN + UPSTREAM + CFG-DOIT sealed
+### Brand mission (`mis_89367de7`) — ORIGIN + UPSTREAM + CFG-DOIT + PKG sealed
 
 | Surface | Notes |
 |---------|--------|
@@ -97,14 +97,15 @@ M3 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full
 | Sibling clone | `/home/datht/code/do` **deprecated** as writable product root (docs only; no `rm -rf` without user OK) |
 | Upstream absorb | `6cdf160` merge absorb `8adf901`; [AGENTS.md](../AGENTS.md) **Upstream sync checklist** mandatory every merge |
 | CFG-DOIT | `~/.config/doit` + `.doit/` + `~/.local/share/doit` + MCP `doit-codegraph` — **sealed** |
+| M3 PKG packaging | CI/release/binstall → `dathtd119/doit`; README Install no crates.io; `verify-install.sh` exit 0 — **sealed** |
 | Fork hygiene | [FORK.md](../FORK.md) §2 trees + checklist |
 
 ### In progress / next
 
 | Item | Track | Notes |
 |------|-------|-------|
-| Packaging leftovers | `mis_89367de7` M3 | CI/release/binstall → `dathtd119/doit`; verify-install seal |
 | Parking-lot promotions | later | Goal-as-mission, side-ask, BM25 skill_search, multi-provider auth, permission-rules YAML |
+| First `v*` GitHub Release | ops optional | Enables cargo-binstall prebuilts from release assets |
 | Deprecation symlink cleanup | ops optional | Host `~/.config/do` → `doit` and share `do` → `doit` may be removed when operators ready |
 
 ### True-now constraints
@@ -126,8 +127,8 @@ M3 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full
 
 ## Near-term sequence
 
-1. **`mis_89367de7` M3 packaging** leftovers (CI/release/binstall/verify-install)
-2. Parking lot — promote from [future-plan.md](./future-plan.md) when product chooses next work
+1. Parking lot — promote from [future-plan.md](./future-plan.md) when product chooses next work
+2. Optional: first `v*` GitHub Release for prebuilt install assets
 
 ## Links
 

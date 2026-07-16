@@ -4,6 +4,45 @@ Append-only ship log for **doit** (historical brand **do**). Not a status essay 
 
 ---
 
+## 2026-07-16 — F-PKG-SHIP packaging seal (VAL-PKG-004, VAL-PKG-005)
+
+**Scope:** seal M3 PKG leftovers — README Install + `verify-install.sh` gates  
+**Feature:** F-PKG-SHIP · **VALs:** VAL-PKG-004, VAL-PKG-005  
+**Mission:** `mis_89367de7` M3 PKG **complete**
+
+### Sealed product surface (prior implement commits)
+
+| Track | Commit | Surface |
+|-------|--------|---------|
+| **F-PKG-RETARGET** | `2c773fe` | CI/docs smoke → `cargo check -p doit`; verify-install VAL-PKG-001 |
+| **F-PKG-REL** | `f0cc688` | `release.yml` 6-target matrix; package/binary `doit`; binstall for `dathtd119/doit` |
+| **F-PKG-SHIP** | this | verify-install BIN+REL+README; README Install no crates.io claim |
+
+### Evidence (this ship)
+
+| Command | Result |
+|---------|--------|
+| `bash do-harness/scripts/verify-install.sh` | PASS — 41 checks (BIN + REL matrix/binstall + README Install); VAL-PKG-004 |
+| README `## Install` | PASS — `doit` + `dathtd119/doit`; binstall/git/path; explicit non-crates.io; VAL-PKG-005 |
+| `cargo check -p doit` | PASS (via verify-install section 5) |
+
+### Docs / script this ship
+
+- [do-harness/scripts/verify-install.sh](./do-harness/scripts/verify-install.sh): sections 7–9 (REL matrix, binstall, README Install, optional NPM skip)
+- Root [AGENTS.md](./AGENTS.md) / [docs/current-status.md](./docs/current-status.md): M3 PKG sealed
+- This CHANGELOGS entry
+
+### Not in this entry
+
+- Live GitHub Release publish (tag `v*` when operators ready)
+- npm product package tree (gate intentionally skipped; no live npm)
+
+### Key commits (implement lineage)
+
+- `2c773fe` RETARGET · `f0cc688` REL · this SHIP
+
+---
+
 ## 2026-07-16 — F-CFG-SHIP CFG-DOIT seal (VAL-CFG-007, VAL-CFG-008)
 
 **Scope:** seal CFG-DOIT living docs + build smoke after path rebrand implement commits  

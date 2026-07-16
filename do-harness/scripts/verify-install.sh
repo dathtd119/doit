@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
-# F-BIN-RENAME / VAL-BIN-*: product install package + binary identity for `doit`.
+# Product install gates for package/binary `doit` (VAL-BIN-*, VAL-PKG-*).
 #
-# Baseline gate for packaging identity (BIN). Later milestones extend this
-# script for REL matrix, NPM dry-run, and docs asserts.
+# Sections:
+#   1–5  BIN identity + cargo check -p doit
+#   6    Product CI/docs smoke uses -p doit (VAL-PKG-001)
+#   7    Release matrix + binstall metadata (VAL-PKG-002, VAL-PKG-003)
+#   8    README Install seal (VAL-PKG-005)
+#   9    NPM surface (optional) — skipped when no product npm package
 #
-# Exit 0 only when all BIN checks pass.
+# Exit 0 only when all implemented gates pass. No live npm/crates.io publish.
 
 set -euo pipefail
 
@@ -224,10 +228,210 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+section "7. Release matrix + binstall (VAL-PKG-002, VAL-PKG-003)"
+# ---------------------------------------------------------------------------
+
+REL_YML="$REPO_ROOT/.github/workflows/release.yml"
+
+if [[ -f "$REL_YML" ]]; then
+  if grep -Eq '^[[:space:]]*PACKAGE:[[:space:]]*doit[[:space:]]*$' "$REL_YML" \
+    || grep -Fq 'PACKAGE: doit' "$REL_YML"; then
+    ok 'release.yml PACKAGE is doit'
+  else
+    fail 'release.yml PACKAGE is not doit'
+  fi
+
+  if grep -Eq '^[[:space:]]*BINARY:[[:space:]]*doit[[:space:]]*$' "$REL_YML" \
+    || grep -Fq 'BINARY: doit' "$REL_YML"; then
+    ok 'release.yml BINARY is doit'
+  else
+    fail 'release.yml BINARY is not doit'
+  fi
+
+  if grep -Fq 'cargo build -p "${PACKAGE}"' "$REL_YML" \
+    || grep -Fq 'cargo build -p doit' "$REL_YML"; then
+    ok 'release.yml builds package doit'
+  else
+    fail 'release.yml does not build package doit'
+  fi
+
+  targets=(
+    x86_64-unknown-linux-gnu
+    aarch64-unknown-linux-gnu
+    x86_64-apple-darwin
+    aarch64-apple-darwin
+    x86_64-pc-windows-msvc
+    aarch64-pc-windows-msvc
+  )
+  target_ok=0
+  for t in "${targets[@]}"; do
+    if grep -Fq "$t" "$REL_YML"; then
+      target_ok=$((target_ok + 1))
+    else
+      fail "release.yml missing target $t"
+    fi
+  done
+  if [[ "$target_ok" -eq 6 ]]; then
+    ok 'release.yml full 6-target matrix present'
+  fi
+
+  if grep -Fq 'dathtd119/doit' "$REL_YML"; then
+    ok 'release.yml references dathtd119/doit'
+  else
+    fail 'release.yml missing dathtd119/doit'
+  fi
+
+  if grep -Eq 'crates\.io|npm publish' "$REL_YML" \
+    && ! grep -Eq 'No crates\.io / npm publish|no crates\.io|not crates\.io' "$REL_YML"; then
+    # Allow explicit non-publish comments; fail only if a live publish step appears.
+    if grep -Eq 'cargo publish|npm publish' "$REL_YML"; then
+      fail 'release.yml appears to publish to crates.io/npm'
+    else
+      ok 'release.yml has no live crates.io/npm publish step'
+    fi
+  else
+    ok 'release.yml has no live crates.io/npm publish step'
+  fi
+else
+  fail 'missing .github/workflows/release.yml'
+fi
+
+if [[ -f "$PKG_TOML" ]]; then
+  if grep -Fq '[package.metadata.binstall]' "$PKG_TOML"; then
+    ok 'Cargo.toml has [package.metadata.binstall]'
+  else
+    fail 'Cargo.toml missing [package.metadata.binstall]'
+  fi
+
+  if grep -Eq 'repository = "https://github.com/dathtd119/doit"' "$PKG_TOML"; then
+    ok 'package repository is dathtd119/doit'
+  else
+    fail 'package repository is not https://github.com/dathtd119/doit'
+  fi
+
+  if grep -Fq 'publish = false' "$PKG_TOML"; then
+    ok 'package publish = false (no crates.io)'
+  else
+    fail 'package should set publish = false'
+  fi
+else
+  fail "cannot read $PKG_TOML for binstall metadata"
+fi
+
+# ---------------------------------------------------------------------------
+section "8. README Install seal (VAL-PKG-005)"
+# ---------------------------------------------------------------------------
+
+README="$REPO_ROOT/README.md"
+if [[ -f "$README" ]]; then
+  if grep -Eq '^## Install' "$README"; then
+    ok 'README has ## Install section'
+  else
+    fail 'README missing ## Install section'
+  fi
+
+  # Extract Install section body (until next ## heading) for focused asserts.
+  install_body="$(
+    awk '
+      /^## Install/ { on=1; next }
+      on && /^## / { exit }
+      on { print }
+    ' "$README"
+  )"
+
+  if printf '%s' "$install_body" | grep -Fq 'dathtd119/doit'; then
+    ok 'README Install targets dathtd119/doit'
+  else
+    fail 'README Install missing dathtd119/doit'
+  fi
+
+  if printf '%s' "$install_body" | grep -Eq '`doit`|package and binary are both \*\*`doit`\*\*'; then
+    ok 'README Install names product package/binary doit'
+  else
+    # Broader: any doit token in Install is acceptable if paired with path install
+    if printf '%s' "$install_body" | grep -Fq 'doit'; then
+      ok 'README Install names product package/binary doit'
+    else
+      fail 'README Install does not name doit'
+    fi
+  fi
+
+  if printf '%s' "$install_body" | grep -Fq 'cargo binstall' \
+    && printf '%s' "$install_body" | grep -Fq 'dathtd119/doit'; then
+    ok 'README Install documents cargo-binstall for dathtd119/doit'
+  else
+    fail 'README Install missing cargo-binstall + dathtd119/doit'
+  fi
+
+  if printf '%s' "$install_body" | grep -Fq 'cargo install --path crates/codegen/doit'; then
+    ok 'README Install documents path install of crates/codegen/doit'
+  else
+    fail 'README Install missing cargo install --path crates/codegen/doit'
+  fi
+
+  if printf '%s' "$install_body" | grep -Fq 'cargo install --git https://github.com/dathtd119/doit.git'; then
+    ok 'README Install documents git install from dathtd119/doit'
+  else
+    fail 'README Install missing cargo install --git dathtd119/doit'
+  fi
+
+  # Must not claim crates.io as an install path.
+  # Allow explicit negation ("not crates.io", "Not an install path: crates.io").
+  if printf '%s' "$install_body" | grep -Eqi 'cargo install doit[[:space:]]*$' \
+    && ! printf '%s' "$install_body" | grep -Eqi 'not.*crates\.io|crates\.io.*not'; then
+    fail 'README Install appears to claim bare cargo install doit (crates.io)'
+  else
+    ok 'README Install does not claim crates.io as install path'
+  fi
+
+  if printf '%s' "$install_body" | grep -Eqi 'not an install path|not crates\.io|\(not crates\.io\)'; then
+    ok 'README Install explicitly excludes crates.io'
+  else
+    # Soft: still pass if no positive crates.io install recipe
+    if printf '%s' "$install_body" | grep -Eqi 'crates\.io' \
+      && ! printf '%s' "$install_body" | grep -Eqi 'not crates\.io|Not an install path'; then
+      fail 'README Install mentions crates.io without exclusion'
+    else
+      ok 'README Install explicitly excludes crates.io'
+    fi
+  fi
+else
+  fail 'README.md missing'
+fi
+
+# ---------------------------------------------------------------------------
+section "9. NPM surface (optional / not implemented)"
+# ---------------------------------------------------------------------------
+# Product install path is GitHub Releases + binstall + git/path. No live npm
+# publish this mission. If a product npm package tree appears later, extend
+# this section; for now skip without failing (VAL-PKG-004: implemented parts).
+
+npm_pkg_candidates=(
+  "$REPO_ROOT/npm"
+  "$REPO_ROOT/packages/npm"
+  "$REPO_ROOT/crates/codegen/doit/npm"
+)
+npm_found=0
+for p in "${npm_pkg_candidates[@]}"; do
+  if [[ -f "$p/package.json" ]]; then
+    npm_found=1
+    if grep -Eq '"name"[[:space:]]*:[[:space:]]*"@?dathtd119/doit"' "$p/package.json" \
+      || grep -Fq 'dathtd119/doit' "$p/package.json"; then
+      ok "npm package.json references dathtd119/doit ($p)"
+    else
+      fail "npm package.json missing dathtd119/doit ($p)"
+    fi
+  fi
+done
+if [[ "$npm_found" -eq 0 ]]; then
+  ok 'NPM product package not present — gate skipped (no live npm this mission)'
+fi
+
+# ---------------------------------------------------------------------------
 printf '\n== summary ==\n'
 printf 'pass=%s fail=%s\n' "$PASS" "$FAIL"
 if [[ "$FAIL" -gt 0 ]]; then
   exit 1
 fi
-printf 'verify-install: BIN identity + PKG smoke OK\n'
+printf 'verify-install: BIN + REL + README Install OK\n'
 exit 0
