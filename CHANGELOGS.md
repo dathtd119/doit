@@ -4,6 +4,39 @@ Append-only ship log for **do**. Not a status essay — one entry per substantiv
 
 ---
 
+## 2026-07-16 — F-DOC-001 limitations L1–L13 seal
+
+**Scope:** docs only (`docs/limitations.md`, index, living status)  
+**Feature:** F-DOC-001 · **VAL:** VAL-DOC-001
+
+### Sealed
+
+- `docs/limitations.md` complete evidence-backed inventory for **L1–L13**:
+  - Each row: idea (pi-ness / OpenCode) → stock grok status → gap → preferred path → absolute evidence paths
+  - L1 role control + post-message lock; L2 prompt layers; L3 native factories; L4 progressive catalog; L5 continuation; L6 guided blocks; L7 CodeGraph; L8 side-ask/intake; L9 workspace disk; L10 fork hygiene; L11 Rust UI cost; L12 patch mergeability
+  - **L13:** multi-model registry **already exists** (`[model.*]`, spawn > role > persona > parent); gap is **assignment UX** + do YAML wire (cross-link models-and-config)
+- Linked from `docs/index.md`; living status updated (root `AGENTS.md`, `docs/current-status.md`)
+
+### Evidence sources
+
+- pi-ness (read-only): `packages/piness-core/src/native/*`, `docs/{prompt-system,hooks,skill-catalog,workspace,side-ask}.md`
+- Fork: `crates/codegen/xai-grok-{agent,hooks,tools,subagent-resolution,codebase-graph,...}`; `docs/grok-build/*`
+
+### Not in scope
+
+- F-DOC-002 patch-matrix refine; F-DOC-003 capability-map
+- Runtime implementation of any L* gap
+
+### Files
+
+- `docs/limitations.md`
+- `docs/index.md`
+- Root `AGENTS.md` living status + next steps
+- `docs/current-status.md`
+- This CHANGELOGS entry
+
+---
+
 ## 2026-07-16 — F-GROK-001 grok-build inventory seal
 
 **Scope:** docs only (`docs/grok-build/*`, index already linked, living status)  

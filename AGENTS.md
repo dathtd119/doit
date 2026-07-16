@@ -210,12 +210,13 @@ Date: 2026-07-16
 - **Role switch lock** — **sealed** (F-ROLE-001 / VAL-ROLE-001): Tab/Shift+Tab **only pre-message**; disabled after first user message / conversation content; M1 implements (see `docs/prompt-system.md` Role lifecycle + M1 note)
 - **Scout** — pi-ness harness ideas + grok native tools inventory in mission architecture / L1–L12 sketch; L13 assignment UX documented
 - **Grok-build inventory** — **sealed** (F-GROK-001 / VAL-GROK-001): `docs/grok-build/` README + overview, native-tools, extension-seams, hard-limits, patterns — fork evidence paths; linked from `docs/index.md`
-- **Not yet** — L1–L12 deep evidence (F-DOC-001..003); capability-map; do-harness proof agent + guided hook; YAML→agent wiring (M1); M0 seal commit
+- **Limitations L1–L13** — **sealed** (F-DOC-001 / VAL-DOC-001): `docs/limitations.md` evidence-backed vs pi-ness + forked grok (L13: multi-model registry exists; gap is assignment UX)
+- **Not yet** — patch-matrix refine + capability-map (F-DOC-002..003); README/FORK (F-DOC-004); do-harness proof agent + guided hook; YAML→agent wiring (M1); M0 seal commit
 - **Process** — git at do; commit every milestone; docs under `/docs`; English + conventional commits
 
 ### Next steps
 
-1. M0: deepen L1–L12 in limitations/patch-matrix + write capability-map (F-DOC-001..003) — cite `docs/grok-build/*`
+1. M0: refine `docs/patch-matrix.md` + write `docs/capability-map.md` (F-DOC-002..003) — cite `docs/grok-build/*` + limitations
 2. M0: README identity + `FORK.md` policy expansion (F-DOC-004)
 3. M0: proof intake agent + guided PreToolUse hook + discovery verification
 4. M0: `docs/backlog-m1-m3.md` including multi-model assignment wiring + **role Tab cycle + post-message lock** + seal commit
