@@ -12,6 +12,7 @@ See root [`AGENTS.md`](../AGENTS.md) Customization Order and
 | Path | Role |
 |------|------|
 | `agents/` | Product roster agent profiles (`.md` with YAML frontmatter) |
+| `prompts/` | **L0/L1 fragments** + named gates (`docs/prompt-system.md` map; F-M1-PROMPT) |
 | `hooks/` | PreToolUse / other hook JSON + command scripts |
 | `config.models.yaml` | Multi-model registry + role→model assignment template (M1 wire) |
 | `scripts/verify-discovery.sh` | **F-EXT-003** end-to-end discovery path check (intake + guided hook) |
@@ -48,6 +49,17 @@ Model pins: `config.models.yaml` `assignment.<role>` (apply script lands in
 
 Role switch lock (product policy): Tab/Shift+Tab **only pre-message**; locked
 after first user message — see root `AGENTS.md` / `docs/prompt-system.md`.
+
+### Prompt fragments (F-M1-PROMPT / VAL-M1-PROMPT-001)
+
+| Path | Layer |
+|------|-------|
+| [`prompts/l0-kernel.md`](./prompts/l0-kernel.md) | L0 identity + guided-gate + role-lock rules |
+| [`prompts/gates.md`](./prompts/gates.md) | Named `[GATE: …]` catalog |
+| [`prompts/roles/*.md`](./prompts/roles/) | L1 role contracts (aligned with agents) |
+
+Full inject map and budgets: [`docs/prompt-system.md`](../docs/prompt-system.md).  
+Continuum disk contract: [`docs/workspace.md`](../docs/workspace.md).
 
 ### Verify roster
 

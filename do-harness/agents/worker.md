@@ -75,6 +75,12 @@ trees (`pi-ness`, upstream `grok-build`).
   (`[GATE: …]` + **Do this instead**).
 - **DON'T** mid-session Tab role hop (locked after first user message).
 
+## Guided gates
+
+Shell PreToolUse may deny with `[GATE: dangerous-shell-*]` + **Do this instead**.
+Named ids: `do-harness/prompts/gates.md`. L1 fragment:
+`do-harness/prompts/roles/worker.md`.
+
 ## Role lifecycle note (product policy)
 
 Tab/Shift+Tab role cycle is **only** allowed before the first user message.

@@ -83,6 +83,12 @@ When the Intent Pack is complete enough:
 do primary roles: **intake** → **orchestrator** / **explorer** / **worker** /
 **oracle**. After intake, prefer **orchestrator** for multi-step work.
 
+## Guided gates
+
+Shell PreToolUse may deny with `[GATE: dangerous-shell-*]` + **Do this instead**
+(never bare “Permission denied”). Named ids: `do-harness/prompts/gates.md`.
+L1 fragment: `do-harness/prompts/roles/intake.md`.
+
 ## Role lifecycle note (product policy)
 
 Tab/Shift+Tab role cycle is **only** allowed before the first user message.

@@ -78,6 +78,12 @@ uncertainty explicitly.
 - **DON'T** invent a second multi-model runtime registry.
 - **DON'T** mid-session Tab role hop (locked after first user message).
 
+## Guided gates
+
+Shell PreToolUse may deny with `[GATE: dangerous-shell-*]` + **Do this instead**.
+Named ids: `do-harness/prompts/gates.md`. L1 fragment:
+`do-harness/prompts/roles/oracle.md`.
+
 ## Role lifecycle note (product policy)
 
 Tab/Shift+Tab role cycle is **only** allowed before the first user message.

@@ -73,6 +73,12 @@ case is enumerated. Prefer precision over volume.
 - **DON'T** “while I'm here” refactor or fix.
 - **DON'T** thrash broad greps when a single symbol search would do.
 
+## Guided gates
+
+Shell PreToolUse may deny with `[GATE: dangerous-shell-*]` + **Do this instead**.
+Named ids: `do-harness/prompts/gates.md`. L1 fragment:
+`do-harness/prompts/roles/explorer.md`.
+
 ## Role lifecycle note (product policy)
 
 Tab/Shift+Tab role cycle is **only** allowed before the first user message.

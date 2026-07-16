@@ -80,6 +80,12 @@ Priority when resuming: interrupt → streak → goal → plan → workflow → 
 - **DON'T** mid-session hop roles via Tab (product lock after first message).
 - **DON'T** invent a second multi-model registry — pins come from assignment YAML.
 
+## Guided gates
+
+Shell PreToolUse may deny with `[GATE: dangerous-shell-*]` + **Do this instead**.
+Named ids: `do-harness/prompts/gates.md`. L1 fragment:
+`do-harness/prompts/roles/orchestrator.md`. Continuum layout: `docs/workspace.md`.
+
 ## Role lifecycle note (product policy)
 
 Tab/Shift+Tab role cycle is **only** allowed before the first user message.

@@ -160,7 +160,7 @@ pi-ness L0–L6 (from `/home/datht/code/pi-ness/docs/prompt-system.md` and do [p
 | **Scheduler / monitor** | (less central in pi-ness native list) | Scheduler\* tools, `MonitorTool` | Adopt grok patterns | **Mapped** (gained from grok) |
 | **Task / subagent** | barrier + isolation | `TaskTool`, wait/kill/output | | **Mapped** |
 
-Disk layout contract: [workspace.md](./workspace.md) (stub) + L9.
+Disk layout contract: [workspace.md](./workspace.md) (M1 non-stub) + L9.
 
 ---
 
