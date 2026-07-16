@@ -178,7 +178,9 @@ No BM25/RRF progressive catalog product equivalent; risk of always-on skill dump
 
 Tune discovery/reminders + config ignore lists; optional crate patch to skill prompt builder; keep MCP progressive via search-then-use.
 
-**M1 start (shipped):** product policy in [progressive-skills.md](./progressive-skills.md); overlay `do-harness/config.skills.yaml`; roster agents **intake / explorer / oracle** set `discoverSkills: false` (stock default is true). M2 deepens progressive default product-wide.
+**M1 start (shipped):** product policy in [progressive-skills.md](./progressive-skills.md); overlay `do-harness/config.skills.yaml`; roster agents **intake / explorer / oracle** set `discoverSkills: false` (stock default is true).
+
+**M2 advanced (shipped):** all five roster roles `discoverSkills: false` (progressive or curated empty allowlist); firehose documented as opt-in only; MCP remains stock `search_tool` / `use_tool`. BM25 `skill_search` / `skill_load` still optional future (not required for VAL-M2-SKILL-001).
 
 ### Evidence
 

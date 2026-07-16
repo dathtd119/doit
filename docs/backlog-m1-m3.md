@@ -100,7 +100,7 @@ Canonical six-step seed (keep in sync with [prompt-system.md](./prompt-system.md
 | 4 | **M2-G01** | **Guided-block standard product-wide** — all product denials (hooks + permission surfaces we own) use `[GATE: …]` + **Do this instead** (+ human / do-not when needed) | L6 | `hook` + prompt naming | F-EXT-002 proof | No bare “Permission denied” from do-owned gates; gate names appear in system/role prompts |
 | 5 | **M2-G02** | **Expand guided hook pack** — beyond dangerous shell: path policy, doom-loop, env-mask patterns as needed (pi-ness-inspired, not 1:1 TS port) | L6 | `hook` / `plugin` | M2-G01 | At least two additional guided denials with verify scripts; enablement docs |
 | 6 | **M2-G03** | **Optional tools-api gate format** — only if shared denial shape cannot stay in hooks | L6 | small `crate_patch` | M2-G01 | Format shared; patch-matrix row; extension alternatives exhausted |
-| 7 | **M2-S02** | **Progressive skill/MCP catalog** — dynamic mode parity direction: search/load or equivalent progressive discovery; keep MCP via `search_tool` / `use_tool` | L4 | `skill` + `config`; optional crate on skill prompt builder | M1-S01 | Default skill surface is progressive or heavily curated; firehose mode documented as opt-in if retained |
+| 7 | **M2-S02** | **Progressive skill/MCP catalog** — progressive/curated default product-wide; firehose opt-in; MCP via `search_tool` / `use_tool` (no reinvent) | L4 | `skill` + `config` (done; crate optional later for BM25) | M1-S01 | **Done** — default progressive/curated on five roles; firehose opt-in; `verify-progressive-skills.sh` VAL-M2-SKILL-001 |
 | 8 | **M2-P01** | **Permission/path policy alignment** — floors for roles (deny floors) documented and applied via agent profiles + stock permissions | L1 floors, L6 | `agent` + config | M1-R04 | Role tool allow/deny floors enforced for primary roster; aligned with guided gates |
 | 9 | **M2-U01** | **Role-cycle UX polish** (optional) — only after lock policy is solid; still **no mid-session hop** | L1 | shell/TUI | M1-U01 | Polish only; lock remains binding |
 
@@ -115,7 +115,8 @@ Canonical six-step seed (keep in sync with [prompt-system.md](./prompt-system.md
 
 - [ ] Continuation priority policy shipped and exercised on native continuum tools  
 - [ ] Guided-block shape is the product default for do-owned denials  
-- [ ] Progressive skill/MCP policy reduced firehose vs M0 stock  
+- [x] Progressive skill/MCP policy reduced firehose vs M0 stock (F-M2-SKILL / VAL-M2-SKILL-001)  
+
 - [ ] Docs + CHANGELOGS + commit with `commitId` / `repoPath`
 
 ---

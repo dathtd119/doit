@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# F-M1-SKILL / VAL-M1-SKILL-001: progressive skill policy start + reduced firehose.
+# F-M2-SKILL / VAL-M2-SKILL-001: progressive/curated skill+MCP default (M2 advanced).
+# Also covers residual M1 needles (VAL-M1-SKILL-001 policy start still holds).
 #
 # Checks:
-#   1. Policy doc exists with required sections
-#   2. do-harness/config.skills.yaml exists with progressive default + role table
-#   3. Product agents apply reduced discoverSkills vs stock default (true)
-#      for intake, explorer, oracle
-#   4. prompt-system.md points at progressive skills policy
+#   1. Policy doc exists with M2 progressive/curated + firehose opt-in + MCP
+#   2. do-harness/config.skills.yaml: progressive default, firehose opt-in,
+#      all five roles discover false, MCP search_tool/use_tool
+#   3. All five product agents: discoverSkills false (no firehose default)
+#   4. Explorer/oracle expose MCP progressive tools (search_tool / use_tool)
+#   5. prompt-system + README pointers
 #
 # Exit 0 only when all checks pass.
 
@@ -35,7 +37,7 @@ section() {
 }
 
 # ---------------------------------------------------------------------------
-section "1. Policy documentation"
+section "1. Policy documentation (M2 advanced)"
 # ---------------------------------------------------------------------------
 
 POLICY="$REPO_ROOT/docs/progressive-skills.md"
@@ -47,11 +49,16 @@ fi
 
 if [[ -f "$POLICY" ]]; then
   for needle in \
-    "Progressive skill presentation" \
+    "Progressive skill" \
     "discoverSkills" \
     "firehose" \
+    "opt-in" \
     "ignore" \
     "SkillDiscoveryReminder" \
+    "search_tool" \
+    "use_tool" \
+    "curated" \
+    "VAL-M2-SKILL-001" \
     "VAL-M1-SKILL-001"
   do
     if grep -qF "$needle" "$POLICY"; then
@@ -91,30 +98,35 @@ if [[ -f "$CFG" ]]; then
   else
     fail "config.skills.yaml must set firehose_mode: opt_in"
   fi
-  for role in intake explorer oracle; do
+  for role in intake explorer oracle orchestrator worker; do
     if grep -qE "^[[:space:]]*${role}:[[:space:]]*false" "$CFG"; then
       ok "role_discover_skills.${role}: false (in config)"
     else
       fail "config.skills.yaml must set role_discover_skills.${role}: false"
     fi
   done
+  if grep -qE 'discovery:\s*search_tool' "$CFG" && grep -qE 'invoke:\s*use_tool' "$CFG"; then
+    ok "mcp.discovery=search_tool and mcp.invoke=use_tool"
+  else
+    fail "config.skills.yaml must declare MCP search_tool / use_tool"
+  fi
+  if grep -qE 'policy:\s*progressive_search_then_use' "$CFG"; then
+    ok "mcp.policy: progressive_search_then_use"
+  else
+    fail "config.skills.yaml must set mcp.policy: progressive_search_then_use"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
-section "3. Reduced firehose on product agents (vs stock discoverSkills: true)"
+section "3. Product-wide progressive/curated agents (no firehose default)"
 # ---------------------------------------------------------------------------
 
-# Stock default is discover_skills: true. At least three roster agents must
-# suppress discovery — that is the M1 reduced surface.
-
+# M2: every roster role suppresses stock discoverSkills: true.
 python3 - "$HARNESS_DIR/agents" <<'PY'
 import re, sys, pathlib
 
 agents_dir = pathlib.Path(sys.argv[1])
-# Roles that must reduce dump vs stock default
-must_false = ("intake", "explorer", "oracle")
-# Roles that may keep discovery (curated direction)
-may_true = ("orchestrator", "worker")
+all_roles = ("intake", "explorer", "oracle", "orchestrator", "worker")
 failed = []
 reduced = 0
 
@@ -127,8 +139,7 @@ def frontmatter(path: pathlib.Path) -> str:
         return ""
     return parts[1]
 
-def discover_skills_value(yaml: str) -> str | None:
-    # Accept discoverSkills: false / true (camelCase agent frontmatter)
+def discover_skills_value(yaml: str):
     m = re.search(r"(?m)^discoverSkills:\s*(true|false)\s*$", yaml)
     if m:
         return m.group(1)
@@ -137,7 +148,7 @@ def discover_skills_value(yaml: str) -> str | None:
         return m.group(1)
     return None
 
-for role in must_false:
+for role in all_roles:
     path = agents_dir / f"{role}.md"
     if not path.is_file():
         failed.append(f"{role}: missing agent file")
@@ -145,26 +156,18 @@ for role in must_false:
     val = discover_skills_value(frontmatter(path))
     if val == "false":
         reduced += 1
-        print(f"  ok  agents/{role}.md discoverSkills: false")
+        print(f"  ok  agents/{role}.md discoverSkills: false (progressive/curated)")
     else:
         failed.append(
             f"{role}: expected discoverSkills: false (got {val!r}) — "
-            "reduces firehose vs stock default true"
+            "M2 product default is progressive/curated; firehose is opt-in"
         )
 
-for role in may_true:
-    path = agents_dir / f"{role}.md"
-    if not path.is_file():
-        failed.append(f"{role}: missing agent file")
-        continue
-    val = discover_skills_value(frontmatter(path))
-    if val is None:
-        failed.append(f"{role}: missing discoverSkills field")
-    else:
-        print(f"  ok  agents/{role}.md discoverSkills: {val} (curated/firehose-capable)")
-
-if reduced < 1:
-    failed.append("need at least one agent with discoverSkills: false")
+if reduced != len(all_roles):
+    failed.append(
+        f"need all {len(all_roles)} roster agents with discoverSkills: false "
+        f"(got {reduced})"
+    )
 
 if failed:
     for f in failed:
@@ -172,9 +175,8 @@ if failed:
     sys.exit(1)
 sys.exit(0)
 PY
-# Count ok lines from python for PASS tally (script already printed)
-# Re-run lightweight count for shell PASS/FAIL aggregation
-for role in intake explorer oracle; do
+
+for role in intake explorer oracle orchestrator worker; do
   if grep -qE '^discoverSkills:\s*false\s*$' "$HARNESS_DIR/agents/${role}.md"; then
     ok "agent ${role} discoverSkills false (shell recheck)"
   else
@@ -183,7 +185,21 @@ for role in intake explorer oracle; do
 done
 
 # ---------------------------------------------------------------------------
-section "4. README enablement pointer"
+section "4. MCP progressive tools on scout/analysis floors"
+# ---------------------------------------------------------------------------
+
+for role in explorer oracle; do
+  path="$HARNESS_DIR/agents/${role}.md"
+  if [[ -f "$path" ]] && grep -qE '^\s*-\s*search_tool\s*$' "$path" \
+    && grep -qE '^\s*-\s*use_tool\s*$' "$path"; then
+    ok "agents/${role}.md exposes search_tool and use_tool"
+  else
+    fail "agents/${role}.md must list search_tool and use_tool (MCP progressive)"
+  fi
+done
+
+# ---------------------------------------------------------------------------
+section "5. README enablement pointer"
 # ---------------------------------------------------------------------------
 
 README="$HARNESS_DIR/README.md"
@@ -192,6 +208,11 @@ if [[ -f "$README" ]] && grep -qE 'progressive-skills|config\.skills\.yaml|Progr
 else
   fail "do-harness/README.md must document progressive skills / config.skills.yaml"
 fi
+if [[ -f "$README" ]] && grep -qE 'search_tool|VAL-M2-SKILL|firehose' "$README"; then
+  ok "do-harness/README.md documents M2 firehose opt-in / MCP progressive"
+else
+  fail "do-harness/README.md must mention M2 progressive/MCP (search_tool or VAL-M2-SKILL)"
+fi
 
 # ---------------------------------------------------------------------------
 section "Summary"
@@ -199,8 +220,10 @@ section "Summary"
 
 printf '\nPASS=%s FAIL=%s\n' "$PASS" "$FAIL"
 if [[ "$FAIL" -gt 0 ]]; then
-  printf 'VAL-M1-SKILL-001: FAIL\n' >&2
+  printf 'VAL-M2-SKILL-001: FAIL\n' >&2
+  printf 'VAL-M1-SKILL-001 residual: FAIL\n' >&2
   exit 1
 fi
-printf 'VAL-M1-SKILL-001: PASS\n'
+printf 'VAL-M2-SKILL-001: PASS\n'
+printf 'VAL-M1-SKILL-001 residual: PASS\n'
 exit 0

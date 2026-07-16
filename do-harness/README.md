@@ -18,11 +18,11 @@ See root [`AGENTS.md`](../AGENTS.md) Customization Order and
 | `scripts/verify-continuation.sh` | **F-M2-CONT / VAL-M2-CONT-001** policy + hooks + no-thrash fixture |
 | `scripts/verify-gates.sh` | **F-M2-GATES / VAL-M2-GATE-001** guided-block standard + expanded pack |
 | `config.models.yaml` | Multi-model registry + role→model assignment (policy overlay) |
-| `config.skills.yaml` | **F-M1-SKILL / VAL-M1-SKILL-001** progressive skill presentation policy overlay |
+| `config.skills.yaml` | **F-M2-SKILL / VAL-M2-SKILL-001** progressive/curated skill + MCP presentation overlay |
 | `scripts/apply-models.sh` | **F-M1-MODEL-APPLY / VAL-M1-MODEL-001** YAML assignment → agent frontmatter |
 | `scripts/verify-discovery.sh` | **F-EXT-003** end-to-end discovery path check (intake + guided hook) |
 | `scripts/verify-roster.sh` | **F-M1-ROSTER / VAL-M1-ROSTER-001** five-agent roster discovery |
-| `scripts/verify-progressive-skills.sh` | **F-M1-SKILL / VAL-M1-SKILL-001** progressive policy + reduced firehose |
+| `scripts/verify-progressive-skills.sh` | **F-M2-SKILL / VAL-M2-SKILL-001** progressive/curated default + MCP search/use |
 
 ## Discovery paths (stock grok)
 
@@ -313,31 +313,38 @@ python3 do-harness/hooks/bin/guided-env-expose.py --self-test
 python3 do-harness/hooks/bin/guided-dangerous-shell.py --self-test
 ```
 
-## Progressive skills (F-M1-SKILL / VAL-M1-SKILL-001)
+## Progressive skills / MCP (F-M2-SKILL / VAL-M2-SKILL-001)
 
 Policy: [`docs/progressive-skills.md`](../docs/progressive-skills.md)  
 Overlay: [`config.skills.yaml`](./config.skills.yaml)
 
 Stock agents default to `discoverSkills: true` (full CWD skill discovery +
-listing seed). Product roster **reduces firehose** for clarify/scout/analysis:
+listing seed = **firehose**). Product roster **default** is progressive or
+heavily curated for **all five** roles. Firehose is **opt-in only**.
 
-| Role | `discoverSkills` | Mode |
-|------|------------------|------|
-| intake | **false** | progressive (no bulk dump) |
-| explorer | **false** | progressive |
-| oracle | **false** | progressive |
-| orchestrator | true | curated direction (M2 may tighten) |
-| worker | true | curated direction (M2 may tighten) |
+| Role | `discoverSkills` | Mode | Notes |
+|------|------------------|------|-------|
+| intake | **false** | progressive | no bulk dump |
+| explorer | **false** | progressive | MCP `search_tool` / `use_tool` on floor |
+| oracle | **false** | progressive | MCP `search_tool` / `use_tool` on floor |
+| orchestrator | **false** | curated | empty `skills: []` until operators name workflows |
+| worker | **false** | curated | empty `skills: []` until operators name project skills |
 
 Operator ignore/disabled lists still merge into stock `~/.config/do/config.toml`
-`[skills]` (see config overlay `recommended_toml`). MCP stays progressive via
-`search_tool` / `use_tool`.
+`[skills]` (see config overlay `recommended_toml`).
+
+**MCP:** keep stock progressive discovery — **`search_tool`** then **`use_tool`**.
+Do not invent a do-harness MCP client or dump every schema every turn.
+
+**Firehose opt-in:** set a role’s `discoverSkills: true` (and optional broad
+`[skills] paths`) only for debug; reinstall agents; revert for product demos.
+See `presentation.firehose_mode: opt_in` and `firehose_opt_in` in the overlay.
 
 ### Verify progressive skills
 
 ```sh
 bash do-harness/scripts/verify-progressive-skills.sh
-# expect: exit 0 and "VAL-M1-SKILL-001: PASS"
+# expect: exit 0 and "VAL-M2-SKILL-001: PASS"
 ```
 
 ## Non-goals
@@ -345,7 +352,7 @@ bash do-harness/scripts/verify-progressive-skills.sh
 - Auto-applying YAML inside the binary on every session start (harness script
   + operator run; optional later `do models apply` CLI)
 - Tab cycle + post-message lock implementation (M1 crate/session; not this script)
-- Deep crate patches for discovery (extension path is enough)
+- Deep crate patches for skill prompt builder (extension path is enough for M2)
 - Role permission floors productization beyond stub floors (M2 F-M2-PERM)
-- BM25 skill_search / skill_load product tools (M2 progressive catalog)
+- BM25 skill_search / skill_load product tools (future optional; stock progressive/curated is the M2 seal)
 - Doom-loop circuit breaker as a third M2 pack (path-policy + env-expose satisfy ≥2; doom-loop optional later)

@@ -7,9 +7,11 @@ description: >-
 promptMode: extend
 permissionMode: default
 agentsMd: true
-# Progressive skills (F-M1-SKILL): discovery on for implementation skills; prefer
-# ignore/allowlist over firehose — docs/progressive-skills.md
-discoverSkills: true
+# Progressive skills (F-M2-SKILL): curated default — no firehose discovery.
+# Empty skills: allowlist = progressive no-preload. Add named project skills only.
+# Firehose (discoverSkills: true) is opt-in only — docs/progressive-skills.md
+discoverSkills: false
+skills: []
 # Model pin from do-harness/config.models.yaml assignment.worker (M1 wire).
 # Applied by: bash do-harness/scripts/apply-models.sh --apply
 model: combo-big

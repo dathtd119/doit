@@ -1,42 +1,45 @@
-# do product skill presentation overlay (L4 progressive policy — M1 start)
+# do product skill / MCP presentation overlay (L4 progressive policy — M2)
 #
 # Purpose:
-#   - Document progressive / curated / firehose modes for skill surface
-#   - Record role defaults that reduce dump vs stock agent default
-#     (stock AgentDefinition.discover_skills = true)
-#   - Hold recommended [skills] ignore/disabled fragments for operators
-#     to merge into ~/.grok/config.toml (runtime SoT for skills config)
+#   - Default skill surface: progressive or heavily curated (never firehose)
+#   - Firehose mode: opt-in only (debug / install tree demos)
+#   - MCP: stock search_tool → use_tool (no reinvent)
+#   - Role tables mirror do-harness/agents/*.md frontmatter
 #
 # NOT a second skill runtime. Stock discovery + agent frontmatter remain
-# the implementation. Apply role flags by editing do-harness/agents/*.md
-# (already applied for M1 roster — see presentation.role_discover_skills).
+# the implementation. Apply role flags by editing do-harness/agents/*.md.
 #
 # Policy doc: docs/progressive-skills.md
-# Feature: F-M1-SKILL / VAL-M1-SKILL-001 (M1-S01)
-# Deepen: M2-S02 (default progressive product-wide; firehose opt-in)
+# Feature: F-M2-SKILL / VAL-M2-SKILL-001 (M2-S02)
+# Prior: F-M1-SKILL / VAL-M1-SKILL-001 (M1-S01)
 
 presentation:
-  # Product default direction (M1 start). M2 may enforce for all roles.
+  # Product default (M2): progressive across the roster; coordinate/implement
+  # use curated allowlists (empty = progressive no-preload).
   default_mode: progressive
-  # Stock-like full discovery — document as opt-in, not long-term default.
+  # Stock-like full discovery — opt-in only, not product default.
   firehose_mode: opt_in
   # Prefer mid-session SkillDiscoveryReminder over always-on full body dump.
   prefer_discovery_reminder: true
   # Soft authoring target for skill listing inject (chars); not a hard CI gate.
   listing_budget_chars_soft: 4000
+  # M2 product rule: no roster role ships with firehose default.
+  firehose_default_roles: []
 
-# Role → whether AgentBuilder discovers skills from CWD / seeds tracker.
-# false = reduced firehose vs stock default (true).
+# Role → AgentBuilder discovers skills from CWD / seeds tracker.
+# false = progressive/curated (reduced vs stock default true).
+# M2: all five roster roles false (product-wide progressive/curated).
 role_discover_skills:
   intake: false
   explorer: false
   oracle: false
-  orchestrator: true
-  worker: true
+  orchestrator: false
+  worker: false
 
-# Optional explicit allowlists (M2 curated mode). Empty = no extra preload.
-# When discoverSkills is false, only skills named here (if any) can be preloaded
-# via agent frontmatter `skills:`.
+# Explicit allowlists for curated mode. Empty = progressive (no preload).
+# Operators add named skills when a known short set is required.
+# When discoverSkills is false, only skills named here preload via agent
+# frontmatter `skills:` (keep agents/*.md in sync when non-empty).
 role_skill_allowlist:
   intake: []
   explorer: []
@@ -44,7 +47,15 @@ role_skill_allowlist:
   orchestrator: []
   worker: []
 
-# Recommended stock TOML fragments (merge into ~/.grok/config.toml).
+# Per-role presentation mode (documentary; discoverSkills is the runtime flag).
+role_mode:
+  intake: progressive
+  explorer: progressive
+  oracle: progressive
+  orchestrator: curated
+  worker: curated
+
+# Recommended stock TOML fragments (merge into ~/.config/do/config.toml).
 # Paths are examples — expand ~ and tune per machine. Empty ignore = no-op.
 recommended_toml:
   # Hide WIP / scratch skill trees entirely (not listed, not invocable).
@@ -53,7 +64,7 @@ recommended_toml:
   skills_disabled: []
   # Extra roots increase firehose — leave empty unless team packs are required.
   skills_paths: []
-  # Vendor skill trees: set false when only .grok skills are used.
+  # Vendor skill trees: set false when only product skills are used.
   # compat.claude.skills / compat.cursor.skills — see stock user-guide.
   disable_vendor_skills_when_unused: true
 
@@ -62,3 +73,22 @@ mcp:
   discovery: search_tool
   invoke: use_tool
   policy: progressive_search_then_use
+  # Do not inject every MCP schema every turn; search then use.
+  dump_all_schemas: false
+  # Roster floors that expose progressive MCP tools (others via spawn / later floors).
+  role_tools:
+    explorer:
+      - search_tool
+      - use_tool
+    oracle:
+      - search_tool
+      - use_tool
+
+# Firehose opt-in procedure (operators) — product default never leaves this on.
+firehose_opt_in:
+  steps:
+    - Set target agent frontmatter discoverSkills: true under do-harness/agents/
+    - Optionally expand [skills] paths / vendor trees in ~/.config/do/config.toml
+    - Reinstall agents to ~/.config/do/agents or project .do/agents
+    - Revert before shared product demos
+  restore: Set discoverSkills: false (and empty skills: []) to return to progressive/curated

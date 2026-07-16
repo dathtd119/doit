@@ -102,7 +102,8 @@ Each row: gap → path → risk → order → seams → avoid → links.
 | **Milestone** | M1–M2 |
 | **Seams** | Skills discovery + `SkillDiscoveryReminder`; MCP crate + progressive search/use ([native-tools.md](./grok-build/native-tools.md), [extension-seams.md](./grok-build/extension-seams.md) § Skills / MCP) |
 | **Avoid** | Always-on full skill body dump; parallel MCP client in do-harness |
-| **Evidence / design** | [limitations.md § L4](./limitations.md#l4--progressive-skill--mcp-catalog) |
+| **Evidence / design** | [limitations.md § L4](./limitations.md#l4--progressive-skill--mcp-catalog); [progressive-skills.md](./progressive-skills.md); M2: all five roster `discoverSkills: false`; `verify-progressive-skills.sh` → VAL-M2-SKILL-001 |
+| **M2 status** | **Extension seal** — progressive/curated product default; firehose opt-in; MCP search/use; no crate |
 
 ### L5 — Continuation coordinator
 
