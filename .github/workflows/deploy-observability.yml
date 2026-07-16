@@ -1,0 +1,39 @@
+name: Deploy observability
+
+# For this CLI fork, "deploy" means a documented release ship with a
+# notification surface agents can follow (release events + summary).
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  announce:
+    name: Post-deploy observability summary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deployment impact checklist
+        run: |
+          cat <<'EOF' > deploy-impact.md
+          # Deploy / release impact checklist (do)
+
+          After publishing a release:
+
+          1. **Error tracking:** Sentry project for the pager binary (`SENTRY_DSN`, org/project tags).
+             See [docs/runbooks/incident-response.md](../../docs/runbooks/incident-response.md).
+          2. **Product analytics:** Mixpanel project token (`MIXPANEL_TOKEN`) — watch event volume after ship.
+          3. **Local smoke:** `cargo check -p xai-grok-pager-bin` on a clean clone.
+          4. **Regression signals:** flaky or slow test reports from the CI Quality gates job artifacts.
+
+          Dashboards (operators): configure Sentry + Mixpanel dashboards for your environment;
+          this workflow exists so agents have a deterministic post-ship checklist pointer.
+          EOF
+          cat deploy-impact.md
+
+      - name: Upload deploy impact artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-impact
+          path: deploy-impact.md

@@ -1,6 +1,48 @@
+# Build artifacts
 /target
 **/*.rs.bk
+*.rlib
+*.rmeta
+
+# Secrets and local env (keep .env.example trackable)
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Node / tooling
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnpm-store/
+
+# Python tooling caches
+.venv/
+.venv-*/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Coverage / quality reports
+coverage/
+lcov.info
+tarpaulin-report.html
+cobertura.xml
+jscpd-report/
+.quality/
 
 # Local agent/job state — keep on disk, never push to remote
 AGENTS.md
@@ -10,3 +52,7 @@ plans/
 .claude/
 .pi/
 .grok/
+
+# Local overrides
+*.local
+.cargo/config.local.toml

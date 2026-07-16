@@ -3,8 +3,18 @@
 # NOTE: clippy uses the NEAREST clippy.toml (no merging), so this file must
 # duplicate any settings from the repo-root //clippy.toml.
 
-# TODO: remove after https://github.com/hyperium/tonic/issues/2253 fixed.
+# TODO(https://github.com/hyperium/tonic/issues/2253): remove after tonic
+# large-error issue is fixed upstream.
 large-error-threshold = 256
+
+# Cognitive complexity ceiling. Clippy warns when functions exceed this;
+# agents should split complex control flow rather than suppress lints.
+cognitive-complexity-threshold = 30
+
+# Also ask clippy for cognitive_complexity warnings by default when
+# invoked without an explicit -A list (CI passes -W explicitly as well).
+# Note: nearest clippy.toml wins per crate directory; root applies where
+# no crate-local override exists.
 
 # Ban raw canonicalize: on Windows, std/tokio canonicalize return verbatim
 # `\\?\C:\...` paths that break external tools (git rejects them as clone

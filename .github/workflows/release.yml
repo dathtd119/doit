@@ -1,0 +1,84 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (e.g. v0.1.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build + publish GitHub release
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.92.0"
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install dotslash (protoc wrapper)
+        run: cargo install dotslash --locked
+
+      - name: Build release binary
+        run: cargo build -p xai-grok-pager-bin --release
+
+      - name: Package artifact
+        run: |
+          mkdir -p dist
+          cp target/release/xai-grok-pager dist/ || cp target/release/xai-grok-pager-bin dist/xai-grok-pager || true
+          ls -la dist || ls -la target/release | head
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          {
+            echo "## ${TAG}"
+            echo
+            echo "Automated release for **do** (Grok Build fork)."
+            echo
+            echo "### Changes"
+            if git describe --tags --abbrev=0 HEAD^ 2>/dev/null; then
+              PREV=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || true)
+              git log --pretty=format:'- %s (%h)' "${PREV}..HEAD" | head -80
+            else
+              git log --pretty=format:'- %s (%h)' -40
+            fi
+            echo
+            echo
+            echo "### Smoke"
+            echo '```'
+            echo "cargo check -p xai-grok-pager-bin"
+            echo '```'
+          } > RELEASE_NOTES.md
+          cat RELEASE_NOTES.md
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            git tag -f "$TAG" || true
+            git push origin "$TAG" || true
+          fi
+          gh release create "$TAG" \
+            --title "do ${TAG}" \
+            --notes-file RELEASE_NOTES.md \
+            dist/* || gh release edit "$TAG" --notes-file RELEASE_NOTES.md

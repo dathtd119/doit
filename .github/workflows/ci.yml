@@ -1,0 +1,228 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -Dwarnings
+
+jobs:
+  quality:
+    name: Quality gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Timing start
+        id: t0
+        run: echo "start=$(date -u +%s)" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node (jscpd)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pre-commit
+        run: pip install pre-commit==4.2.0
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.92.0"
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: do-ci
+          cache-on-failure: true
+
+      - name: Install cargo-llvm-cov and cargo-nextest
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov@0.6.16,cargo-nextest@0.9.88,cargo-machete@0.7.0
+
+      - name: Large file detection
+        run: bash scripts/check-large-files.sh
+
+      - name: Tech debt markers
+        run: bash scripts/check-tech-debt.sh
+
+      - name: Dead feature flag candidates
+        run: bash scripts/check-dead-feature-flags.sh
+
+      - name: AGENTS.md / README validation
+        run: bash scripts/validate-agents-md.sh
+
+      - name: Generate docs
+        run: bash scripts/generate-docs.sh
+
+      - name: Duplicate code (jscpd)
+        run: bash scripts/check-duplicate-code.sh
+
+      - name: Unused dependencies (cargo-machete)
+        env:
+          # Soft until vendor tree is cleaned; still produces .quality/unused-deps.txt
+          MACHETE_SOFT: "1"
+        run: |
+          mkdir -p .quality
+          bash scripts/check-unused-deps.sh
+
+      - name: Format check
+        run: cargo fmt --all -- --check
+
+      - name: Clippy (cognitive complexity + warnings)
+        run: |
+          cargo clippy -p xai-grok-pager-bin --all-targets -- \
+            -W clippy::cognitive_complexity \
+            -D warnings
+
+      - name: Smoke build
+        run: cargo check -p xai-grok-pager-bin
+
+      - name: Unit tests with timing (nextest)
+        run: |
+          cargo nextest run -p xai-tool-protocol -p xai-circuit-breaker \
+            --profile ci \
+            --no-fail-fast \
+            --status-level slow \
+            --final-status-level slow
+
+      - name: Coverage threshold (llvm-cov)
+        run: |
+          cargo llvm-cov -p xai-tool-protocol --lcov --output-path lcov.info
+          # Enforce a floor on line coverage for the focused package.
+          python3 - <<'PY'
+          import re, sys
+          text = open("lcov.info").read()
+          lf = sum(int(x) for x in re.findall(r"^LF:(\d+)$", text, re.M))
+          lh = sum(int(x) for x in re.findall(r"^LH:(\d+)$", text, re.M))
+          pct = (100.0 * lh / lf) if lf else 0.0
+          print(f"coverage lines={lh}/{lf} ({pct:.1f}%)")
+          if pct < 40.0:
+              print("FAIL: coverage below 40% floor for xai-tool-protocol")
+              sys.exit(1)
+          PY
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-lcov
+          path: lcov.info
+          if-no-files-found: warn
+
+      - name: Quality metrics summary
+        run: |
+          mkdir -p .quality
+          {
+            echo "# Code quality metrics"
+            echo
+            echo "- job: ${{ github.job }}"
+            echo "- run: ${{ github.run_id }}"
+            echo "- commit: ${{ github.sha }}"
+            echo "- cargo cache: Swatinem/rust-cache"
+            if [[ -f lcov.info ]]; then
+              echo "- coverage artifact: lcov.info present"
+            fi
+            if [[ -f .quality/jscpd/jscpd-report.json ]]; then
+              echo "- jscpd report: present"
+            fi
+          } | tee .quality/metrics.md
+
+      - name: Upload quality reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-reports
+          path: |
+            .quality/**
+            docs/generated/**
+          if-no-files-found: warn
+
+      - name: Timing end (must stay under 10 minutes target)
+        run: |
+          end=$(date -u +%s)
+          start=${{ steps.t0.outputs.start }}
+          dur=$((end - start))
+          echo "CI job wall time: ${dur}s"
+          # Soft aspirational gate for fast feedback culture.
+          if (( dur > 600 )); then
+            echo "::warning::CI job exceeded 10 minutes (${dur}s)"
+          fi
+
+  security-review:
+    name: Automated security review
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: rust
+          queries: security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:rust"
+
+  pr-review:
+    name: Automated PR review notes
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate review summary comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.event.pull_request.head.sha }}"
+          STATS=$(git diff --stat "$BASE...$HEAD" | tail -n 1 || true)
+          FILES=$(git diff --name-only "$BASE...$HEAD" | head -40 || true)
+          BODY=$(cat <<EOF
+          ## Automated review notes (do)
+
+          **Diff:** $STATS
+
+          ### Touched paths
+          \`\`\`
+          $FILES
+          \`\`\`
+
+          ### Checklist for agents
+          - [ ] Smoke: \`cargo check -p xai-grok-pager-bin\`
+          - [ ] Prefer do-harness extension before crate patches
+          - [ ] Document crate patches in \`docs/patch-matrix.md\`
+          - [ ] No secrets in commits (use \`.env.example\` / env keys)
+
+          _Generated by \`.github/workflows/ci.yml\` pr-review job._
+          EOF
+          )
+          gh pr comment "${{ github.event.pull_request.number }}" --body "$BODY"

@@ -71,6 +71,20 @@ cargo build -p xai-grok-pager-bin --release  # release binary
 
 The artifact is named `xai-grok-pager` (upstream installs as `grok`). Config discovery for M0 keeps **`~/.grok`** conventions; product brand is **do** in docs and harness.
 
+## Quality / agent readiness
+
+```sh
+bash scripts/validate-agents-md.sh          # README + agent doc smoke
+bash scripts/check-large-files.sh           # product-path size gates
+bash scripts/check-tech-debt.sh             # linked TODO/FIXME policy
+bash scripts/generate-docs.sh               # docs/generated/*
+# optional: pip install pre-commit && pre-commit install
+```
+
+CI (`.github/workflows/ci.yml`): fmt, clippy complexity, tests + timing, coverage floor, jscpd, CodeQL, PR review comments.  
+Runbooks: [docs/runbooks/](./docs/runbooks/). Dependency wait policy: [docs/dependency-policy.md](./docs/dependency-policy.md).  
+Dev container: [.devcontainer/](./.devcontainer/). Env template: [.env.example](./.env.example).
+
 ## Constraints (short)
 
 - Never modify `~/code/pi-ness` or `~/code/grok-build` — copy into do only
@@ -78,8 +92,9 @@ The artifact is named `xai-grok-pager` (upstream installs as `grok`). Config dis
 - No external upstream PRs as the product path
 - English only; conventional commits; commit every milestone
 - Preserve Apache-2.0 + `THIRD-PARTY-NOTICES` / LICENSE from import
+- Local agent state (`AGENTS.md`, `plans/`, `.opencode/`, `.grok/`) is **gitignored** — do not `git clean -fdx` or hard-reset without checking untracked work
 
-Full rules: [AGENTS.md](./AGENTS.md). Fork policy: [FORK.md](./FORK.md).
+Full rules: [AGENTS.md](./AGENTS.md) (local). Fork policy: [FORK.md](./FORK.md).
 
 ## License
 

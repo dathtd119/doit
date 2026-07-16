@@ -1,0 +1,17 @@
+{
+  "threshold": 10,
+  "minLines": 12,
+  "minTokens": 80,
+  "reporters": ["console", "json"],
+  "ignore": [
+    "**/target/**",
+    "**/third_party/**",
+    "**/node_modules/**",
+    "**/*.lock",
+    "**/THIRD-PARTY-NOTICES",
+    "**/tests/**",
+    "**/benches/**"
+  ],
+  "absolute": true,
+  "gitignore": true
+}

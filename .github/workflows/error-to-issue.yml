@@ -1,0 +1,51 @@
+name: Error to issue
+
+# Maps inbound error digests / manual failure reports into tracked issues.
+# Agents (or Sentry webhooks via repository_dispatch) can open structured tickets.
+on:
+  repository_dispatch:
+    types: [sentry-error, error-digest]
+  workflow_dispatch:
+    inputs:
+      title:
+        description: Error title
+        required: true
+        type: string
+      body:
+        description: Error details
+        required: true
+        type: string
+      severity:
+        description: Severity label (P0-P3)
+        required: false
+        default: P2
+        type: string
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  open-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure issues enabled note
+        run: echo "Creates GitHub issues from error digests when issues are enabled on the repo."
+
+      - name: Create issue from dispatch/input
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TITLE: ${{ github.event.client_payload.title || github.event.inputs.title }}
+          BODY: ${{ github.event.client_payload.body || github.event.inputs.body }}
+          SEV: ${{ github.event.client_payload.severity || github.event.inputs.severity || 'P2' }}
+        run: |
+          set -euo pipefail
+          TITLE="${TITLE:-Sentry error digest}"
+          BODY="${BODY:-No body provided.}"
+          SEV="${SEV:-P2}"
+          gh issue create \
+            --repo "${{ github.repository }}" \
+            --title "[error] ${TITLE}" \
+            --body "$(printf '%s\n\n---\nSource: error-to-issue workflow\nSeverity: %s\n' "$BODY" "$SEV")" \
+            --label "type:bug,priority:${SEV},area:runtime" \
+            || echo "::warning::Issue create failed (issues may be disabled). Wire SENTRY_ORG/SENTRY_PROJECT and enable issues."

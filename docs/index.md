@@ -48,6 +48,20 @@ Read **before crate work**. Evidence-backed map of the forked Grok Build base: p
 | [workspace.md](./workspace.md) | Continuum contract: goal / plan / todo → `.grok` + session layout; no dual-write (**M1**) |
 | [progressive-skills.md](./progressive-skills.md) | L4 progressive skill presentation policy start + reduced firehose surfaces (**M1**) |
 
+## Agent readiness / quality
+
+| Doc | Purpose |
+|-----|---------|
+| [testing.md](./testing.md) | Nextest retries, coverage floor, flaky policy |
+| [tech-debt.md](./tech-debt.md) | Linked TODO/FIXME enforcement |
+| [dependency-policy.md](./dependency-policy.md) | Min 7-day release age + Dependabot cooldown |
+| [feature-flags.md](./feature-flags.md) | Flag lifecycle + dead-flag scan |
+| [runbooks/README.md](./runbooks/README.md) | Incident, alerting, deploy impact |
+| [generated/crate-inventory.md](./generated/crate-inventory.md) | Auto-generated crate list (`scripts/generate-docs.sh`) |
+| [generated/smoke-commands.md](./generated/smoke-commands.md) | Auto-extracted smoke commands |
+
+Quality scripts live under `scripts/`; CI: `.github/workflows/ci.yml`. Pre-commit: `.pre-commit-config.yaml`.
+
 ## Product surfaces
 
 | Path | Role |

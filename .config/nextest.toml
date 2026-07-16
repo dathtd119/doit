@@ -1,0 +1,17 @@
+[profile.default]
+# Retry flaky tests once with backoff so intermittent failures are visible
+# in nextest output and CI can quarantine known-bad tests.
+retries = { backoff = "fixed", count = 1, delay = "1s" }
+slow-timeout = { period = "30s", terminate-after = 3 }
+fail-fast = false
+status-level = "pass"
+final-status-level = "flaky"
+
+[profile.ci]
+retries = { backoff = "fixed", count = 2, delay = "2s" }
+slow-timeout = { period = "60s", terminate-after = 2 }
+fail-fast = false
+status-level = "slow"
+final-status-level = "flaky"
+# JUnit for GitHub test reporting / duration visibility.
+junit = { path = "target/nextest-junit.xml" }

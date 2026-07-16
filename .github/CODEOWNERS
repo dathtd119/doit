@@ -1,0 +1,11 @@
+# Default owners for the do fork.
+* @dathtd119
+
+# Product harness + docs require explicit ownership.
+/do-harness/ @dathtd119
+/docs/ @dathtd119
+/scripts/ @dathtd119
+/.github/ @dathtd119
+/AGENTS.md @dathtd119
+/README.md @dathtd119
+/FORK.md @dathtd119

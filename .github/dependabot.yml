@@ -1,0 +1,30 @@
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    # Supply-chain delay: wait before auto-proposing brand-new crates.io releases.
+    # Dependabot cooldown approximates a minimum release age gate for agents.
+    cooldown:
+      default-days: 7
+    labels:
+      - "type:chore"
+      - "area:deps"
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 3
+    labels:
+      - "type:chore"
+      - "area:ci"
+    commit-message:
+      prefix: "chore(ci)"

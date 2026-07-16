@@ -1,0 +1,66 @@
+# Pre-commit hooks for do (Rust agent harness fork).
+# Install: pip install pre-commit && pre-commit install
+# Run all: pre-commit run --all-files
+default_language_version:
+  python: python3
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^(third_party/|THIRD-PARTY-NOTICES|Cargo\.lock)
+      - id: end-of-file-fixer
+        exclude: ^(third_party/|THIRD-PARTY-NOTICES|Cargo\.lock)
+      - id: check-yaml
+        args: [--unsafe]
+      - id: check-toml
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      - id: check-merge-conflict
+      - id: detect-private-key
+
+  - repo: local
+    hooks:
+      - id: product-pre-commit
+        name: Product pre-commit (large files + tech debt + agents docs)
+        entry: scripts/git-pre-commit.sh
+        language: system
+        pass_filenames: false
+
+      - id: large-files
+        name: Large source file line/byte limits
+        entry: scripts/check-large-files.sh
+        language: system
+        pass_filenames: false
+
+      - id: tech-debt-markers
+        name: Linked TODO/FIXME enforcement
+        entry: scripts/check-tech-debt.sh
+        language: system
+        pass_filenames: false
+        stages: [pre-commit, manual]
+
+      - id: agents-md-validate
+        name: Validate AGENTS.md / README smoke docs
+        entry: scripts/validate-agents-md.sh
+        language: system
+        pass_filenames: false
+        files: '^(AGENTS\.md|README\.md|scripts/validate-agents-md\.sh)$'
+
+      - id: rustfmt
+        name: cargo fmt --check
+        entry: bash -c 'cargo fmt --all -- --check'
+        language: system
+        pass_filenames: false
+        types: [rust]
+        files: \.rs$
+
+      - id: clippy-complexity
+        name: clippy cognitive complexity (pager-bin scope)
+        entry: bash -c 'cargo clippy -p xai-grok-pager-bin --all-targets -- -W clippy::cognitive_complexity'
+        language: system
+        pass_filenames: false
+        types: [rust]
+        files: \.rs$
+        stages: [manual]
