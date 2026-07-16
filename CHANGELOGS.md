@@ -4,6 +4,33 @@ Append-only ship log for **do**. Not a status essay — one entry per substantiv
 
 ---
 
+## 2026-07-16 — F-BACK-001 M1–M3 ordered backlog
+
+**Scope:** docs backlog for post-M0 product work  
+**Feature:** F-BACK-001 · **VAL:** VAL-BACK-001
+
+### Sealed
+
+- `docs/backlog-m1-m3.md` — ordered backlog with testable acceptance per item:
+  - **M1:** role session flag + Tab/Shift+Tab keybind gate + post-first-message lock; five-role roster; **wire `do-harness/config.models.yaml` assignment into agents**; role→model re-resolve only while switch allowed; L0–L6 map; workspace continuum contract; progressive skills start
+  - **M2:** continuation priority lanes on native goal/plan/todo; guided-block product-wide; progressive skill/MCP catalog; role permission floors
+  - **M3:** CodeGraph lean surface (MCP/`tool_pack`); **hashline default** edit policy; always-on tool packs as needed
+- Cross-links from `docs/index.md`; dependency sketch + deferred parking lot pointer to `future-plan.md`
+
+### Not in scope
+
+- Implementing M1–M3 code (planning only)
+- M0 seal commit (orchestrator / follow-up)
+
+### Files
+
+- `docs/backlog-m1-m3.md`
+- `docs/index.md` (status line)
+- This CHANGELOGS entry
+- Living status: root `AGENTS.md`, `docs/current-status.md`
+
+---
+
 ## 2026-07-16 — F-EXT-003 proof extension discovery verified
 
 **Scope:** do-harness discovery verification + product README  

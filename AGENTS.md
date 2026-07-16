@@ -217,13 +217,14 @@ Date: 2026-07-16
 - **Proof intake agent** — **sealed** (F-EXT-001 / VAL-EXT-001): `do-harness/agents/intake.md` + project `.grok/agents/intake.md` symlink on discovery path
 - **Proof guided PreToolUse hook** — **sealed** (F-EXT-002 / VAL-EXT-002): `do-harness/hooks/guided-dangerous-shell.json` + `bin/guided-dangerous-shell.py` (dangerous shell deny with `[GATE: …]` + **Do this instead**); project `.grok/hooks/` symlinks; enablement in `do-harness/hooks/README.md`
 - **Proof discovery e2e** — **sealed** (F-EXT-003 / VAL-EXT-003): `do-harness/scripts/verify-discovery.sh` exit 0 (real `.grok/` discovery path + fork evidence); commands in `do-harness/README.md`
-- **Not yet** — YAML→agent wiring (M1); M1–M3 backlog doc; M0 seal commit
+- **M1–M3 backlog** — **sealed** (F-BACK-001 / VAL-BACK-001): `docs/backlog-m1-m3.md` ordered work (M1 roles + Tab lock + YAML→model wire; M2 continuation/safety; M3 CodeGraph + hashline default)
+- **Not yet** — YAML→agent wiring (M1 implement); M0 seal commit
 - **Process** — git at do; commit every milestone; docs under `/docs`; English + conventional commits
 
 ### Next steps
 
-1. M0: `docs/backlog-m1-m3.md` including multi-model assignment wiring + **role Tab cycle + post-message lock** + seal commit
-2. M1: roles + prompt layers on grok seams; **wire role→model from do YAML into agents**; **implement Tab/Shift+Tab role cycle with post-first-message lock**
+1. M0 seal commit (all M0 VAL features complete; backlog sealed)
+2. M1: roles + prompt layers; **wire role→model from do YAML into agents**; **implement Tab/Shift+Tab role cycle with post-first-message lock** (see `docs/backlog-m1-m3.md`)
 3. M2: continuation coordinator + guided-block safety
 4. M3: native power tools (CodeGraph, hashline default policy)
 

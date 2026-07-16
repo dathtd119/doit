@@ -48,7 +48,7 @@ Different assembly model: system + agent prompts, skills, plugins, reminders —
 
 ### M1 implementation note (backlog seed)
 
-Ordered work for M1 (also lands in `docs/backlog-m1-m3.md` under F-BACK-001):
+Ordered work for M1 — full ordered backlog: [backlog-m1-m3.md](./backlog-m1-m3.md) (F-BACK-001 / VAL-BACK-001). Summary:
 
 1. **Session state flag** — track `role_switch_allowed` (true only while transcript has no user messages / no conversation content).
 2. **Keybind gate** — Tab / Shift+Tab cycle primary-session roles **only** when the flag is true; ignore or no-op after lock.

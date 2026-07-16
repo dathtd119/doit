@@ -38,7 +38,7 @@ Read **before crate work**. Evidence-backed map of the forked Grok Build base: p
 | [limitations.md](./limitations.md) | L1–**L13** evidence-backed inventory; **sealed** F-DOC-001 / VAL-DOC-001 (L13 design also in models-and-config) |
 | [patch-matrix.md](./patch-matrix.md) | Gap → extension path / risk / order for **L1–L13**; **sealed** F-DOC-002 / VAL-DOC-002 |
 | [capability-map.md](./capability-map.md) | pi-ness modules / L0–L6 / roles / continuum / **model assignment** → grok tools/APIs or `"gap"`; **sealed** F-DOC-003 / VAL-DOC-003 |
-| [backlog-m1-m3.md](./backlog-m1-m3.md) | Ordered M1–M3 backlog (F-BACK-001) |
+| [backlog-m1-m3.md](./backlog-m1-m3.md) | Ordered M1–M3 backlog: roles + Tab lock + YAML→model wire (M1), continuation/safety (M2), CodeGraph + hashline default (M3); **sealed** F-BACK-001 / VAL-BACK-001 |
 
 ## Subsystem stubs
 

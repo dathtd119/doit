@@ -10,11 +10,11 @@ Long-lived ideas for **do**. Root `AGENTS.md` **Future Plan** stays short; promo
 - Explicit L0–L6 fragment registry with maxBytes budgets (L2)
 - Unified continuation coordinator priority stack (L5)
 - Guided-block standard across all denials (L6)
-- **M1 (binding):** Tab/Shift+Tab role cycle only at session start (empty transcript); **lock after first user message** — no mid-session role hop; model re-resolve from role only while switch allowed (see AGENTS + prompt-system Role lifecycle)
+- **M1 (binding):** Tab/Shift+Tab role cycle only at session start (empty transcript); **lock after first user message** — no mid-session role hop; model re-resolve from role only while switch allowed (see AGENTS + prompt-system Role lifecycle; ordered items in [backlog-m1-m3.md](./backlog-m1-m3.md))
 
 ## Models & config
 
-- M1: apply `do-harness/config.models.yaml` assignment into agent frontmatter automatically (only when role switch still allowed for primary session)
+- M1: apply `do-harness/config.models.yaml` assignment into agent frontmatter automatically (only when role switch still allowed for primary session) — see backlog M1-M01..M03
 - Optional `do models validate|apply` CLI that diffs against `~/.grok/config.toml`
 - Effort / reasoning level pins per role when backends support them
 - OpenCode-parity permission rules surface in do YAML (beyond model assignment)

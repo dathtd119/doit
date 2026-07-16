@@ -58,8 +58,8 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
 | patch-matrix L1–L13 | F-DOC-002 / VAL-DOC-002 | **Done** — path/risk/order for every gap; sealed |
 | capability-map | F-DOC-003 / VAL-DOC-003 | **Done** — modules + model assignment surfaces; sealed |
 | README identity + FORK policy expansion | F-DOC-004 / VAL-DOC-004 | **Done** — README + FORK.md sealed |
-| Proof intake agent + guided hook | F-EXT-001..003 | do-harness agents/hooks |
-| M1–M3 backlog including multi-model wire + role Tab lock | F-BACK-001 | role→model wiring + post-message lock |
+| Proof intake agent + guided hook + discovery | F-EXT-001..003 | **Done** — intake, guided shell hook, `verify-discovery.sh` |
+| M1–M3 backlog including multi-model wire + role Tab lock | F-BACK-001 / VAL-BACK-001 | **Done** — `docs/backlog-m1-m3.md` sealed |
 | Control plane VAL evidence | F-CTRL-001 | **Done** — VAL-CTRL-001..003; sealed in git |
 | Model design VAL | F-MODEL-001 | **Done** — VAL-MODEL-001..002; models-and-config + YAML + L13 in limitations/patch-matrix |
 | Role switch lock policy documented | F-ROLE-001 | **Done** — VAL-ROLE-001 sealed in AGENTS + prompt-system + architecture |
@@ -73,14 +73,16 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
 
 ## Near-term sequence
 
-1. Proof intake agent + guided PreToolUse hook + discovery (F-EXT-001..003)
-2. M1–M3 backlog including multi-model wire + role Tab lock (F-BACK-001)
-3. M0 seal commit
+1. M0 seal commit (all M0 features including F-BACK-001 complete)
+2. M1 per `docs/backlog-m1-m3.md` (role Tab lock + YAML→agent model wire first)
+3. M2 continuation + guided-block harden
+4. M3 CodeGraph + hashline default
 
 ## Links
 
 - [architecture.md](./architecture.md)
 - [models-and-config.md](./models-and-config.md)
+- [backlog-m1-m3.md](./backlog-m1-m3.md)
 - [../FORK.md](../FORK.md)
 - [grok-build/README.md](./grok-build/README.md)
 - [future-plan.md](./future-plan.md)
