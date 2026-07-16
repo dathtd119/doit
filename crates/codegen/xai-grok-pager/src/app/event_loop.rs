@@ -778,7 +778,13 @@ pub(crate) async fn run(
             crate::notifications::load_notification_config(raw),
         );
         if let Some(table) = raw.as_table() {
-            app.voice_config = xai_grok_voice::VoiceConfig::from_config_table(table);
+            // Voice inherits the same resolved endpoints base as chat
+            // (config > GROK_XAI_API_BASE_URL env > default).
+            let endpoints_base =
+                xai_grok_shell::agent::config::EndpointsConfig::from_config_value(raw)
+                    .xai_api_base_url;
+            app.voice_config =
+                xai_grok_voice::VoiceConfig::from_config_table(table, Some(&endpoints_base));
         }
     }
     // Stamp request-identity headers so the STT handshake attributes voice usage
@@ -978,6 +984,7 @@ pub(crate) async fn run(
         app.last_known_terminal_rows,
     );
     initial_config.show_timestamps = crate::appearance::cache::load_timestamps();
+    initial_config.show_timeline = crate::appearance::cache::load_show_timeline();
     let tick_interval = initial_config.animation.tick_interval();
     crate::appearance::set_tab_width(initial_config.scrollback.display.tab_width);
     app.set_appearance(initial_config);
@@ -985,6 +992,17 @@ pub(crate) async fn run(
     // Seed app state from disk once at the I/O boundary so dispatch
     // stays sans-IO.
     app.current_ui = load_initial_ui_config();
+    // Field-tolerant: a whole-`UiConfig` default (malformed unrelated `[ui]`
+    // field) must not wipe a valid `show_timeline` or leave appearance /
+    // cache / `current_ui` disagreeing — `/timeline` and the rail all read
+    // the same canonical value after this sync + `prime` below.
+    let show_timeline = crate::appearance::cache::load_show_timeline();
+    app.current_ui.show_timeline = Some(show_timeline);
+    if app.appearance.show_timeline != show_timeline {
+        let mut config = app.appearance.clone();
+        config.show_timeline = show_timeline;
+        app.set_appearance(config);
+    }
     // Disk load replaces `current_ui`. Assign one policy-clamped resolved
     // launch mode unconditionally (CLI > TOML > remote > Ask) so disk Auto
     // cannot win over `--permission-mode ask`, and a policy-clamped remote
@@ -2010,6 +2028,7 @@ pub(crate) async fn run(
                 // `PromptWidget.compact`).
                 config.prompt.compact = app.appearance.prompt.compact;
                 config.show_timestamps = app.appearance.show_timestamps;
+                config.show_timeline = app.appearance.show_timeline;
                 tick_interval = config.animation.tick_interval();
                 crate::appearance::set_tab_width(config.scrollback.display.tab_width);
                 app.set_appearance(config);

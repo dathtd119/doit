@@ -63,6 +63,8 @@ pub enum Action {
     CheckSubscription,
     /// Open an arbitrary URL in the system browser (with scheme validation).
     OpenUrl(String),
+    /// Open a semantic scrollback link.
+    OpenLink(crate::render::osc8::LinkTarget),
     /// Open grok.com managed connectors, appending session teamId when set.
     OpenManagedConnectors,
     /// Cycle to the next visible link (or highlight the first if none selected).
@@ -496,6 +498,8 @@ pub enum Action {
     SetDefaultSelectedPermission(String),
     /// Set the hunk-tracker mode. Payload is the registry canonical string.
     SetHunkTrackerMode(String),
+    /// Set default screen mode (`fullscreen` | `minimal`); restart-required.
+    SetScreenMode(String),
     /// Set the voice capture mode (`toggle` | `hold`). SHELL-owned; persisted to
     /// `[ui].voice_capture_mode`. Takes effect for the next Ctrl+Space press.
     SetVoiceCaptureMode(String),
@@ -510,6 +514,8 @@ pub enum Action {
     SetCompactMode(bool),
     /// Set timestamp display on messages.
     SetTimestamps(bool),
+    /// Set timeline sidebar visibility (per-turn tick rail).
+    SetTimeline(bool),
     /// Set simple mode (ASCII / minimal glyphs). Persists via `Effect::PersistSetting`.
     SetSimpleMode(bool),
     /// Set the per-tip contextual-hint user config (`[ui.contextual_hints]`).

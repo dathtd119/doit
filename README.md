@@ -6,7 +6,7 @@ This tree is a **private/local fork** of Grok Build (Rust: pager, shell, tools, 
 
 | Surface | Role |
 |---------|------|
-| `crates/` + codegen | Forked grok-build workspace (binary lineage `xai-grok-pager-bin`) |
+| `crates/` + codegen | Forked grok-build workspace (product package `doit`, binary lineage pager-bin) |
 | `do-harness/` | Product identity: agents, hooks, skills, prompts, model assignment YAML |
 | `docs/` | Durable design, inventories, ship discipline |
 | `AGENTS.md` | Operating contract for humans and agents |
@@ -21,6 +21,8 @@ This tree is a **private/local fork** of Grok Build (Rust: pager, shell, tools, 
 - **Dual config surface:**
   - Stock **`~/.config/do/config.toml`** (`$GROK_HOME`) — native multi-model registry (runtime)
   - **`do-harness/config.models.yaml`** — product assignment overlay (apply → agent frontmatter)
+
+A small `SOURCE_REV` file at the root records the full monorepo commit SHA for the version of the upstream code last absorbed.
 
 Fork policy, config root decision, and contribution rules: **[FORK.md](./FORK.md)**.
 
@@ -57,20 +59,34 @@ Grok-build **already** supports multiple custom models in `~/.config/do/config.t
 
 Requirements:
 
-- Rust (see `rust-toolchain.toml`)
-- **`dotslash`** on `PATH` so repo `bin/protoc` resolves (`cargo install dotslash`)
-- Network for first crates.io fetch (or a warm `~/.cargo` cache)
+- **Rust** — the toolchain is pinned by [`rust-toolchain.toml`](rust-toolchain.toml);
+  `rustup` installs it automatically on first build.
+- **[DotSlash](https://dotslash-cli.com)** — required so hermetic tools under
+  [`bin/`](bin/) (notably [`bin/protoc`](bin/protoc)) can download and run.
+  Install it and ensure `dotslash` is on your `PATH` **before** building:
+
+  ```sh
+  cargo install dotslash
+  # or: prebuilt packages — https://dotslash-cli.com/docs/installation/
+  /usr/bin/env dotslash --help   # sanity check
+  ```
+
+- **protoc** — proto codegen resolves [`bin/protoc`](bin/protoc) via DotSlash,
+  or falls back to a `protoc` on `PATH` / `$PROTOC`.
+- Network for first crates.io fetch (or a warm `~/.cargo` cache).
+- macOS and Linux are supported build hosts; Windows builds are best-effort
+  and not currently tested from this tree.
 
 ```sh
 cargo install dotslash                       # once; enables bin/protoc
-cargo check -p xai-grok-pager-bin            # smoke (VAL-FORK-002)
-cargo run -p xai-grok-pager-bin              # build + launch TUI
-cargo build -p xai-grok-pager-bin --release  # release binary
+cargo check -p doit                          # smoke (product package)
+cargo run -p doit                            # build + launch TUI
+cargo build -p doit --release                # release binary
 ```
 
 `bin/protoc` is a [dotslash](https://dotslash-cli.com/) wrapper that fetches protobuf `protoc` v29.3. Without `dotslash`, build scripts fail with `protoc command failed`.
 
-The artifact is named `xai-grok-pager` (upstream installs as `grok`). Product default config home is **`~/.config/do`**; project discovery is **`.do/`** (see [FORK.md](./FORK.md) §4).
+The product install package and binary are **`doit`** (mapped from upstream `xai-grok-pager-bin` / `xai-grok-pager`). Product default config home is **`~/.config/do`**; project discovery is **`.do/`** (see [FORK.md](./FORK.md) §4).
 
 ## Quality / agent readiness
 

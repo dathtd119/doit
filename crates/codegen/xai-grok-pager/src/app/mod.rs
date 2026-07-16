@@ -107,6 +107,15 @@ static MINIMAL_AUTO_SET_FOR_MOUSE_LEAK: AtomicBool = AtomicBool::new(false);
 pub fn minimal_auto_set_for_mouse_leak() -> bool {
     MINIMAL_AUTO_SET_FOR_MOUSE_LEAK.load(Ordering::Acquire)
 }
+/// Set after a `/minimal` re-exec that actually stayed minimal (idle-status cue).
+static MINIMAL_SHOW_SWITCH_BACK_TO_FULLSCREEN: AtomicBool = AtomicBool::new(false);
+pub fn minimal_show_switch_back_to_fullscreen() -> bool {
+    MINIMAL_SHOW_SWITCH_BACK_TO_FULLSCREEN.load(Ordering::Acquire)
+}
+#[cfg(any(test, feature = "test-support"))]
+pub fn set_minimal_show_switch_back_to_fullscreen_for_test(on: bool) {
+    MINIMAL_SHOW_SWITCH_BACK_TO_FULLSCREEN.store(on, Ordering::Release);
+}
 /// Whether startup actually applied a forced cursor style. Teardown (and the
 /// panic hook, which can't thread parameters) resets the style only when
 /// true: under inherit, `0 q` would clobber a shell-chosen style.

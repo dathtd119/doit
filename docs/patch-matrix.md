@@ -285,6 +285,51 @@ Product **project** discovery root is **`.do/`** (not `.grok/`). Vendor compat (
 | 2026-07-16 | **P-CFG-PROJECT** | **applied** | `xai-grok-agent` `discovery.rs` `PROJECT_AGENT_SUBDIRS` + plugins `project_plugin_dirs_in`; `xai-grok-shell` `util/hooks.rs` project hooks + `config/` personas/roles + watcher/mcp/claude_import; `xai-grok-workspace` `project_config.rs`, `permission/resolution.rs`, `folder_trust.rs`, `discovery.rs`, checkpoint store; `xai-grok-tools` `PLAN_FILE_RELATIVE_PATH`, `compat` skill/rules dirs, `lsp/config.rs`, `skills/discovery.rs`, `agents_md_tracker` RULES_DIRS; `xai-grok-sandbox` profiles; `xai-grok-pager` agents/import/extensions modals; do-harness verify/install → `.do/` | Project agents/hooks/config/skills/plan/plugins discover under `.do/`; harness install + verify scripts exit 0 | Medium | Extension cannot change in-process discovery string roots; do-harness-only symlinks to `.grok/` would stay invisible after product rebrand |
 | 2026-07-16 | **P-CFG-FIXTURES** | **applied** | Test-only + leftover `load_project_config`: shell `config/mod.rs` project config path; workspace `discovery` rules frontmatter strip for `.do/rules`; fixtures under shell/pager/workspace/tools/sandbox/agent (folder_trust, plan-mode, project skills/roles/personas/plugins/mcp/config/sandbox) rewrite `join(".grok")` → `join(".do")`. GROK_HOME/user-home mocks keep custom roots | Tests seed product discovery under `.do/`; plan exit and folder_trust unit tests pass; `cargo check -p xai-grok-pager-bin` | Low | Fixtures must match P-CFG-PROJECT roots or they go dark against product discovery |
 
+### Upstream sync — `8adf901` (2026-07-16, F-UPSTREAM-MERGE / VAL-UP-001..005)
+
+| Field | Value |
+|-------|--------|
+| **Upstream tip** | `8adf901` (`upstream/main` — monorepo sync) |
+| **Product branch** | `sync/upstream-8adf901` (merge commit; product history preserved — not full rebase of ~44 fork commits) |
+| **Merge base** | `c68e39f` (open-source publish) |
+| **Strategy** | `git merge upstream/main` → resolve conflicts per architecture playbook |
+
+#### Conflict resolutions
+
+| Path class | Resolution | Notes |
+|------------|------------|-------|
+| `crates/codegen/xai-grok-pager-bin/*` → product | **Map** | Upstream package changes applied under **`crates/codegen/doit`** / package **`doit`** / binary **`doit`**. Version line adopted (`0.2.101`). No resurrected `xai-grok-pager-bin` install package path. |
+| Config home / discovery (P-CFG-HOME/PROJECT) | **Fork** | `DEFAULT_USER_HOME_REL` / `default_grok_home` stay `~/.config/do`; project `.do/` discovery kept. Upstream `grok_application_in` export merged onto product paths. |
+| PRIV P-NOTEL / telemetry | **Fork** | Fail-closed SpaceXAI telemetry still hard-off (`is_telemetry_enabled` → false). No forced re-enable. |
+| PRIV P-AUTH / BYOK | **Fork** | `should_require_interactive_oauth` + `doit` `workspace_start` gate still skip forced OAuth for BYOK / `preferred_method=api_key`. |
+| Role switch lock (L1) | **Fork** | `role_switch_allowed` + Tab cycle gate + toast still present. |
+| `settings_modal` monolith → modular | **Upstream** | Took modular `views/settings_modal/{mod,state,input,render,tests}.rs`; dropped product monolith file. |
+| Timeline / screen_mode settings surface | **Upstream + re-wire** | Upstream `SetTimeline` / `SetScreenMode` + setters/router/ui/cache/`UiConfig::show_timeline` re-applied where product base had dropped incomplete timeline wiring. |
+| `Cargo.lock` | **Product** | Keep `doit` package; drop upstream `xai-grok-pager-bin` lock entry. |
+| `README.md` | **Fork + upstream build notes** | Product identity + `cargo check -p doit`; absorb DotSlash/protoc + `SOURCE_REV` notes. |
+| Unrelated monorepo improvements | **Upstream** | Auto-merged shell/pager/workspace/env/memory/etc. when no product identity conflict. |
+| Internal `xai-grok-*` library crates | **Keep names** | No mass rename (VAL-CROSS-002). |
+
+#### Smoke / evidence
+
+- `cargo check -p doit` — exit 0 after conflict resolution
+- `git merge-base --is-ancestor 8adf901 HEAD` — true after merge commit
+- Product package path: `crates/codegen/doit` only (no `xai-grok-pager-bin` directory)
+
+#### Dual-changed hotspots touched (merge-time)
+
+`Cargo.lock`, `README.md`, `crates/codegen/doit/{Cargo.toml,src/main.rs}`, `xai-grok-config/{lib.rs,paths.rs,loader,managed_cache}`, `xai-grok-pager` (actions, dispatch router/settings, app/mod, settings_modal modularization, event_loop, effects helpers), `xai-grok-pager-render` appearance cache/config, `xai-grok-shared` `ui_config`, `xai-grok-shell` settings_writes + agent config (auto-merge kept PRIV), `xai-grok-voice` config docs, plus pure-upstream monorepo delta (~117 files on upstream side).
+
+#### Path mapping note (VAL-UP-005)
+
+| Upstream | Product after merge |
+|----------|---------------------|
+| `crates/codegen/xai-grok-pager-bin` | `crates/codegen/doit` (package/binary `doit`) |
+| binary `xai-grok-pager` | binary `doit` |
+| default-run `xai-grok-pager` | default-run `doit` |
+
+P-AUTH-01 path log still refers historically to `xai-grok-pager-bin` `main.rs`; live path is **`crates/codegen/doit/src/main.rs`**.
+
 ---
 
 ## Milestone → matrix slice
@@ -297,6 +342,7 @@ Product **project** discovery root is **`.do/`** (not `.grok/`). Vendor compat (
 | **CFG** | P-CFG-HOME user home `~/.config/do` (**applied**); P-CFG-PROJECT project `.do/` discovery (**applied**); P-CFG-FIXTURES test drift cleanup (**applied**) |
 | **M2** | L5 continuation; L6 harden; L4 progressive catalog; L11 only if explicit |
 | **M3** | L7 CodeGraph product surface; L3 tool packs as needed; hashline default policy (backlog) |
+| **Upstream sync** | `8adf901` merge into product history (F-UPSTREAM-MERGE); preserve PRIV/CFG/role-lock; map pager-bin→`doit` |
 
 ---
 

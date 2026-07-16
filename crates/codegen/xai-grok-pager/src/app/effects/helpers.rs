@@ -769,6 +769,14 @@ pub(crate) async fn persist_setting(
                 .await
                 .map_err(|e| e.to_string())
         }
+        "show_timeline" => {
+            let SettingValue::Bool(b) = value else {
+                return Err(kind_mismatch("show_timeline", "Bool", &value));
+            };
+            xai_grok_shell::util::config::set_show_timeline(b)
+                .await
+                .map_err(|e| e.to_string())
+        }
         "simple_mode" => {
             let SettingValue::Bool(b) = value else {
                 return Err(kind_mismatch("simple_mode", "Bool", &value));
