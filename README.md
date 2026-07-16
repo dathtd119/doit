@@ -32,13 +32,19 @@ This tree is a **private/local fork** of Grok Build (Rust: pager, shell, tools, 
 
 ## Build (forked binary)
 
-Requirements: Rust (see `rust-toolchain.toml`), protoc (`bin/protoc` or `PATH`).
+Requirements:
+- Rust (see `rust-toolchain.toml`)
+- **`dotslash`** on `PATH` so repo `bin/protoc` resolves (`cargo install dotslash`)
+- Network for first crates.io fetch (or a warm `~/.cargo` cache)
 
 ```sh
-cargo check -p xai-grok-pager-bin            # smoke
+cargo install dotslash                       # once; enables bin/protoc
+cargo check -p xai-grok-pager-bin            # smoke (VAL-FORK-002)
 cargo run -p xai-grok-pager-bin              # build + launch TUI
 cargo build -p xai-grok-pager-bin --release  # release binary
 ```
+
+`bin/protoc` is a [dotslash](https://dotslash-cli.com/) wrapper that fetches protobuf `protoc` v29.3. Without `dotslash`, build scripts fail with `protoc command failed`.
 
 The artifact is named `xai-grok-pager` (upstream installs as `grok`). Config discovery for M0 keeps **`~/.grok`** conventions; product brand is **do** in docs and harness.
 

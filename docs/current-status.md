@@ -11,6 +11,7 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
 ### Done
 
 - Fork import of grok-build tree into `/home/datht/code/do` (feature **F-FORK-001**)
+- **Build smoke** (F-FORK-002 / VAL-FORK-002): `cargo check -p xai-grok-pager-bin` exit 0; requires `dotslash` for `bin/protoc`
 - Project control plane bootstrap:
   - Root `AGENTS.md` (operating contract + living status)
   - Docs split: index, architecture, future-plan, current-status, milestone-ship-discipline, related-projects, **models-and-config**
@@ -33,7 +34,7 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
 
 | Item | Feature | Notes |
 |------|---------|-------|
-| `cargo check -p xai-grok-pager-bin` | F-FORK-002 | Smoke still pending |
+| `cargo check -p xai-grok-pager-bin` | F-FORK-002 | **Done** — VAL-FORK-002; needs `dotslash` |
 | Grok-build inventory docs | F-GROK-001 / VAL-GROK-001 | `docs/grok-build/*` scaffolded with fork evidence; worker may deepen |
 | Evidence docs L1–L12 deep pass | F-DOC-001..003 | limitations/patch-matrix exist with L13 sealed; deepen L1–L12 + capability-map (F-DOC-003 depends on F-GROK-001) |
 | README identity + FORK policy expansion | F-DOC-004 | Partial README; FORK.md pending |
@@ -52,10 +53,10 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
 
 ## Near-term sequence
 
-1. Cargo smoke (F-FORK-002)
-2. Grok-build inventory verify/expand (F-GROK-001) — required before crate work
-3. Evidence inventory docs + L13 in limitations/patch-matrix
-4. Extension proof path
+1. Grok-build inventory verify/expand (F-GROK-001) — required before crate work
+2. Evidence inventory docs L1–L12 deep + capability-map (F-DOC-001..003)
+3. README identity + FORK policy expansion (F-DOC-004)
+4. Extension proof path (F-EXT-001..003)
 5. Backlog + M0 seal commit
 
 ## Links

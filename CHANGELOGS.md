@@ -4,6 +4,31 @@ Append-only ship log for **do**. Not a status essay — one entry per substantiv
 
 ---
 
+## 2026-07-16 — F-FORK-002 cargo check smoke seal
+
+**Scope:** build environment + docs note (no product crate patches)  
+**Feature:** F-FORK-002 · **VAL:** VAL-FORK-002
+
+### Sealed
+
+- `cargo check -p xai-grok-pager-bin` from `/home/datht/code/do` exits **0** (locked workspace)
+- Host prerequisite: **`dotslash`** on `PATH` so repo `bin/protoc` (dotslash wrapper → protoc 29.3) executes; without it, `xai-grok-tools-api` build.rs fails
+- Documented in `README.md` Build section
+
+### Not required / not done
+
+- No import/path source fixes were needed for check
+- Full workspace `cargo test` not in scope
+
+### Files
+
+- `README.md` — Build requirements (`dotslash`, smoke command)
+- Root `AGENTS.md` living status + next steps
+- `docs/current-status.md`
+- This CHANGELOGS entry
+
+---
+
 ## 2026-07-16 — F-CTRL-001 control plane seal
 
 **Scope:** docs / AGENTS / README / CHANGELOGS (no Rust product code)  

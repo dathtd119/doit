@@ -203,7 +203,8 @@ Date: 2026-07-16
 **Ship history:** [`CHANGELOGS.md`](./CHANGELOGS.md) · **Expanded status:** [`docs/current-status.md`](./docs/current-status.md) · **Long Future parking lot:** [`docs/future-plan.md`](./docs/future-plan.md) · **Models:** [`docs/models-and-config.md`](./docs/models-and-config.md)
 
 - **Mission** — `mis_413072d4` active; M0 not sealed
-- **Fork import** — grok-build tree present under `/home/datht/code/do` (F-FORK-001 done); `cargo check` smoke still pending
+- **Fork import** — grok-build tree present under `/home/datht/code/do` (F-FORK-001 done)
+- **Build smoke** — **sealed** (F-FORK-002 / VAL-FORK-002): `cargo check -p xai-grok-pager-bin` exit 0; needs `dotslash` for `bin/protoc`
 - **Control plane** — root `AGENTS.md` + docs split **sealed** (F-CTRL-001 / VAL-CTRL-001..003): index, architecture, future-plan, current-status, ship-discipline, related-projects, **models-and-config** + CHANGELOGS + README; mission AGENTS points here
 - **Multi-model (L13)** — **sealed** (F-MODEL-001 / VAL-MODEL-001..002): `docs/models-and-config.md` (fork evidence + OpenCode gap + YAML schema + TOML map); template `do-harness/config.models.yaml`; L13 in `docs/limitations.md` + `docs/patch-matrix.md`
 - **Role switch lock** — **sealed** (F-ROLE-001 / VAL-ROLE-001): Tab/Shift+Tab **only pre-message**; disabled after first user message / conversation content; M1 implements (see `docs/prompt-system.md` Role lifecycle + M1 note)
@@ -214,15 +215,14 @@ Date: 2026-07-16
 
 ### Next steps
 
-1. M0: `cargo check -p xai-grok-pager-bin` smoke (F-FORK-002)
-2. M0: expand/verify `docs/grok-build/` inventory (F-GROK-001 / VAL-GROK-001) — **required read before crate work**
-3. M0: deepen L1–L12 in limitations/patch-matrix + write capability-map (F-DOC-001..003)
-4. M0: README identity + `FORK.md` policy expansion (F-DOC-004)
-5. M0: proof intake agent + guided PreToolUse hook + discovery verification
-6. M0: `docs/backlog-m1-m3.md` including multi-model assignment wiring + **role Tab cycle + post-message lock** + seal commit
-7. M1: roles + prompt layers on grok seams; **wire role→model from do YAML into agents**; **implement Tab/Shift+Tab role cycle with post-first-message lock**
-8. M2: continuation coordinator + guided-block safety
-9. M3: native power tools (CodeGraph, hashline default policy)
+1. M0: expand/verify `docs/grok-build/` inventory (F-GROK-001 / VAL-GROK-001) — **required read before crate work**
+2. M0: deepen L1–L12 in limitations/patch-matrix + write capability-map (F-DOC-001..003)
+3. M0: README identity + `FORK.md` policy expansion (F-DOC-004)
+4. M0: proof intake agent + guided PreToolUse hook + discovery verification
+5. M0: `docs/backlog-m1-m3.md` including multi-model assignment wiring + **role Tab cycle + post-message lock** + seal commit
+6. M1: roles + prompt layers on grok seams; **wire role→model from do YAML into agents**; **implement Tab/Shift+Tab role cycle with post-first-message lock**
+7. M2: continuation coordinator + guided-block safety
+8. M3: native power tools (CodeGraph, hashline default policy)
 
 ### Future Plan
 
