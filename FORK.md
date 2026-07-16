@@ -1,23 +1,24 @@
-# Fork policy: do
+# Fork policy: doit
 
-**Status:** M0 sealed (F-DOC-004 / VAL-DOC-004). **CFG sealed** (F-CFG-SHIP / VAL-CFG-HOME|PROJECT|SHIP-001) — user home `~/.config/do` + project `.do/`.  
-**Product:** **do** — private/local fork of Grok Build with pi-ness harness-control ideas and OpenCode-style model assignment UX.
+**Status:** M0 sealed (F-DOC-004 / VAL-DOC-004). **CFG sealed** (F-CFG-SHIP) — user home `~/.config/do` + project `.do/` (CFG-DOIT rebrand later). **ORIGIN** — GitHub `dathtd119/doit`; implementation root `/home/datht/code/doit`.  
+**Product:** **doit** (historical brand **do**) — private/local fork of Grok Build with pi-ness harness-control ideas and OpenCode-style model assignment UX.
 
-This file is the **fork hygiene and identity** contract. Operating rules for agents live in [AGENTS.md](./AGENTS.md). Multi-model design: [docs/models-and-config.md](./docs/models-and-config.md). Hard limits: [docs/grok-build/hard-limits.md](./docs/grok-build/hard-limits.md).
+This file is the **fork hygiene and identity** contract. Operating rules for agents live in [AGENTS.md](./AGENTS.md) (includes **Upstream sync checklist**). Multi-model design: [docs/models-and-config.md](./docs/models-and-config.md). Hard limits: [docs/grok-build/hard-limits.md](./docs/grok-build/hard-limits.md).
 
 ---
 
-## 1. What do is
+## 1. What doit is
 
 | Claim | Truth |
 |-------|--------|
-| Base | Forked **Grok Build** (Rust: pager, shell, tools, agent) under `/home/datht/code/do` |
+| Base | Forked **Grok Build** (Rust: pager, shell, tools, agent) under **`/home/datht/code/doit`** |
 | Ideas | **pi-ness** harness control (roles, L0–L6, guided gates, continuum) — reference only |
 | Config ergonomics | **OpenCode-style** role→model assignment — product YAML overlay, not a second runtime |
-| Binary lineage | `xai-grok-pager-bin` (upstream installs as `grok`; product brand is **do** in docs/harness) |
+| Binary / package | Product install package **`doit`** (upstream lineage `xai-grok-pager-bin`; maps to `crates/codegen/doit`) |
+| GitHub | `https://github.com/dathtd119/doit.git` |
 | Contribution path | **Private/local fork** — not “open external PRs to xAI grok-build” |
 
-**do** is not a pure overlay on Pi, and not a Node/OpenTUI port. It owns a forked Rust tree plus a product layer (`do-harness/`) that prefers extension seams before crate patches.
+**doit** is not a pure overlay on Pi, and not a Node/OpenTUI port. It owns a forked Rust tree plus a product layer (`do-harness/`) that prefers extension seams before crate patches.
 
 ---
 
@@ -25,18 +26,24 @@ This file is the **fork hygiene and identity** contract. Operating rules for age
 
 | Path | Role | Access |
 |------|------|--------|
-| `/home/datht/code/grok-build` | Import source for the base | **Read-only** — never edit in place |
-| `/home/datht/code/pi-ness` | Ideas / harness thesis reference | **Read-only** — never edit in place |
-| `/home/datht/code/do` | Product fork + do-harness + docs | **Writable** — only tree we change |
+| `/home/datht/code/doit` | **Implementation root** — product fork + do-harness + docs | **Writable** — **only** tree we change |
+| `/home/datht/code/grok-build` | Upstream mirror / import source | **Read-only** — never edit in place (VAL-CROSS-001) |
+| `/home/datht/code/pi-ness` | Ideas / harness thesis reference | **Read-only** — never edit in place (VAL-CROSS-001) |
+| `/home/datht/code/do` | Stale sibling clone (historical path) | **Deprecated** — not a writable product root; **do not** `rm -rf` without user OK |
 
-**Import rule:** copy (rsync/cp) from grok-build into do. Do not symlink live mutation into the sibling trees. Preserve Apache-2.0, `LICENSE`, and `THIRD-PARTY-NOTICES` on every import refresh.
+**Import / absorb rule:** merge `upstream` (or copy from local grok-build) **into `/home/datht/code/doit` only**. Do not symlink live mutation into the sibling trees. Preserve Apache-2.0, `LICENSE`, and `THIRD-PARTY-NOTICES` on every import refresh.
 
-When re-importing or rebasing from the sibling grok-build tree:
+### Upstream sync (mandatory)
 
-1. Copy into do only  
-2. Re-run smoke: `cargo check -p xai-grok-pager-bin` (needs `dotslash` for `bin/protoc`)  
-3. Diff product surfaces (`do-harness/`, `docs/`, root identity files) so they are not clobbered  
-4. Document any new crate patches in [docs/patch-matrix.md](./docs/patch-matrix.md)
+Every upstream update **must** follow the **Upstream sync checklist** in [AGENTS.md](./AGENTS.md), including:
+
+1. Work only in `/home/datht/code/doit`  
+2. `git fetch upstream`  
+3. **Inventory forked / dual-changed paths** via [docs/patch-matrix.md](./docs/patch-matrix.md) + merge conflict map — re-verify each product patch  
+4. Map `xai-grok-pager-bin` → package **`doit`** / `crates/codegen/doit`  
+5. Smoke: `cargo check -p doit`  
+6. Log the sync in patch-matrix (+ CHANGELOGS on seal)  
+7. Never edit `~/code/pi-ness` or `~/code/grok-build` in place
 
 ---
 
@@ -101,11 +108,12 @@ do-harness/config.models.yaml     (product UX: registry + assignment)
 
 | Allowed | Not the product path |
 |---------|----------------------|
-| Own the fork under `/home/datht/code/do` | Opening external PRs to xAI / public grok-build as the way we ship **do** |
-| Re-copy from local sibling `~/code/grok-build` when refreshing the base | Editing `~/code/grok-build` or `~/code/pi-ness` in place |
-| Document every crate patch in patch-matrix | Silent deep forks of pager/TUI without decision |
+| Own the fork under **`/home/datht/code/doit`** | Opening external PRs to xAI / public grok-build as the way we ship **doit** |
+| Merge `upstream/main` or re-copy from local sibling `~/code/grok-build` **into doit** | Editing `~/code/grok-build` or `~/code/pi-ness` in place |
+| Document every crate patch in patch-matrix on each sync | Silent deep forks of pager/TUI without decision |
+| Deprecate `/home/datht/code/do` in docs | Treating the sibling clone as the implementation root, or deleting it without user OK |
 
-Upstream grok-build is treated as a **private/local** lineage for this product. Official Grok Build docs may still be useful as reference ([docs.x.ai/build](https://docs.x.ai/build/overview)); they are not the contribution workflow for do.
+Upstream grok-build is treated as a **private/local** lineage for this product. Official Grok Build docs may still be useful as reference ([docs.x.ai/build](https://docs.x.ai/build/overview)); they are not the contribution workflow for doit.
 
 ---
 
@@ -117,16 +125,19 @@ Upstream grok-build is treated as a **private/local** lineage for this product. 
 
 ---
 
-## 8. Identity checklist (VAL-DOC-004)
+## 8. Identity checklist (VAL-DOC-004 + ORIGIN)
 
 | Requirement | Where |
 |-------------|--------|
 | Product intent | [README.md](./README.md) + this file §1 |
-| Extension-before-deep-fork | §3 + [AGENTS.md](./AGENTS.md) Customization Order |
-| Config root `~/.config/do` + project `.do/` | §4 |
+| Implementation root `/home/datht/code/doit` | §2 + [AGENTS.md](./AGENTS.md) Project Direction |
+| Sibling `/home/datht/code/do` deprecated (no force-delete) | §2 + AGENTS Hard Constraints |
+| Upstream sync + patch-matrix review every absorb | §2 + AGENTS **Upstream sync checklist** |
+| Never edit pi-ness / grok-build in place | §2 + VAL-CROSS-001 |
+| Extension-before-deep-fork | §3 + AGENTS Customization Order |
+| Config root `~/.config/do` + project `.do/` (until CFG-DOIT) | §4 |
 | Dual TOML + do YAML model surface | §5 + [docs/models-and-config.md](./docs/models-and-config.md) |
 | No external upstream PRs as product path | §6 + Non-Goals in AGENTS |
-| Sibling trees read-only | §2 |
 
 ---
 

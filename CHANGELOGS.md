@@ -1,6 +1,27 @@
 # CHANGELOGS
 
-Append-only ship log for **do**. Not a status essay — one entry per substantive milestone or control-plane change.
+Append-only ship log for **doit** (historical brand **do**). Not a status essay — one entry per substantive milestone or control-plane change.
+
+---
+
+## 2026-07-16 — F-ORIGIN-AGENTS worktree + upstream sync rule
+
+**Scope:** docs / operating contract only  
+**Feature:** F-ORIGIN-AGENTS · **VALs:** VAL-ORIGIN-003, VAL-ORIGIN-004, VAL-CROSS-001  
+**Mission:** `mis_89367de7` M0 ORIGIN
+
+### Shipped
+
+- Root [AGENTS.md](./AGENTS.md): **Upstream sync checklist** (fetch → patch-matrix inventory of forked/dual-changed paths → map pager-bin→`doit` → smoke → log sync; never edit pi-ness/grok-build in place)
+- Implementation root **`/home/datht/code/doit` only**; sibling `/home/datht/code/do` **deprecated** as writable product root (no force-delete)
+- Origin true-now: `https://github.com/dathtd119/doit.git`; smoke package **`doit`**
+- [FORK.md](./FORK.md): source-tree table + mandatory patch-matrix review on absorb
+- [CONTINUE.md](./CONTINUE.md), [docs/current-status.md](./docs/current-status.md): worktree / boundary truth
+
+### Not in this entry
+
+- Upstream merge itself (F-UPSTREAM-MERGE)
+- CFG path rebrand to `~/.config/doit` / `.doit/` (later mission track)
 
 ---
 

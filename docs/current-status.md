@@ -78,18 +78,32 @@ M2 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full
 
 M3 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-M3-SHIP.
 
+### ORIGIN in progress (`mis_89367de7`)
+
+| Surface | Notes |
+|---------|--------|
+| GitHub / origin | `dathtd119/doit` — local origin `https://github.com/dathtd119/doit.git` |
+| Implementation root | **`/home/datht/code/doit` only** |
+| Sibling clone | `/home/datht/code/do` **deprecated** as writable product root (docs only; no `rm -rf` without user OK) |
+| Upstream absorb rule | [AGENTS.md](../AGENTS.md) **Upstream sync checklist** — patch-matrix review of forked/patched files every merge; never edit pi-ness/grok-build in place |
+| Fork hygiene | [FORK.md](../FORK.md) §2 trees + checklist |
+
 ### In progress / next
 
 | Item | Track | Notes |
 |------|-------|-------|
-| Parking-lot promotions only | post-mission | Goal-as-mission, side-ask, BM25 skill_search, multi-provider auth, permission-rules YAML |
-| Optional polish | UX / L7 | Proactive first-message lock toast; CodeGraph `tool_pack` if MCP friction forces it |
+| Upstream merge `8adf901` | `mis_89367de7` M2 | After ORIGIN seal; merge not full-rebase; map pager-bin → `doit` |
+| CFG-DOIT rebrand | `mis_89367de7` M1 | `~/.config/doit` + project `.doit/` (after upstream merge per locked order) |
+| Packaging leftovers | `mis_89367de7` M3 | CI/release/binstall → `dathtd119/doit` |
+| Parking-lot promotions | later | Goal-as-mission, side-ask, BM25 skill_search, multi-provider auth, permission-rules YAML |
 
 ### True-now constraints
 
-- Do not modify `~/code/pi-ness`, `~/code/grok-build`, or `~/code/grok-build-no-telemetry` (read-only)
+- **Implementation root:** `/home/datht/code/doit` only; sibling `/home/datht/code/do` is deprecated (do not edit as product root)
+- **Never modify** `/home/datht/code/pi-ness` or `/home/datht/code/grok-build` in place (VAL-CROSS-001)
+- Every upstream sync: follow AGENTS **Upstream sync checklist** (patch-matrix inventory mandatory)
 - Extension-before-deep-fork
-- Config root: **`~/.config/do`** + project **`.do/`** (CFG sealed); `GROK_HOME` overrides user home
+- Config root: **`~/.config/do`** + project **`.do/`** (CFG sealed until CFG-DOIT); `GROK_HOME` overrides user home
 - Role cycle remains **pre-message only** (no mid-session hop)
 - Guided denials for do-owned gates: **`[GATE: …]` + Do this instead**
 - Continuation nudges re-surface **one** highest open lane (no continuum dump thrash)
@@ -97,12 +111,12 @@ M3 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full
 - Product edit default: hashline namespace when `file_toolset = "hashline"` (stock Default still Standard until TOML merge)
 - SpaceXAI telemetry fail-closed; external OTEL optional
 - BYOK / `preferred_method=api_key` does not force grok.com OAuth
-- Commit every milestone; handoff needs `commitId` + `repoPath`
+- Commit every milestone; handoff needs `commitId` + `repoPath=/home/datht/code/doit`
 
 ## Near-term sequence
 
-1. **Parking lot only** — promote from [future-plan.md](./future-plan.md) when product chooses next work
-2. Optional UX / tool_pack polish listed above
+1. **`mis_89367de7`:** ORIGIN seal → upstream merge → CFG-DOIT → packaging (order locked)
+2. Parking lot — promote from [future-plan.md](./future-plan.md) when product chooses next work
 
 ## Links
 
