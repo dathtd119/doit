@@ -36,12 +36,12 @@ jobs:
         run: cargo install dotslash --locked
 
       - name: Build release binary
-        run: cargo build -p xai-grok-pager-bin --release
+        run: cargo build -p doit --release
 
       - name: Package artifact
         run: |
           mkdir -p dist
-          cp target/release/xai-grok-pager dist/ || cp target/release/xai-grok-pager-bin dist/xai-grok-pager || true
+          cp target/release/doit dist/ || true
           ls -la dist || ls -la target/release | head
 
       - name: Generate release notes
@@ -64,7 +64,7 @@ jobs:
             echo
             echo "### Smoke"
             echo '```'
-            echo "cargo check -p xai-grok-pager-bin"
+            echo "cargo check -p doit"
             echo '```'
           } > RELEASE_NOTES.md
           cat RELEASE_NOTES.md

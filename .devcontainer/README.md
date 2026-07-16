@@ -12,7 +12,7 @@ Includes:
 Local smoke after attach:
 
 ```sh
-cargo check -p xai-grok-pager-bin
+cargo check -p doit
 ```
 
 Optional: `pre-commit install` once Python pre-commit is available.

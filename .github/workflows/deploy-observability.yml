@@ -24,7 +24,7 @@ jobs:
           1. **Error tracking:** Sentry project for the pager binary (`SENTRY_DSN`, org/project tags).
              See [docs/runbooks/incident-response.md](../../docs/runbooks/incident-response.md).
           2. **Product analytics:** Mixpanel project token (`MIXPANEL_TOKEN`) — watch event volume after ship.
-          3. **Local smoke:** `cargo check -p xai-grok-pager-bin` on a clean clone.
+          3. **Local smoke:** `cargo check -p doit` on a clean clone.
           4. **Regression signals:** flaky or slow test reports from the CI Quality gates job artifacts.
 
           Dashboards (operators): configure Sentry + Mixpanel dashboards for your environment;

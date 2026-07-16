@@ -17,6 +17,6 @@ Rationale: supply-chain delay reduces exposure to compromised fresh releases.
 ## Review checklist for dependency PRs
 
 - [ ] Age ≥ 7 days **or** security exception cited
-- [ ] `cargo check -p xai-grok-pager-bin` still passes
+- [ ] `cargo check -p doit` still passes
 - [ ] No new network/crypto sinks without review
 - [ ] Changelog / release notes of the dependency skimmed for breaking changes

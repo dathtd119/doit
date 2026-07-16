@@ -33,8 +33,8 @@ if [[ ! -f "$README_FILE" ]]; then
   exit 1
 fi
 
-if ! grep -q 'cargo check -p xai-grok-pager-bin' "$README_FILE"; then
-  echo "FAIL: README missing documented smoke command cargo check -p xai-grok-pager-bin"
+if ! grep -q 'cargo check -p doit' "$README_FILE"; then
+  echo "FAIL: README missing documented smoke command cargo check -p doit"
   EXIT=1
 fi
 

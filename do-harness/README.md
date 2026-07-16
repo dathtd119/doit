@@ -227,7 +227,7 @@ DO_REPO_ROOT=/path/to/do bash do-harness/scripts/verify-discovery.sh
 If you have a built pager/agent binary with `inspect`:
 
 ```sh
-cargo build -p xai-grok-pager-bin   # when you need a binary
+cargo build -p doit   # when you need a binary
 # then, from do root (exact CLI flag may vary by build):
 #   target/debug/<binary> inspect --json
 # Expect agents[] to include name "intake" and hooks to include PreToolUse /

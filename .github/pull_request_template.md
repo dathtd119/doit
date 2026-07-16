@@ -2,7 +2,7 @@
 <!-- What changed and why? -->
 
 ## Testing done
-- [ ] `cargo check -p xai-grok-pager-bin`
+- [ ] `cargo check -p doit`
 - [ ] Targeted tests: `cargo test -p <crate>`
 - [ ] Pre-commit / quality scripts (if touching agent docs or large files)
 

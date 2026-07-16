@@ -10,7 +10,7 @@ Compact status lives in root [AGENTS.md](../AGENTS.md) (may be gitignored); **th
 
 ### M0 sealed (summary)
 
-- Fork import + `cargo check -p xai-grok-pager-bin` smoke
+- Fork import + product smoke (`cargo check -p doit`; historically pager-bin)
 - Control plane (AGENTS + docs split + CHANGELOGS + README/FORK)
 - Multi-model design (L13): stock multi-`[model.*]` facts + do YAML assignment template
 - Role switch lock **policy** documented (implement later sealed in M1)

@@ -175,10 +175,59 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+section "6. Product-facing CI/docs smoke uses -p doit (VAL-PKG-001)"
+# ---------------------------------------------------------------------------
+
+# Product install package must not be claimed as xai-grok-pager-bin in CI smoke.
+assert_smoke_file() {
+  local path="$1"
+  local label="$2"
+  if [[ ! -f "$path" ]]; then
+    fail "missing $label ($path)"
+    return
+  fi
+  if grep -Eq 'cargo (check|build|clippy|run) -p xai-grok-pager-bin' "$path"; then
+    fail "$label still smokes xai-grok-pager-bin"
+  else
+    ok "$label does not smoke xai-grok-pager-bin"
+  fi
+  if grep -Eq 'cargo (check|build|clippy|run) -p doit' "$path"; then
+    ok "$label uses -p doit"
+  else
+    # Some files only document check; require at least one -p doit cargo line
+    if grep -Fq 'cargo check -p doit' "$path" || grep -Fq 'cargo build -p doit' "$path" || grep -Fq 'cargo clippy -p doit' "$path"; then
+      ok "$label uses -p doit"
+    else
+      fail "$label missing cargo … -p doit smoke"
+    fi
+  fi
+}
+
+assert_smoke_file "$REPO_ROOT/.github/workflows/ci.yml" "ci.yml"
+assert_smoke_file "$REPO_ROOT/.github/workflows/release.yml" "release.yml"
+assert_smoke_file "$REPO_ROOT/.github/pull_request_template.md" "pull_request_template.md"
+assert_smoke_file "$REPO_ROOT/README.md" "README.md"
+
+if [[ -f "$REPO_ROOT/scripts/validate-agents-md.sh" ]]; then
+  if grep -Fq 'cargo check -p doit' "$REPO_ROOT/scripts/validate-agents-md.sh"; then
+    ok 'validate-agents-md.sh expects cargo check -p doit'
+  else
+    fail 'validate-agents-md.sh does not require cargo check -p doit'
+  fi
+  if grep -Fq 'xai-grok-pager-bin' "$REPO_ROOT/scripts/validate-agents-md.sh"; then
+    fail 'validate-agents-md.sh still requires xai-grok-pager-bin'
+  else
+    ok 'validate-agents-md.sh no longer requires xai-grok-pager-bin'
+  fi
+else
+  fail 'scripts/validate-agents-md.sh missing'
+fi
+
+# ---------------------------------------------------------------------------
 printf '\n== summary ==\n'
 printf 'pass=%s fail=%s\n' "$PASS" "$FAIL"
 if [[ "$FAIL" -gt 0 ]]; then
   exit 1
 fi
-printf 'verify-install: BIN identity OK\n'
+printf 'verify-install: BIN identity + PKG smoke OK\n'
 exit 0

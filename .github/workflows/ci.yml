@@ -86,12 +86,12 @@ jobs:
 
       - name: Clippy (cognitive complexity + warnings)
         run: |
-          cargo clippy -p xai-grok-pager-bin --all-targets -- \
+          cargo clippy -p doit --all-targets -- \
             -W clippy::cognitive_complexity \
             -D warnings
 
       - name: Smoke build
-        run: cargo check -p xai-grok-pager-bin
+        run: cargo check -p doit
 
       - name: Unit tests with timing (nextest)
         run: |
@@ -217,7 +217,7 @@ jobs:
           \`\`\`
 
           ### Checklist for agents
-          - [ ] Smoke: \`cargo check -p xai-grok-pager-bin\`
+          - [ ] Smoke: \`cargo check -p doit\`
           - [ ] Prefer do-harness extension before crate patches
           - [ ] Document crate patches in \`docs/patch-matrix.md\`
           - [ ] No secrets in commits (use \`.env.example\` / env keys)

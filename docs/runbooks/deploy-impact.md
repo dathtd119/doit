@@ -5,7 +5,7 @@
 ## Before ship
 
 1. Green CI Quality gates on `main`.
-2. Smoke: `cargo check -p xai-grok-pager-bin`.
+2. Smoke: `cargo check -p doit`.
 3. Review `CHANGELOGS.md` / generated release notes.
 
 ## After ship

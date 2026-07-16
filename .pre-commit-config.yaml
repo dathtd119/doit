@@ -57,8 +57,8 @@ repos:
         files: \.rs$
 
       - id: clippy-complexity
-        name: clippy cognitive complexity (pager-bin scope)
-        entry: bash -c 'cargo clippy -p xai-grok-pager-bin --all-targets -- -W clippy::cognitive_complexity'
+        name: clippy cognitive complexity (doit package)
+        entry: bash -c 'cargo clippy -p doit --all-targets -- -W clippy::cognitive_complexity'
         language: system
         pass_filenames: false
         types: [rust]

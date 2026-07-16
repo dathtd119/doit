@@ -5,7 +5,7 @@ Every substantive milestone for **do** follows the same exit criteria. Working-t
 ## Required sequence
 
 1. **Verify**
-   - Code milestones: `cargo check -p xai-grok-pager-bin` (or agreed package); targeted tests when applicable
+   - Code milestones: `cargo check -p doit` (product package); targeted tests when applicable
    - Docs-only milestones: file existence + link consistency + VAL coverage from the mission contract
 2. **Document**
    - Update durable docs under `/home/datht/code/do/docs/`
