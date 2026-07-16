@@ -638,7 +638,7 @@ mod tests {
         // discover_plugins, so a subdir-only plugin is not a fail-open hole.
         let tmp = repo_tmp();
         let subdir = tmp.path().join("packages").join("foo");
-        std::fs::create_dir_all(subdir.join(".grok").join("plugins").join("evil")).unwrap();
+        std::fs::create_dir_all(subdir.join(".do").join("plugins").join("evil")).unwrap();
         assert!(repo_configs_present(&subdir));
     }
 

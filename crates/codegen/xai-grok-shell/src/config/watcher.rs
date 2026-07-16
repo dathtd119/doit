@@ -586,7 +586,7 @@ mod tests {
         assert!(!g(&home.join("my-skills")));
         assert!(!g(&home.join(".config")));
         // A project/repo config dir (parent isn't $HOME): NOT global.
-        assert!(!g(&home.join("repo").join(".grok")));
+        assert!(!g(&home.join("repo").join(".do")));
     }
 
     /// Regression for the ~/.grok inotify-exhaustion / worktree-noise bug: a
@@ -845,7 +845,7 @@ mod tests {
     fn project_cwd_toml_triggers_reload() {
         let grok_home = TempDir::new().unwrap();
         let cwd = TempDir::new().unwrap();
-        let project_grok = cwd.path().join(".grok");
+        let project_grok = cwd.path().join(".do");
         fs::create_dir_all(&project_grok).unwrap();
         // Seed the file before the watcher starts so we observe the
         // modification rather than the creation event.
@@ -983,7 +983,7 @@ mod tests {
     fn watch_path_dynamic_registration() {
         let grok_home = TempDir::new().unwrap();
         let new_cwd = TempDir::new().unwrap();
-        let project_grok = new_cwd.path().join(".grok");
+        let project_grok = new_cwd.path().join(".do");
         fs::create_dir_all(&project_grok).unwrap();
         fs::write(project_grok.join("config.toml"), "").unwrap();
 

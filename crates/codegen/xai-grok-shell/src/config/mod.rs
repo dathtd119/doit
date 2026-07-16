@@ -1335,10 +1335,10 @@ pub fn apply_sandbox(
         sandbox.install();
     }
 }
-/// Load `<cwd>/.grok/config.toml` (with this layer's `[[version_overrides]]`
+/// Load `<cwd>/.do/config.toml` (with this layer's `[[version_overrides]]`
 /// applied). Empty table if the file is missing.
 pub fn load_project_config(cwd: &std::path::Path) -> std::io::Result<toml::Value> {
-    load_config_file(&cwd.join(".grok").join("config.toml"))
+    load_config_file(&cwd.join(".do").join("config.toml"))
 }
 pub use xai_grok_workspace::project_config::find_project_configs;
 /// Resolve the effective `[plugins]` config for a working directory the same

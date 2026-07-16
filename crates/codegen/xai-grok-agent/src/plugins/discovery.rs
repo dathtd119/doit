@@ -1548,7 +1548,7 @@ mod tests {
         // (project_trusted) allows it. Found by name so any user-scoped plugins
         // on the test host are irrelevant.
         let tmp = tempfile::tempdir().unwrap();
-        let plugin_dir = tmp.path().join(".grok").join("plugins").join("proj-mcp");
+        let plugin_dir = tmp.path().join(".do").join("plugins").join("proj-mcp");
         std::fs::create_dir_all(&plugin_dir).unwrap();
         std::fs::write(plugin_dir.join("plugin.json"), r#"{"name": "proj-mcp"}"#).unwrap();
         std::fs::write(plugin_dir.join(".mcp.json"), r#"{"mcpServers":{}}"#).unwrap();

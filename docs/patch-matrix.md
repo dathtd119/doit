@@ -281,6 +281,7 @@ Product **project** discovery root is **`.do/`** (not `.grok/`). Vendor compat (
 | Date | ID | Status | Crate / path | Reason | Risk | Alternatives exhausted |
 |------|----|--------|--------------|--------|------|------------------------|
 | 2026-07-16 | **P-CFG-PROJECT** | **applied** | `xai-grok-agent` `discovery.rs` `PROJECT_AGENT_SUBDIRS` + plugins `project_plugin_dirs_in`; `xai-grok-shell` `util/hooks.rs` project hooks + `config/` personas/roles + watcher/mcp/claude_import; `xai-grok-workspace` `project_config.rs`, `permission/resolution.rs`, `folder_trust.rs`, `discovery.rs`, checkpoint store; `xai-grok-tools` `PLAN_FILE_RELATIVE_PATH`, `compat` skill/rules dirs, `lsp/config.rs`, `skills/discovery.rs`, `agents_md_tracker` RULES_DIRS; `xai-grok-sandbox` profiles; `xai-grok-pager` agents/import/extensions modals; do-harness verify/install → `.do/` | Project agents/hooks/config/skills/plan/plugins discover under `.do/`; harness install + verify scripts exit 0 | Medium | Extension cannot change in-process discovery string roots; do-harness-only symlinks to `.grok/` would stay invisible after product rebrand |
+| 2026-07-16 | **P-CFG-FIXTURES** | **applied** | Test-only + leftover `load_project_config`: shell `config/mod.rs` project config path; workspace `discovery` rules frontmatter strip for `.do/rules`; fixtures under shell/pager/workspace/tools/sandbox/agent (folder_trust, plan-mode, project skills/roles/personas/plugins/mcp/config/sandbox) rewrite `join(".grok")` → `join(".do")`. GROK_HOME/user-home mocks keep custom roots | Tests seed product discovery under `.do/`; plan exit and folder_trust unit tests pass; `cargo check -p xai-grok-pager-bin` | Low | Fixtures must match P-CFG-PROJECT roots or they go dark against product discovery |
 
 ---
 
@@ -291,7 +292,7 @@ Product **project** discovery root is **`.do/`** (not `.grok/`). Vendor compat (
 | **M0** | L10 docs; L13 template; L6/L8 proof (hook + intake agent); this matrix + limitations sealed |
 | **M1** | L1 Tab lock + role roster; L13 YAML→agent wire; L2 prompt layers; start L4 |
 | **PRIV** | P-NOTEL-01..06 fail-closed SpaceXAI telemetry; P-AUTH-01 BYOK skip forced OAuth (**applied**, 2026-07-16) |
-| **CFG** | P-CFG-HOME user home `~/.config/do` (**applied**); P-CFG-PROJECT project `.do/` discovery (**applied**) |
+| **CFG** | P-CFG-HOME user home `~/.config/do` (**applied**); P-CFG-PROJECT project `.do/` discovery (**applied**); P-CFG-FIXTURES test drift cleanup (**applied**) |
 | **M2** | L5 continuation; L6 harden; L4 progressive catalog; L11 only if explicit |
 | **M3** | L7 CodeGraph product surface; L3 tool packs as needed; hashline default policy (backlog) |
 

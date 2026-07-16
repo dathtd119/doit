@@ -436,10 +436,10 @@ mod max_mcp_output_bytes_tests {
         // Make it a git repo so the chain walks subdir → root.
         git2::Repository::init(root).unwrap();
         let sub = root.join("crates").join("thing");
-        std::fs::create_dir_all(sub.join(".grok")).unwrap();
-        std::fs::create_dir_all(root.join(".grok")).unwrap();
+        std::fs::create_dir_all(sub.join(".do")).unwrap();
+        std::fs::create_dir_all(root.join(".do")).unwrap();
         std::fs::write(
-            root.join(".grok/config.toml"),
+            root.join(".do/config.toml"),
             "[mcp]\nmax_output_bytes = 30000\n",
         )
         .unwrap();
@@ -449,18 +449,18 @@ mod max_mcp_output_bytes_tests {
 
         // The subdir sets it too → deeper file wins.
         std::fs::write(
-            sub.join(".grok/config.toml"),
+            sub.join(".do/config.toml"),
             "[mcp]\nmax_output_bytes = 50000\n",
         )
         .unwrap();
         assert_eq!(super::project_max_mcp_output_bytes(&sub), Some(50_000));
 
         // A deeper file *without* the key does not mask the root value.
-        std::fs::write(sub.join(".grok/config.toml"), "[ui]\nvim_mode = true\n").unwrap();
+        std::fs::write(sub.join(".do/config.toml"), "[ui]\nvim_mode = true\n").unwrap();
         assert_eq!(super::project_max_mcp_output_bytes(&sub), Some(30_000));
 
         // No .grok files with the key anywhere → None.
-        std::fs::remove_file(root.join(".grok/config.toml")).unwrap();
+        std::fs::remove_file(root.join(".do/config.toml")).unwrap();
         assert_eq!(super::project_max_mcp_output_bytes(&sub), None);
     }
 }
