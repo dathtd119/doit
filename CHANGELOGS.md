@@ -4,6 +4,35 @@ Append-only ship log for **do**. Not a status essay — one entry per substantiv
 
 ---
 
+## 2026-07-16 — F-EXT-002 guided PreToolUse hook proof
+
+**Scope:** do-harness hooks + project discovery install  
+**Feature:** F-EXT-002 · **VAL:** VAL-EXT-002
+
+### Sealed
+
+- `do-harness/hooks/guided-dangerous-shell.json` — PreToolUse matcher for shell tools (`Bash` / `run_terminal_cmd` / …)
+- `do-harness/hooks/bin/guided-dangerous-shell.py` — deny dangerous patterns (`rm -rf /`, `sudo rm`, `pkill`/`killall`, `mkfs`, `dd … of=/dev/…`, fork bombs, device redirects) with **guided-block** reason:
+  - `[GATE: …]` + **Do this instead** (+ optional Human involvement / Do not)
+  - never bare “Permission denied”
+- `do-harness/hooks/README.md` — enablement (project symlink / user-global copy) + verify commands
+- Project discovery install: `.grok/hooks/guided-dangerous-shell.json` + `.grok/hooks/bin/guided-dangerous-shell.py` → symlinks to do-harness (same pattern as intake agent)
+
+### Not in scope
+
+- F-EXT-003 end-to-end discovery binary/script + top-level `do-harness/README.md`
+- Full always-on guided-block productization (M2)
+
+### Files
+
+- `do-harness/hooks/guided-dangerous-shell.json`
+- `do-harness/hooks/bin/guided-dangerous-shell.py`
+- `do-harness/hooks/README.md`
+- `.grok/hooks/*` (symlinks)
+- This CHANGELOGS entry
+
+---
+
 ## 2026-07-16 — F-EXT-001 intake agent profile proof
 
 **Scope:** do-harness agent + project discovery install  
