@@ -7,9 +7,10 @@ role cycle re-pins model from agent `model:` **only while** `role_switch_allowed
 post-lock keeps the model stack; subagent spawn overrides unchanged.
 **PRIV F-PRIV-AUTH:** BYOK / `preferred_method=api_key` does not force grok.com
 OAuth (see Auth section; crate **P-AUTH-01**).  
+**CFG sealed:** user home **`~/.config/do` only** (P-CFG-HOME); project discovery
+**`.do/`** (P-CFG-PROJECT); env override **`GROK_HOME`** (full root replace;
+`DO_HOME` not wired). No silent default dual-read of `~/.grok`.  
 **Limitation ID:** **L13**
-
-**CFG paths:** user home `~/.config/do` (P-CFG-HOME); project discovery **`.do/`** (P-CFG-PROJECT); env override `GROK_HOME`.
 
 ## Summary
 

@@ -6,7 +6,7 @@ Compact status lives in root [AGENTS.md](../AGENTS.md) (may be gitignored); **th
 
 ## Where we are
 
-**do** is a private/local fork of Grok Build intended to absorb pi-ness harness-control ideas without porting OpenTUI. **M0, M1, and PRIV are sealed.** Next product track is **CFG** (config home + project discovery rebrand), then M2/M3 per [backlog-m1-m3.md](./backlog-m1-m3.md).
+**do** is a private/local fork of Grok Build intended to absorb pi-ness harness-control ideas without porting OpenTUI. **M0, M1, PRIV, and CFG are sealed.** Next product track is **M2** then M3 per [backlog-m1-m3.md](./backlog-m1-m3.md).
 
 ### M0 sealed (summary)
 
@@ -22,12 +22,12 @@ Compact status lives in root [AGENTS.md](../AGENTS.md) (may be gitignored); **th
 
 | Surface | Evidence |
 |---------|----------|
-| Five product agents | `verify-roster.sh` — intake, orchestrator, explorer, worker, oracle on `.grok/agents/` |
+| Five product agents | `verify-roster.sh` — intake, orchestrator, explorer, worker, oracle |
 | Role switch lock | `verify-role-lock.sh` — 10 `role_switch_policy` tests; Tab only pre-message |
 | Lock UX toast | `c8bf39f` — locked-attempt toast points to new session (`role_switch_locked_toast`) |
 | YAML → agent pins | `apply-models.py --validate` — 5 assignment pins; stock TOML remains runtime |
 | Model re-pin gate | `verify-model-resolve.sh` — re-pin only while `role_switch_allowed` |
-| L0–L6 + workspace | `docs/prompt-system.md` implementable; `docs/workspace.md` non-stub (reuse `.grok` only) |
+| L0–L6 + workspace | `docs/prompt-system.md` implementable; continuum contract non-stub |
 | Progressive skills start | `verify-progressive-skills.sh` + `config.skills.yaml`; reduced firehose on intake/explorer/oracle |
 
 M1 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-M1-SHIP.
@@ -38,25 +38,37 @@ M1 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full
 |---------|----------|
 | Fail-closed SpaceXAI telemetry | `4458c69` — P-NOTEL-01..06 (analytics, Mixpanel, Sentry, internal OTLP, trace upload, feedback) |
 | External OTEL preserved | `GROK_EXTERNAL_OTEL` + `OTEL_*`; `xai-grok-telemetry/src/external/` intact |
-| BYOK / no forced OAuth | `11d8752` — P-AUTH-01; `should_require_interactive_oauth` + `workspace_start` skip; Auth docs in [models-and-config.md](./models-and-config.md) |
+| BYOK / no forced OAuth | `11d8752` — P-AUTH-01; Auth docs in [models-and-config.md](./models-and-config.md) |
 | Patch matrix | [patch-matrix.md](./patch-matrix.md) **applied** rows for P-NOTEL-01..06 + P-AUTH-01 |
 
 Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-PRIV-SHIP.
+
+### CFG sealed (config home + project discovery)
+
+| Surface | Evidence |
+|---------|----------|
+| User home `~/.config/do` only | `12a5c20` — P-CFG-HOME (`default_grok_home` / `DEFAULT_USER_HOME_REL`); no silent `~/.grok` fallback; override `GROK_HOME` |
+| Project discovery `.do/` | `9039f68` — P-CFG-PROJECT (agents/hooks/plan/config/skills/plugins product paths); do-harness verify/install → `.do/` |
+| Fixture alignment | `53bf77b` — P-CFG-FIXTURES rewrite project fixtures to `.do/` |
+| Harness verify | `verify-discovery.sh` + `verify-roster.sh` exit 0 against `.do/` |
+| Docs | [FORK.md](../FORK.md) §4; [models-and-config.md](./models-and-config.md); [workspace.md](./workspace.md); patch-matrix **applied** P-CFG-* |
+
+Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-CFG-SHIP.
 
 ### In progress / next
 
 | Item | Track | Notes |
 |------|-------|-------|
-| User config home `~/.config/do` only | **CFG** | No silent `~/.grok` fallback default; P-CFG-* |
-| Project discovery `.do/` | **CFG** | Agents/hooks/install targets leave `.grok/` product paths |
-| Continuation priority + guided pack | **M2** | After CFG; native goal/plan/todo; ≥2 more gates |
+| Continuation priority + guided pack | **M2** | Native goal/plan/todo; ≥2 more gates beyond shell |
+| Progressive skill/MCP deepen | **M2** | Dynamic mode parity start |
+| Role permission floors | **M2** | Agent skill/tool floors beyond stubs |
 | CodeGraph + hashline default | **M3** | After M2 |
 
 ### True-now constraints
 
 - Do not modify `~/code/pi-ness`, `~/code/grok-build`, or `~/code/grok-build-no-telemetry` (read-only)
 - Extension-before-deep-fork
-- Config root remains `~/.grok` **until CFG ships** `~/.config/do` + project `.do/`
+- Config root: **`~/.config/do`** + project **`.do/`** (CFG sealed); `GROK_HOME` overrides user home
 - Role cycle remains **pre-message only** (no mid-session hop)
 - SpaceXAI telemetry fail-closed; external OTEL optional
 - BYOK / `preferred_method=api_key` does not force grok.com OAuth
@@ -64,9 +76,8 @@ Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-PRIV-SHIP.
 
 ## Near-term sequence
 
-1. **CFG** rebrand (home `~/.config/do` + project `.do/`) — **before M2**
-2. **M2** continuation + guided-block harden
-3. **M3** CodeGraph + hashline default
+1. **M2** continuation + guided-block harden + progressive deepen + role floors
+2. **M3** CodeGraph + hashline default
 
 ## Links
 

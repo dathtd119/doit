@@ -1,6 +1,6 @@
 # Fork policy: do
 
-**Status:** M0 sealed (F-DOC-004 / VAL-DOC-004)  
+**Status:** M0 sealed (F-DOC-004 / VAL-DOC-004). **CFG sealed** (F-CFG-SHIP / VAL-CFG-HOME|PROJECT|SHIP-001) — user home `~/.config/do` + project `.do/`.  
 **Product:** **do** — private/local fork of Grok Build with pi-ness harness-control ideas and OpenCode-style model assignment UX.
 
 This file is the **fork hygiene and identity** contract. Operating rules for agents live in [AGENTS.md](./AGENTS.md). Multi-model design: [docs/models-and-config.md](./docs/models-and-config.md). Hard limits: [docs/grok-build/hard-limits.md](./docs/grok-build/hard-limits.md).

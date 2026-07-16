@@ -36,7 +36,7 @@ Recommended **implementation / product order** (not limitation ID order). Risk i
 | 3 | L1 | `agent` + `config` (+ optional `crate_patch` for Tab lock) | Medium | **M1** | Primary-session role roster + **post-first-message lock** |
 | 4 | L6 | `hook` (+ small `crate_patch` only if gate format needs tools-api) | Low–Medium | M0 proof / M2 harden | Guided blocks `[GATE:…]` + **Do this instead** |
 | 5 | L8 | `agent` (`defer` dual-stream UI) | Low / High if TUI | M0 intake / later | Intake default profile first; side-ask UI deferred |
-| 6 | L9 | `config` + docs | Low | M0–M1 | Map product workspace semantics onto `.grok` / thin `.do/` |
+| 6 | L9 | `config` + docs | Low | M0–M1 / **CFG** | Map product workspace onto **`.do/`** + **`~/.config/do`** sessions |
 | 7 | L2 | `plugin` / prompts + optional `crate_patch` | Medium | M1 | L0–L6 mapping onto grok inject points |
 | 8 | L4 | `config` + `skill` (+ optional `crate_patch`) | Medium | M1–M2 | Progressive skill/MCP catalog (not firehose dump) |
 | 9 | L5 | `hook` first; coordinator `crate_patch` only if races remain | Medium / **High** if crate | **M2** | Continuation priority lanes over native goal/plan/todo |
@@ -218,7 +218,7 @@ Each row: gap → path → risk → order → seams → avoid → links.
 | **Risk** | **Low** if overlay-only; **Medium** if operators expect auto-wire before M1; **High** if second runtime registry |
 | **Order** | **2** (template M0; wire with L1 in M1) |
 | **Milestone** | M0 template + docs (done); **M1 wire** |
-| **Seams** | `do-harness/config.models.yaml`; `~/.grok/config.toml` `[model.*]`; subagent resolution spawn > role > persona > parent; agent frontmatter model |
+| **Seams** | `do-harness/config.models.yaml`; `~/.config/do/config.toml` `[model.*]`; project `.do/`; subagent resolution spawn > role > persona > parent; agent frontmatter model |
 | **Avoid** | Competing runtime registry; early `crate_patch` for assignment; claiming stock grok is single-model |
 | **Evidence / design** | [limitations.md § L13](./limitations.md#l13--multi-model-assignment-ux-not-missing-multi-model); [models-and-config.md](./models-and-config.md); template `do-harness/config.models.yaml` |
 | **Validators** | VAL-MODEL-001, VAL-MODEL-002 |
@@ -231,7 +231,7 @@ Each row: gap → path → risk → order → seams → avoid → links.
 1. **Prefer extension** (`config` / `agent` / `hook` / `plugin` / `skill`) before `tool_pack` before `crate_patch` before deep TUI.  
 2. **Ask placement** before always-on behavior or promoting config → crate (root `AGENTS.md` Native vs Extension vs Crate Patch).  
 3. **Do not reinvent** native plan / goal / todo / task / hashline / MCP / multi-`[model.*]` — compose product policy on top ([hard-limits.md](./grok-build/hard-limits.md)).  
-4. **Dual config for models:** do YAML policy + `~/.grok/config.toml` runtime — do not fight the base.  
+4. **Dual config for models:** do YAML policy + `~/.config/do/config.toml` runtime (project `.do/`) — do not fight the base.  
 5. **Guided denials (L6):** incomplete until gate is named in prompts **and** result uses `[GATE: …]` + **Do this instead**.  
 6. **Every crate patch** adds a dated row in the log below (crate path, reason, linked L*, risk).
 

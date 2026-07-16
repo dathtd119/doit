@@ -28,7 +28,7 @@ Absolute paths below are preferred; crate paths without a prefix mean under `/ho
 | L6 | Guided blocks `[GATE:…]` + “Do this instead” | Permissions + PreToolUse hooks | Denials less “teach the model” | Hooks + tool error shapes; small tools-api patch only if gate format needs it |
 | L7 | CodeGraph lean tools | `xai-codebase-graph` crate exists; no first-party lean agent tool surface observed | Semantic nav not productized for agents | MCP or plugin first; optional native tool later |
 | L8 | Side-ask dual stream / intake default role | `ask_user_question`, modes, agent profiles | No side dual-stream product; intake profile pending proof | Intake agent first (F-EXT-001); dual-stream UI deferred |
-| L9 | Workspace disk state `.piness/` (L6 disk) | Session dir + plan.md + goals | Different layout/semantics | Map `.do/` or reuse `.grok/` session layout; document contract |
+| L9 | Workspace disk state `.piness/` (L6 disk) | Session dir + plan.md + goals | Different layout/semantics | Product **`.do/`** + **`~/.config/do`** (CFG); document continuum contract |
 | L10 | Overlay-first without forking Pi | **This is a fork** of grok-build | Must own fork hygiene, rebases, branding | Fork policy + “do” identity; never modify sibling trees |
 | L11 | Node/OpenTUI stack | Rust/ratatui pager | Different contrib model & UI extension cost | Accept Rust; plugins before deep TUI fork; **no OpenTUI port** in M0–M1 |
 | L12 | Compat patches to upstream dist | Full source tree available | Easier to patch crates, harder to stay mergeable | Prefer config/plugin; minimize core diffs; document every patch |
@@ -494,7 +494,7 @@ Grok **already** multi-models. The gap is **controllable assignment** at product
 
 ### Stock grok-build
 
-- Registry in `~/.grok/config.toml`  
+- Registry in `~/.config/do/config.toml` (`$GROK_HOME`)  
 - Role/persona `model` + `reasoning_effort`  
 - Hot-reload of `[model.*]`  
 - Agent frontmatter model pins
@@ -533,7 +533,7 @@ Operators hand-edit TOML + scattered agent files without a single **assignment**
 
 ### Non-goals
 
-- YAML-only runtime that bypasses `~/.grok/config.toml`  
+- YAML-only runtime that bypasses `~/.config/do/config.toml`  
 - Competing multi-model registry in Rust for M0  
 - Claiming stock grok is single-model-only
 

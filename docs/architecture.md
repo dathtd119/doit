@@ -41,8 +41,8 @@ Full detail: [prompt-system.md](./prompt-system.md) (Role lifecycle + M1 note). 
 ## System components
 
 1. **Forked grok-build crates** — pager, shell, tools, agent, workspace (Cargo workspace under `crates/`, binary lineage `xai-grok-pager-bin`)
-2. **Native multi-model** — `~/.grok/config.toml` with many `[model.<name>]` sections, `[models] default`, api backends; agent/persona/spawn model overrides
-3. **do-harness product layer** — agents, hooks, skills, prompts, **YAML model assignment overlay** (`config.models.yaml`)
+2. **Native multi-model** — `~/.config/do/config.toml` (`$GROK_HOME`) with many `[model.<name>]` sections, `[models] default`, api backends; agent/persona/spawn model overrides
+3. **do-harness product layer** — agents, hooks, skills, prompts, **YAML model assignment overlay** (`config.models.yaml`); install onto project **`.do/`**
 4. **Docs** — architecture, models-and-config, limitations, patch-matrix, capability-map, backlog
 
 ## Config dual surface
@@ -56,13 +56,14 @@ Full detail: [prompt-system.md](./prompt-system.md) (Role lifecycle + M1 note). 
                             │ maps / generates / documents
                             ▼
 ┌─────────────────────────────────────────────────────────┐
-│  Stock grok TOML (native runtime)                       │
-│  ~/.grok/config.toml                                    │
+│  Stock TOML (native runtime; CFG home)                  │
+│  ~/.config/do/config.toml  ($GROK_HOME override)        │
 │  [models] default · [model.<name>] · agent frontmatter  │
+│  Project discovery: .do/agents · .do/hooks · .do/plan   │
 └─────────────────────────────────────────────────────────┘
 ```
 
-M0: document + template only. M1: wire assignment into do-harness agents. Details: [models-and-config.md](./models-and-config.md).
+M0: document + template. M1: wire assignment into do-harness agents. CFG: default home `~/.config/do` + project `.do/`. Details: [models-and-config.md](./models-and-config.md), [FORK.md](../FORK.md) §4.
 
 ## Extension strategy order
 
@@ -96,7 +97,7 @@ M0: document + template only. M1: wire assignment into do-harness agents. Detail
 | L6 | Guided blocks `[GATE:…]` + “Do this instead” | Permissions + PreToolUse hooks | Denials less “teach the model” | Hooks + tool error shapes; small tools-api patch for standard gate format |
 | L7 | CodeGraph lean tools | No first-party codegraph package observed | Semantic nav missing | MCP or plugin wrapping local codegraph; optional native tool later |
 | L8 | Side-ask dual stream / intake default role | `ask_user_question`, modes | No side dual-stream product | Defer UI polish; intake agent profile first |
-| L9 | Workspace disk state `.piness/` L6 | Session dir + plan.md + goals | Different layout/semantics | Map `.do/` or reuse `.grok/` session layout; document contract |
+| L9 | Workspace disk state `.piness/` L6 | Session dir + plan.md + goals | Different layout/semantics | Product **`.do/`** + **`~/.config/do`** (CFG); document continuum contract |
 | L10 | Overlay-first without forking Pi | **This is a fork** of grok-build (upstream: no external contrib) | Must own fork hygiene, rebases, branding | Fork policy + clear “do” identity vs upstream `grok` |
 | L11 | Node/OpenTUI stack | Rust/ratatui pager | Different contrib model & UI extension cost | Accept Rust; extend via plugins before TUI deep forks |
 | L12 | Compat patches to upstream dist | Full source tree available | Easier to patch crates, harder to stay mergeable | Prefer config/plugin; minimize core diffs; document every patch |
@@ -146,9 +147,9 @@ User
 
 ## Boundaries
 
-- **No OpenTUI port** in M0–M1 unless reopened
-- **Keep stock auth** for M0
-- Prefer **`~/.grok` internals** for config discovery; brand as **do** in docs/CLI later
+- **No OpenTUI port** in M0–M3 unless reopened
+- **Keep stock auth** paths; PRIV BYOK skip-OAuth is shipped
+- Config discovery default: **`~/.config/do`** + project **`.do/`** (CFG sealed; override via `GROK_HOME`)
 - **Do not replace** native multi-model TOML — overlay and map
 - **Do not kill unrelated processes**
 - Reference **pi-ness / OpenCode** only; do **not** modify `/home/datht/code/pi-ness` or `/home/datht/code/grok-build`
@@ -161,5 +162,7 @@ User
 |-----------|--------|
 | M0 | Import, build smoke, L1–L13 docs, control plane, proof agent + guided hook, model YAML template |
 | M1 | Roles + prompt layers; **wire role→model assignment** from do YAML into agents; **Tab/Shift+Tab role cycle with post-first-message lock** |
+| PRIV | Fail-closed SpaceXAI telemetry + BYOK no forced OAuth |
+| CFG | User home **`~/.config/do`**; project discovery **`.do/`** |
 | M2 | Continuation coordinator + guided-block safety |
 | M3 | Native power tools (CodeGraph, hashline default policy) |

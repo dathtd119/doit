@@ -4,6 +4,48 @@ Append-only ship log for **do**. Not a status essay — one entry per substantiv
 
 ---
 
+## 2026-07-16 — F-CFG-SHIP config rebrand seal (VAL-CFG-SHIP-001)
+
+**Scope:** seal CFG implement evidence + living docs; no new product crate code this commit  
+**Feature:** F-CFG-SHIP · **VALs:** VAL-CFG-HOME-001, VAL-CFG-PROJECT-001, VAL-CFG-SHIP-001
+
+### Sealed product surface (prior implement commits)
+
+| Track | Commit | Surface |
+|-------|--------|---------|
+| **P-CFG-HOME** | `12a5c20` `feat(config): default user home ~/.config/do` | `default_grok_home` / `DEFAULT_USER_HOME_REL` → `.config/do`; synced worktree/agent resolvers; **no** silent `~/.grok` fallback; override `GROK_HOME` |
+| **P-CFG-PROJECT** | `9039f68` `feat(config): project discovery under .do/` | Agents/hooks/plan/config/skills/plugins product paths under **`.do/`**; do-harness verify/install updated |
+| **P-CFG-FIXTURES** | `53bf77b` `test(config): align project fixtures with .do/` | Test fixtures seed `.do/` to match product discovery |
+
+### Evidence (this ship)
+
+| Command | Result |
+|---------|--------|
+| `bash do-harness/scripts/verify-discovery.sh` | PASS — project `.do/agents` + `.do/hooks`; crate evidence for `.do/` discovery |
+| `bash do-harness/scripts/verify-roster.sh` | PASS — five agents on `.do/agents/` |
+
+### Docs this ship
+
+- [FORK.md](./FORK.md) §4 — `~/.config/do` + project `.do/` (already applied by implement; status header sealed)
+- [docs/models-and-config.md](./docs/models-and-config.md) — CFG paths + dual surface table
+- [docs/workspace.md](./docs/workspace.md) — continuum under `.do/` + `~/.config/do` sessions
+- [docs/architecture.md](./docs/architecture.md), [docs/index.md](./docs/index.md), [README.md](./README.md) — discovery roots
+- [docs/patch-matrix.md](./docs/patch-matrix.md) — **applied** P-CFG-HOME / P-CFG-PROJECT / P-CFG-FIXTURES
+- Root `AGENTS.md` Status/Next + [docs/current-status.md](./docs/current-status.md): CFG **sealed**; next **M2**
+- [docs/future-plan.md](./docs/future-plan.md), [docs/backlog-m1-m3.md](./docs/backlog-m1-m3.md) — CFG parked items marked done
+- This CHANGELOGS entry
+
+### Next (not in this seal)
+
+1. **M2** — continuation priority + guided-block pack + progressive deepen + role floors
+2. **M3** — CodeGraph product surface + hashline default
+
+### Key commits (implement lineage)
+
+- `12a5c20` P-CFG-HOME · `9039f68` P-CFG-PROJECT · `53bf77b` P-CFG-FIXTURES
+
+---
+
 ## 2026-07-16 — F-PRIV-SHIP privacy seal (VAL-PRIV-SHIP-001)
 
 **Scope:** seal PRIV implement evidence + living docs; no new product code this commit  

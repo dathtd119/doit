@@ -16,8 +16,8 @@
 | Token | Meaning |
 |-------|---------|
 | Tool FQ / kind | Registered in `ToolRegistryBuilder::new()` — see [native-tools.md](./grok-build/native-tools.md) |
-| Config | `~/.grok/config.toml` or project `.grok/config.toml` |
-| Agent / persona | Discovery under `.grok/agents/`, roles, personas |
+| Config | `~/.config/do/config.toml` or project `.do/config.toml` |
+| Agent / persona | Discovery under `.do/agents/`, roles, personas |
 | Hook | PreToolUse / session hooks via `xai-grok-hooks` |
 | Plugin / skill | Plugin marketplace or skill discovery |
 | MCP | `search_tool` / `use_tool` + `xai-grok-mcp` |
@@ -141,7 +141,7 @@ pi-ness L0–L6 (from `/home/datht/code/pi-ness/docs/prompt-system.md` and do [p
 | Role bodies | `prompts/roles/*` | Agent markdown / role TOML `prompt_file` | `do-harness/agents/`, prompts | **Mapped** path |
 | Tool/skill deny floors | Role routing + permission | Permissions + agent toolsets + hooks | do-harness + permission rules | **Partial** |
 | Subagent spawn | Role-aware spawn | `TaskTool` + `xai-grok-subagent-resolution` | Use stock; pin models via L13 | **Mapped** |
-| Personas | pi session personas | `.grok/personas/`, `[subagents.personas.*]` | Optional product personas | **Mapped** |
+| Personas | pi session personas | `.do/personas/`, `[subagents.personas.*]` | Optional product personas | **Mapped** |
 | Intake default | intake role + intent packs | Agent profile proof (F-EXT-001) | do-harness intake | **Pending proof** |
 | Orchestrator / explorer / worker / oracle | Role roster + OpenCode pins | Agent defs + subagent types | `assignment:` in YAML | **Design sealed**; wire M1 |
 
@@ -183,7 +183,7 @@ Disk layout contract: [workspace.md](./workspace.md) (M1 non-stub) + L9.
 
 ```
 do-harness/config.models.yaml
-  models.registry.*  ──map──►  ~/.grok/config.toml  [model.*]
+  models.registry.*  ──map──►  ~/.config/do/config.toml  [model.*]
   models.default     ──map──►  [models] default
   assignment.*       ──map──►  agent frontmatter / [subagents.roles.*] model
                                       │

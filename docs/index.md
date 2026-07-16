@@ -16,7 +16,7 @@ Agent and human entry point for the **do** product (forked Grok Build + pi-ness 
 | [related-projects.md](./related-projects.md) | pi-ness, grok-build, OpenCode learnings |
 | [../CHANGELOGS.md](../CHANGELOGS.md) | What shipped |
 | [../README.md](../README.md) | Human product overview + identity |
-| [../FORK.md](../FORK.md) | Fork policy, `~/.grok` M0 root, dual TOML+YAML, no external upstream PRs |
+| [../FORK.md](../FORK.md) | Fork policy, `~/.config/do` + project `.do/`, dual TOML+YAML, no external upstream PRs |
 
 ## Grok-build inventory (base understanding)
 
@@ -45,7 +45,7 @@ Read **before crate work**. Evidence-backed map of the forked Grok Build base: p
 | Doc | Purpose |
 |-----|---------|
 | [prompt-system.md](./prompt-system.md) | L0–L6 → grok inject map + role lifecycle + fragments under `do-harness/prompts/` (**M1**) |
-| [workspace.md](./workspace.md) | Continuum contract: goal / plan / todo → `.grok` + session layout; no dual-write (**M1**) |
+| [workspace.md](./workspace.md) | Continuum contract: goal / plan / todo → `.do/` + `~/.config/do` sessions; no dual-write (**CFG**) |
 | [progressive-skills.md](./progressive-skills.md) | L4 progressive skill presentation policy start + reduced firehose surfaces (**M1**) |
 
 ## Agent readiness / quality
@@ -67,7 +67,7 @@ Quality scripts live under `scripts/`; CI: `.github/workflows/ci.yml`. Pre-commi
 | Path | Role |
 |------|------|
 | `do-harness/` | Agents, hooks, skills, prompts, `config.models.yaml` |
-| `~/.grok/config.toml` | Stock multi-model + defaults (native) |
+| `~/.config/do/config.toml` | Stock multi-model + defaults (native; CFG home) |
 | `crates/` | Forked grok-build workspace |
 
 ## Mission

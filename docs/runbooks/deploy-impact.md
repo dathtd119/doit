@@ -25,4 +25,4 @@ Workflow `.github/workflows/deploy-observability.yml` runs on `release` and uplo
 
 1. Advise users to pin the previous release tag binary.
 2. Revert the bad commit on `main` and cut a patch tag (`vX.Y.Z+1`).
-3. If config regression: restore prior `~/.grok/config.toml` model pins (never restore secrets from git).
+3. If config regression: restore prior `~/.config/do/config.toml` model pins (never restore secrets from git).

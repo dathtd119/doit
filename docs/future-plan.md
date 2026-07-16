@@ -15,7 +15,7 @@ Long-lived ideas for **do**. Root `AGENTS.md` **Future Plan** stays short; promo
 ## Models & config
 
 - **M1 YAML apply (done):** `apply-models.py` maps assignment → agent frontmatter; validate mode; re-pin only while unlocked
-- Optional richer `do models validate|apply` CLI that diffs against `~/.grok/config.toml`
+- Optional richer `do models validate|apply` CLI that diffs against `~/.config/do/config.toml`
 - Effort / reasoning level pins per role when backends support them
 - OpenCode-parity permission rules surface in do YAML (beyond model assignment)
 - Multi-provider auth beyond stock grok paths (deeper redesign; BYOK skip-OAuth shipped PRIV)
@@ -52,8 +52,8 @@ Long-lived ideas for **do**. Root `AGENTS.md` **Future Plan** stays short; promo
 - **PRIV ship sealed** (F-PRIV-SHIP / VAL-PRIV-SHIP-001, 2026-07-16).
 - Remaining parked: deeper multi-provider auth redesign / full offline product mode UX
 
-## Config rebrand (next after PRIV)
+## Config rebrand (CFG)
 
-- Default user home **`~/.config/do` only** (no `~/.grok` fallback) — CFG F-CFG-HOME
-- Project discovery **`.do/`** (agents/hooks/…) — CFG F-CFG-PROJECT
-- Docs + CHANGELOGS seal — CFG F-CFG-SHIP
+- **Done (F-CFG-HOME / P-CFG-HOME):** default user home **`~/.config/do` only** (no `~/.grok` fallback); override `GROK_HOME`
+- **Done (F-CFG-PROJECT / P-CFG-PROJECT + P-CFG-FIXTURES):** project discovery **`.do/`**; test fixtures aligned
+- **Done (F-CFG-SHIP / VAL-CFG-SHIP-001):** docs + CHANGELOGS + living next → M2

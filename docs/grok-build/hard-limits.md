@@ -46,7 +46,7 @@ Note: `xai-codebase-graph` **exists** in the fork (`crates/codegen/xai-codebase-
 
 | Do | Do not |
 |----|--------|
-| Map `do-harness/config.models.yaml` → stock TOML + agent frontmatter | Replace `~/.grok/config.toml` multi-model registry with a second runtime source of truth |
+| Map `do-harness/config.models.yaml` → stock TOML + agent frontmatter | Replace `~/.config/do/config.toml` multi-model registry with a second runtime source of truth |
 
 ## When a crate patch is allowed
 

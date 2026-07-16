@@ -9,7 +9,7 @@ How **do** learns from neighboring systems without modifying them in place.
 | **Path** | `/home/datht/code/grok-build` |
 | **Access** | **Read-only** reference; import by **COPY** into `/home/datht/code/do` |
 | **What we take** | Full Rust harness: pager/TUI, shell, tools registry, agents, plugins, hooks, skills, MCP, LSP, plan/goal/todo continuum |
-| **Multi-model** | Native: many `[model.<name>]` in `~/.grok/config.toml`, `[models] default`, api_backend, agent/persona/spawn model overrides |
+| **Multi-model** | Native: many `[model.<name>]` in `~/.config/do/config.toml`, `[models] default`, api_backend, agent/persona/spawn model overrides |
 | **What we do not do** | Modify upstream tree; open external upstream PRs as the product path |
 
 Binary lineage after import: `xai-grok-pager-bin` (installed as `grok` upstream; product brand **do** in docs).

@@ -8,7 +8,7 @@
 
 ## Intent
 
-Stock grok discovers skills from many roots (`.grok/`, `.agents/`, `.claude/`, `.cursor/`, user home, custom `paths`) and can inject a **large skill listing** into the system / user-message surface. That is a **firehose** relative to pi-ness dynamic mode (`skill_search` / `skill_load` + compact intents).
+Stock grok discovers skills from many roots (product `.do/`, `.agents/`, `.claude/`, `.cursor/`, user home, custom `paths`) and can inject a **large skill listing** into the system / user-message surface. That is a **firehose** relative to pi-ness dynamic mode (`skill_search` / `skill_load` + compact intents).
 
 **do** does **not** invent a second skill runtime in M1. We:
 
@@ -23,7 +23,7 @@ Stock grok discovers skills from many roots (`.grok/`, `.agents/`, `.claude/`, `
 |---------|------------------|--------|
 | Agent `discoverSkills` | `AgentDefinition.discover_skills` (`xai-grok-agent` config) | Default **true**: list + seed discovery. **false**: empty skill list, no CWD discovery seed |
 | Agent `skills` | Frontmatter `skills: [name, …]` | Explicit preload / inject only those skills |
-| `[skills] ignore` | `~/.grok/config.toml` (and SkillsConfig) | Path prefixes **hidden** entirely from discovery |
+| `[skills] ignore` | `~/.config/do/config.toml` (and SkillsConfig) | Path prefixes **hidden** entirely from discovery |
 | `[skills] disabled` | same | Named skills stay listed but **out of prompt + invocation** |
 | `[skills] paths` | same | Extra scan roots (can increase firehose — use sparingly) |
 | Compat vendor skills | `[compat.claude]` / `[compat.cursor]` `skills` | Turn off vendor trees when not needed |
@@ -62,7 +62,7 @@ Product overlay (policy, not a second runtime registry):
 
 - [`do-harness/config.skills.yaml`](../do-harness/config.skills.yaml) — presentation mode, role table, recommended TOML ignore/disabled fragments.
 
-Merge recommended `[skills]` / compat cells into stock `~/.grok/config.toml` (or project config when used). **Do not** invent a competing skills engine.
+Merge recommended `[skills]` / compat cells into stock `~/.config/do/config.toml` (or project `.do/config.toml` when used). **Do not** invent a competing skills engine.
 
 Recommended ignore themes (tune per machine):
 

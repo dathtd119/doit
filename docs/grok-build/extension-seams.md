@@ -8,8 +8,8 @@ Evidence paths are under `/home/datht/code/do` (forked tree) unless noted.
 
 | What | Where (product) | Discovery target (runtime) |
 |------|-----------------|----------------------------|
-| Agents | `do-harness/agents/` | Must land on `.grok/agents` / `~/.grok/agents` discovery paths |
-| Hooks | `do-harness/hooks/` | Hook config / `~/.grok/hooks/` / project `.grok/hooks/` |
+| Agents | `do-harness/agents/` | Must land on `.do/agents` / `~/.config/do/agents` discovery paths |
+| Hooks | `do-harness/hooks/` | Hook config / `~/.config/do/hooks/` / project `.do/hooks/` |
 | Skills | `do-harness/skills/` | Skills discovery used by Skill tool + reminders |
 | Prompts | `do-harness/prompts/` | Agent/role prompt fragments |
 | Model assignment YAML | `do-harness/config.models.yaml` | Maps to TOML + agent frontmatter (M1 wire) |
@@ -21,9 +21,9 @@ Evidence paths are under `/home/datht/code/do` (forked tree) unless noted.
 | Seam | Evidence |
 |------|----------|
 | Agent file discovery | `crates/codegen/xai-grok-agent/src/discovery.rs` |
-| Project dirs | `.grok/agents/`, `.claude/agents/` (walk cwd → repo root) |
-| User dirs | `~/.grok/agents/` (GROK_HOME-aware), `~/.claude/agents/` |
-| Bundled | `~/.grok/bundled/agents/` (lowest priority) |
+| Project dirs | `.do/agents/`, `.claude/agents/` (walk cwd → repo root) |
+| User dirs | `~/.config/do/agents/` (GROK_HOME-aware), `~/.claude/agents/` |
+| Bundled | `~/.config/do/bundled/agents/` (lowest priority) |
 | Merge priority | Project user agents can shadow built-ins; user-level and bundled **cannot** shadow built-in names (`merge_subagents` docs in discovery.rs) |
 | Search order (discover) | 1) project `.grok`/`.claude` walk → 2) user grok agents → 3) `.claude` user → 4) bundled |
 | Frontmatter model | Agent defs can pin model (stock multi-model path) |
@@ -38,7 +38,7 @@ Evidence paths are under `/home/datht/code/do` (forked tree) unless noted.
 | Hook events (plugin types) | `crates/codegen/xai-hooks-plugins-types/src/lib.rs` — `HookEvent` |
 | Key events | `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `SessionStart`/`SessionEnd`, `Stop`/`StopFailure`, `UserPromptSubmit`, `PermissionDenied`, `SubagentStart`/`SubagentStop`, `PreCompact`/`PostCompact`, `Notification` |
 | Runtime | `crates/codegen/xai-grok-hooks/` — `discovery.rs`, `dispatcher.rs`, `matcher.rs`, `runner/` (command + http) |
-| Hook sources | `HookSource::SettingsFile` and `HookSource::Directory` of `*.json` (e.g. `~/.grok/hooks/`) |
+| Hook sources | `HookSource::SettingsFile` and `HookSource::Directory` of `*.json` (e.g. `~/.config/do/hooks/`) |
 | Workspace config | `xai-grok-workspace/src/config.rs` — global vs project hook sources |
 | Wire names | `xai-grok-workspace-types/src/rpc/hooks.rs` — `HookEventNameWire` (includes `SubagentEnd`, `Unknown` sink) |
 | Telemetry | `xai-grok-telemetry` PreToolUse deny semantics |
@@ -65,7 +65,7 @@ Evidence paths are under `/home/datht/code/do` (forked tree) unless noted.
 | Bundled skills (examples) | `crates/codegen/xai-grok-shell/skills/` — `best-of-n`, `check-work`, `code-review`, `create-skill`, `help`, `imagine` |
 | Discovery reminders | `SkillDiscoveryReminder` registered in `ToolRegistryBuilder::new()` |
 | SessionContext.skills | Passed at toolset finalization |
-| Paths | Project/user `~/.grok/skills/` patterns exercised in workspace discovery tests |
+| Paths | Project/user `~/.config/do/skills/` patterns exercised in workspace discovery tests |
 
 **do use:** progressive catalog via config/ignore + reminders first (L4); avoid dumping full skill text always-on.
 
@@ -74,7 +74,7 @@ Evidence paths are under `/home/datht/code/do` (forked tree) unless noted.
 | Seam | Evidence |
 |------|----------|
 | Config load | `crates/codegen/xai-grok-config/`, `xai-grok-config-types/` |
-| Project config | `<root>/.grok/config.toml` (`xai-grok-workspace/src/discovery.rs`) |
+| Project config | `<root>/.do/config.toml` (`xai-grok-workspace/src/discovery.rs`) |
 | Persist helpers | `xai-grok-shell` `managed_config` / util/config |
 | Multi-model | Many `[model.<name>]`, `[models] default` — see [../models-and-config.md](../models-and-config.md) |
 | Goal role models | `xai-grok-config-types` remote settings: planner/strategist/goal_skeptic model pools |
