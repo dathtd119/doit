@@ -2753,6 +2753,41 @@ dependencies = [
 ]
 
 [[package]]
+name = "doit"
+version = "0.1.220-alpha.4"
+dependencies = [
+ "anyhow",
+ "clap",
+ "cryptify",
+ "dunce",
+ "libc",
+ "obfstr",
+ "rustls",
+ "semver",
+ "serde_json",
+ "serial_test",
+ "tikv-jemalloc-ctl",
+ "tikv-jemalloc-sys",
+ "tikv-jemallocator",
+ "tokio",
+ "tokio-util",
+ "tracing",
+ "tracing-subscriber",
+ "xai-acp-lib",
+ "xai-crash-handler",
+ "xai-grok-config",
+ "xai-grok-pager",
+ "xai-grok-pager-minimal",
+ "xai-grok-sandbox",
+ "xai-grok-shell",
+ "xai-grok-telemetry",
+ "xai-grok-update",
+ "xai-grok-version",
+ "xai-grok-workspace",
+ "xai-tty-utils",
+]
+
+[[package]]
 name = "downcast-rs"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -13354,41 +13389,6 @@ dependencies = [
  "xai-ratatui-inline",
  "xai-ratatui-textarea",
  "xai-token-estimation",
- "xai-tty-utils",
-]
-
-[[package]]
-name = "xai-grok-pager-bin"
-version = "0.1.220-alpha.4"
-dependencies = [
- "anyhow",
- "clap",
- "cryptify",
- "dunce",
- "libc",
- "obfstr",
- "rustls",
- "semver",
- "serde_json",
- "serial_test",
- "tikv-jemalloc-ctl",
- "tikv-jemalloc-sys",
- "tikv-jemallocator",
- "tokio",
- "tokio-util",
- "tracing",
- "tracing-subscriber",
- "xai-acp-lib",
- "xai-crash-handler",
- "xai-grok-config",
- "xai-grok-pager",
- "xai-grok-pager-minimal",
- "xai-grok-sandbox",
- "xai-grok-shell",
- "xai-grok-telemetry",
- "xai-grok-update",
- "xai-grok-version",
- "xai-grok-workspace",
  "xai-tty-utils",
 ]
 

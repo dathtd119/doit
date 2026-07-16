@@ -30,7 +30,7 @@ members = [
     "crates/codegen/xai-grok-mermaid",
     "crates/codegen/xai-grok-models",
     "crates/codegen/xai-grok-pager",
-    "crates/codegen/xai-grok-pager-bin",
+    "crates/codegen/doit",
     "crates/codegen/xai-grok-pager-minimal",
     "crates/codegen/xai-grok-pager-pty-harness",
     "crates/codegen/xai-grok-pager-render",
