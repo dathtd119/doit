@@ -6,6 +6,13 @@ edition.workspace = true
 license = "Apache-2.0"
 authors = ["xAI"]
 default-run = "doit"
+description = "doit coding-agent harness (Grok Build fork)"
+repository = "https://github.com/dathtd119/doit"
+homepage = "https://github.com/dathtd119/doit"
+readme = "../../../README.md"
+# Not published to crates.io (path/git workspace + monorepo graph). Install via
+# GitHub Releases / cargo-binstall, or cargo install --git / --path.
+publish = false
 
 # Product composition-root binary (install package `doit`, binary `doit`).
 # Links the pager library and optional `xai-grok-pager-minimal` render mode:
@@ -14,6 +21,22 @@ default-run = "doit"
 [[bin]]
 name = "doit"
 path = "src/main.rs"
+
+# cargo-binstall: prebuilts from GitHub Releases on dathtd119/doit (VAL-PKG-003).
+# Archive names must match .github/workflows/release.yml packaging:
+#   doit-{version}-{target}.tar.gz  (Unix)
+#   doit-{version}-{target}.zip     (Windows)
+# Tag form: v{version} (e.g. v0.2.101).
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/v{ version }/{ name }-{ version }-{ target }.{ archive-format }"
+bin-dir = "{ bin }{ binary-ext }"
+pkg-fmt = "tgz"
+
+[package.metadata.binstall.overrides.x86_64-pc-windows-msvc]
+pkg-fmt = "zip"
+
+[package.metadata.binstall.overrides.aarch64-pc-windows-msvc]
+pkg-fmt = "zip"
 
 [dependencies]
 # The pager library (all application logic + the public API main.rs drives).

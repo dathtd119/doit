@@ -1,3 +1,19 @@
+# Release: multi-target GitHub Release for product package `doit` / binary `doit`.
+#
+# VAL-PKG-002: builds package doit + binary doit with a full 6-target matrix.
+# Artifact names match cargo-binstall defaults for GitHub Releases
+# (see crates/codegen/doit/Cargo.toml [package.metadata.binstall]).
+#
+# Targets (6):
+#   - x86_64-unknown-linux-gnu
+#   - aarch64-unknown-linux-gnu
+#   - x86_64-apple-darwin
+#   - aarch64-apple-darwin
+#   - x86_64-pc-windows-msvc
+#   - aarch64-pc-windows-msvc
+#
+# No crates.io / npm publish from this workflow.
+
 name: Release
 
 on:
@@ -14,11 +30,45 @@ on:
 permissions:
   contents: write
 
+env:
+  CARGO_TERM_COLOR: always
+  PACKAGE: doit
+  BINARY: doit
+
 jobs:
-  release:
-    name: Build + publish GitHub release
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            archive_ext: tar.gz
+            bin_ext: ""
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-24.04-arm
+            archive_ext: tar.gz
+            bin_ext: ""
+          - target: x86_64-apple-darwin
+            os: macos-13
+            archive_ext: tar.gz
+            bin_ext: ""
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            archive_ext: tar.gz
+            bin_ext: ""
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            archive_ext: zip
+            bin_ext: ".exe"
+          - target: aarch64-pc-windows-msvc
+            os: windows-11-arm
+            archive_ext: zip
+            bin_ext: ".exe"
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,34 +78,159 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: "1.92.0"
+          targets: ${{ matrix.target }}
 
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: release-${{ matrix.target }}
+          cache-on-failure: true
 
-      - name: Install dotslash (protoc wrapper)
+      - name: Install DotSlash (protoc wrapper)
+        shell: bash
         run: cargo install dotslash --locked
 
       - name: Build release binary
-        run: cargo build -p doit --release
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo build -p "${PACKAGE}" --release --target "${{ matrix.target }}"
 
       - name: Package artifact
+        shell: bash
         run: |
+          set -euo pipefail
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          # Strip leading v for archive version segment when present.
+          VERSION="${TAG#v}"
+          TARGET="${{ matrix.target }}"
+          BIN_NAME="${BINARY}${{ matrix.bin_ext }}"
+          ROOT="$(pwd)"
+          OUT_DIR="${ROOT}/dist"
+          mkdir -p "${OUT_DIR}"
+
+          SRC="${ROOT}/target/${TARGET}/release/${BIN_NAME}"
+          if [[ ! -f "${SRC}" ]]; then
+            echo "missing release binary at ${SRC}" >&2
+            ls -la "${ROOT}/target/${TARGET}/release" || true
+            exit 1
+          fi
+
+          STAGE="$(mktemp -d)"
+          cleanup() { rm -rf "${STAGE}"; }
+          trap cleanup EXIT
+          cp "${SRC}" "${STAGE}/${BIN_NAME}"
+          if [[ -f "${ROOT}/LICENSE" ]]; then
+            cp "${ROOT}/LICENSE" "${STAGE}/"
+          fi
+          if [[ -f "${ROOT}/THIRD-PARTY-NOTICES" ]]; then
+            cp "${ROOT}/THIRD-PARTY-NOTICES" "${STAGE}/"
+          fi
+
+          ARCHIVE_BASE="${PACKAGE}-${VERSION}-${TARGET}"
+          if [[ "${{ matrix.archive_ext }}" == "zip" ]]; then
+            ARCHIVE="${ARCHIVE_BASE}.zip"
+            ARCHIVE_PATH="${OUT_DIR}/${ARCHIVE}"
+            (
+              cd "${STAGE}"
+              if command -v zip >/dev/null 2>&1; then
+                zip -q "${ARCHIVE_PATH}" ./*
+              else
+                # PowerShell Compress-Archive fallback on Windows runners without zip.
+                powershell.exe -NoProfile -Command \
+                  "Compress-Archive -Path * -DestinationPath '${ARCHIVE_PATH}'"
+              fi
+            )
+          else
+            ARCHIVE="${ARCHIVE_BASE}.tar.gz"
+            tar -C "${STAGE}" -czf "${OUT_DIR}/${ARCHIVE}" .
+          fi
+
+          (
+            cd "${OUT_DIR}"
+            if command -v sha256sum >/dev/null 2>&1; then
+              sha256sum "${ARCHIVE}" > "${ARCHIVE}.sha256"
+            else
+              shasum -a 256 "${ARCHIVE}" > "${ARCHIVE}.sha256"
+            fi
+          )
+
+          echo "Built ${OUT_DIR}/${ARCHIVE}"
+          ls -la "${OUT_DIR}"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: doit-${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: Publish GitHub release
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist-all
+          pattern: doit-*
+          merge-multiple: true
+
+      - name: Stage release assets
+        shell: bash
+        run: |
+          set -euo pipefail
           mkdir -p dist
-          cp target/release/doit dist/ || true
-          ls -la dist || ls -la target/release | head
+          # Flatten downloaded archives + checksums
+          find dist-all -type f \( -name '*.tar.gz' -o -name '*.zip' -o -name '*.sha256' \) \
+            -exec cp -v {} dist/ \;
+          ls -la dist
+          test "$(find dist -type f | wc -l)" -ge 6
 
       - name: Generate release notes
         id: notes
+        shell: bash
         run: |
+          set -euo pipefail
           TAG="${{ github.event.inputs.tag || github.ref_name }}"
           {
             echo "## ${TAG}"
             echo
-            echo "Automated release for **do** (Grok Build fork)."
+            echo "Automated release for **doit** (Grok Build fork)."
+            echo
+            echo "### Install"
+            echo
+            echo "Prebuilt binaries (package/binary \`doit\`):"
+            echo
+            echo '```sh'
+            echo "# cargo-binstall (preferred when a release exists)"
+            echo "cargo binstall --git https://github.com/dathtd119/doit.git doit"
+            echo
+            echo "# or download the archive for your target from this release:"
+            echo "#   doit-<version>-<target>.tar.gz  (Unix)"
+            echo "#   doit-<version>-<target>.zip     (Windows)"
+            echo '```'
+            echo
+            echo "Repository: https://github.com/dathtd119/doit"
+            echo
+            echo "### Targets"
+            echo
+            echo "- \`x86_64-unknown-linux-gnu\`"
+            echo "- \`aarch64-unknown-linux-gnu\`"
+            echo "- \`x86_64-apple-darwin\`"
+            echo "- \`aarch64-apple-darwin\`"
+            echo "- \`x86_64-pc-windows-msvc\`"
+            echo "- \`aarch64-pc-windows-msvc\`"
             echo
             echo "### Changes"
-            if git describe --tags --abbrev=0 HEAD^ 2>/dev/null; then
-              PREV=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || true)
+            if PREV=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null); then
               git log --pretty=format:'- %s (%h)' "${PREV}..HEAD" | head -80
             else
               git log --pretty=format:'- %s (%h)' -40
@@ -72,13 +247,23 @@ jobs:
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
+          set -euo pipefail
           TAG="${{ github.event.inputs.tag || github.ref_name }}"
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             git tag -f "$TAG" || true
             git push origin "$TAG" || true
           fi
-          gh release create "$TAG" \
-            --title "do ${TAG}" \
-            --notes-file RELEASE_NOTES.md \
-            dist/* || gh release edit "$TAG" --notes-file RELEASE_NOTES.md
+          # Prefer create; on re-run attach/update notes + assets.
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/* --clobber
+            gh release edit "$TAG" \
+              --title "doit ${TAG}" \
+              --notes-file RELEASE_NOTES.md
+          else
+            gh release create "$TAG" \
+              --title "doit ${TAG}" \
+              --notes-file RELEASE_NOTES.md \
+              dist/*
+          fi

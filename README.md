@@ -55,27 +55,54 @@ Grok-build **already** supports multiple custom models in `~/.config/doit/config
 
 **do** adds product ergonomics: `do-harness/config.models.yaml` (registry + role assignment) mapping into stock TOML and agent frontmatter. See [docs/models-and-config.md](./docs/models-and-config.md). Gap vs OpenCode assignment UX is limitation **L13**.
 
+## Install
+
+Product package and binary are both **`doit`**. Releases ship from
+**[dathtd119/doit](https://github.com/dathtd119/doit)** (not crates.io).
+
+### Prebuilt (preferred)
+
+Once a `v*` GitHub Release exists (six targets: Linux/macOS/Windows × x86_64/aarch64):
+
+```sh
+# cargo-binstall reads [package.metadata.binstall] → dathtd119/doit releases
+cargo binstall --git https://github.com/dathtd119/doit.git doit
+
+# or download an archive from:
+#   https://github.com/dathtd119/doit/releases
+# assets: doit-<version>-<target>.tar.gz | .zip
+```
+
+### From source (clone or git)
+
+Requires **Rust** (pinned by [`rust-toolchain.toml`](rust-toolchain.toml)) and
+**[DotSlash](https://dotslash-cli.com)** so [`bin/protoc`](bin/protoc) can run:
+
+```sh
+cargo install dotslash                       # once; enables bin/protoc
+# or: prebuilt packages — https://dotslash-cli.com/docs/installation/
+
+# from a clone:
+cargo install --path crates/codegen/doit --locked
+
+# or without cloning first:
+cargo install --git https://github.com/dathtd119/doit.git \
+  --package doit --locked
+```
+
+**Not an install path:** crates.io publish (`cargo install doit` from the registry).
+This monorepo is path/git only; use Releases / binstall / git install above.
+
 ## Build (forked binary)
 
 Requirements:
 
-- **Rust** — the toolchain is pinned by [`rust-toolchain.toml`](rust-toolchain.toml);
-  `rustup` installs it automatically on first build.
-- **[DotSlash](https://dotslash-cli.com)** — required so hermetic tools under
-  [`bin/`](bin/) (notably [`bin/protoc`](bin/protoc)) can download and run.
-  Install it and ensure `dotslash` is on your `PATH` **before** building:
-
-  ```sh
-  cargo install dotslash
-  # or: prebuilt packages — https://dotslash-cli.com/docs/installation/
-  /usr/bin/env dotslash --help   # sanity check
-  ```
-
-- **protoc** — proto codegen resolves [`bin/protoc`](bin/protoc) via DotSlash,
-  or falls back to a `protoc` on `PATH` / `$PROTOC`.
+- **Rust** — `rustup` installs the pinned toolchain on first build.
+- **[DotSlash](https://dotslash-cli.com)** on `PATH` before building (see Install).
+- **protoc** — via DotSlash `bin/protoc`, or `protoc` / `$PROTOC` on `PATH`.
 - Network for first crates.io fetch (or a warm `~/.cargo` cache).
 - macOS and Linux are supported build hosts; Windows builds are best-effort
-  and not currently tested from this tree.
+  outside the release matrix.
 
 ```sh
 cargo install dotslash                       # once; enables bin/protoc
@@ -86,7 +113,7 @@ cargo build -p doit --release                # release binary
 
 `bin/protoc` is a [dotslash](https://dotslash-cli.com/) wrapper that fetches protobuf `protoc` v29.3. Without `dotslash`, build scripts fail with `protoc command failed`.
 
-The product install package and binary are **`doit`** (mapped from upstream `xai-grok-pager-bin` / `xai-grok-pager`). Product default config home is **`~/.config/doit`**; project discovery is **`.doit/`** (see [FORK.md](./FORK.md) §4).
+Product default config home is **`~/.config/doit`**; project discovery is **`.doit/`** (see [FORK.md](./FORK.md) §4).
 
 ## Quality / agent readiness
 
