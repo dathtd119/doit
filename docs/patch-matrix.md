@@ -243,6 +243,7 @@ Each row: gap → path → risk → order → seams → avoid → links.
 |------|--------------|----|--------|------|------------------------|
 | 2026-07-16 | `xai-grok-shell` `session/role_switch.rs` + `acp_session_impl/session_mode.rs` | L1 | Session flag `role_switch_allowed` + gate product-role `session/set_mode` after first turn so L1 prompt freeze is enforced server-side | Medium | Agents/hooks cannot observe turn_count or refuse ACP set_mode; pure policy module is shared, not a deep TUI fork |
 | 2026-07-16 | `xai-grok-pager` `dispatch/modes.rs`, `agent_view/prompt.rs`, `actions` | L1 | Tab/Shift+Tab product-role cycle pre-message; no-op after lock (Shift+Tab reverts to plan/yolo CycleMode) | Medium | Keybind lives in pager input path; extension-only cannot intercept Tab before completion UI |
+| 2026-07-16 | `xai-grok-shell` `session/role_switch.rs` + `acp_session_impl/session_mode.rs` | L13 + L1 | Role→model re-pin from agent frontmatter (YAML assignment) only while `role_switch_allowed`; post-lock Keep; subagent spawn path untouched | Medium | Apply script only writes frontmatter; primary session must re-pin on pre-message set_mode — hooks cannot change sampling config |
 
 ---
 

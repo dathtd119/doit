@@ -87,6 +87,47 @@ pub fn gate_role_cycle(
     }
 }
 
+/// Whether primary-session role switch should re-pin the model from the new
+/// role's assignment (agent frontmatter `model:` / YAML `assignment.<role>`).
+///
+/// Binding product rule (L13 + L1 / F-M1-MODEL-RESOLVE):
+/// - **true** only while `role_switch_allowed` — pre-message cycle re-pins
+/// - **false** after lock — keep active model stack; do not re-pin mid-session
+///
+/// Subagent spawn resolution (spawn > role > persona > parent) is independent
+/// and must not consult this flag.
+#[inline]
+pub fn should_repin_model_from_role(turn_count: u32, has_user_message_content: bool) -> bool {
+    role_switch_allowed(turn_count, has_user_message_content)
+}
+
+/// Outcome of role→model re-resolve for a primary-session role hop.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RoleModelRepin {
+    /// Apply the role assignment pin (`AgentDefinition.model` Override).
+    Apply,
+    /// Keep the active model stack (post-lock, or Inherit pin).
+    Keep,
+}
+
+/// Gate role→model re-pin for a primary-session product role switch.
+///
+/// `assignment_model_id`: registry/catalog model id from agent frontmatter
+/// when the role pins a model; `None` means Inherit / no pin.
+pub fn gate_role_model_repin(
+    turn_count: u32,
+    has_user_message_content: bool,
+    assignment_model_id: Option<&str>,
+) -> RoleModelRepin {
+    if !should_repin_model_from_role(turn_count, has_user_message_content) {
+        return RoleModelRepin::Keep;
+    }
+    match assignment_model_id {
+        Some(id) if !id.is_empty() => RoleModelRepin::Apply,
+        _ => RoleModelRepin::Keep,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -158,5 +199,41 @@ mod tests {
         assert!(!is_product_role_mode_id("plan"));
         assert!(!is_product_role_mode_id("default"));
         assert!(!is_product_role_mode_id("ask"));
+    }
+
+    #[test]
+    fn should_repin_model_only_while_switch_allowed() {
+        assert!(should_repin_model_from_role(0, false));
+        assert!(!should_repin_model_from_role(1, false));
+        assert!(!should_repin_model_from_role(0, true));
+    }
+
+    #[test]
+    fn gate_role_model_repin_apply_when_unlocked_with_pin() {
+        assert_eq!(
+            gate_role_model_repin(0, false, Some("combo-small")),
+            RoleModelRepin::Apply
+        );
+        assert_eq!(
+            gate_role_model_repin(0, false, Some("combo-big")),
+            RoleModelRepin::Apply
+        );
+    }
+
+    #[test]
+    fn gate_role_model_repin_keep_when_locked_or_inherit() {
+        assert_eq!(
+            gate_role_model_repin(1, false, Some("combo-big")),
+            RoleModelRepin::Keep
+        );
+        assert_eq!(
+            gate_role_model_repin(0, true, Some("combo-big")),
+            RoleModelRepin::Keep
+        );
+        assert_eq!(gate_role_model_repin(0, false, None), RoleModelRepin::Keep);
+        assert_eq!(
+            gate_role_model_repin(0, false, Some("")),
+            RoleModelRepin::Keep
+        );
     }
 }

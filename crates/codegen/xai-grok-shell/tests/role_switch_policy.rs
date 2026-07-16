@@ -4,8 +4,9 @@
 //! in the shell crate (pre-existing). Pure policy is public on the lib.
 
 use xai_grok_shell::session::role_switch::{
-    PRODUCT_ROSTER, RoleCycleGate, cycle_product_role, gate_role_cycle, is_product_role,
-    is_product_role_mode_id, role_switch_allowed,
+    PRODUCT_ROSTER, RoleCycleGate, RoleModelRepin, cycle_product_role, gate_role_cycle,
+    gate_role_model_repin, is_product_role, is_product_role_mode_id, role_switch_allowed,
+    should_repin_model_from_role,
 };
 
 #[test]
@@ -74,4 +75,44 @@ fn is_product_role_mode_id_matches_roster_only() {
     assert!(!is_product_role_mode_id("plan"));
     assert!(!is_product_role_mode_id("default"));
     assert!(!is_product_role_mode_id("ask"));
+}
+
+#[test]
+fn should_repin_model_only_while_switch_allowed() {
+    assert!(should_repin_model_from_role(0, false));
+    assert!(!should_repin_model_from_role(1, false));
+    assert!(!should_repin_model_from_role(0, true));
+    assert!(!should_repin_model_from_role(3, true));
+}
+
+#[test]
+fn gate_role_model_repin_apply_pre_message_with_assignment() {
+    // Pre-message role cycle re-pins from YAML/agent assignment.
+    assert_eq!(
+        gate_role_model_repin(0, false, Some("combo-small")),
+        RoleModelRepin::Apply
+    );
+    assert_eq!(
+        gate_role_model_repin(0, false, Some("combo-big")),
+        RoleModelRepin::Apply
+    );
+}
+
+#[test]
+fn gate_role_model_repin_keep_post_lock_or_inherit() {
+    // Post-message: no re-pin even if assignment would change.
+    assert_eq!(
+        gate_role_model_repin(1, false, Some("combo-big")),
+        RoleModelRepin::Keep
+    );
+    assert_eq!(
+        gate_role_model_repin(0, true, Some("combo-small")),
+        RoleModelRepin::Keep
+    );
+    // Inherit / empty pin: keep stack (subagent spawn path unchanged).
+    assert_eq!(gate_role_model_repin(0, false, None), RoleModelRepin::Keep);
+    assert_eq!(
+        gate_role_model_repin(0, false, Some("")),
+        RoleModelRepin::Keep
+    );
 }

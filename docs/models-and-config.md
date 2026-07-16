@@ -2,8 +2,9 @@
 
 **Status:** M0 design + template sealed (F-MODEL-001). M1 apply script ships
 `do-harness/scripts/apply-models.sh` (F-M1-MODEL-APPLY / VAL-M1-MODEL-001): maps
-YAML `assignment` → agent frontmatter. Binary auto-apply and mid-session re-pin
-remain later (role lock + F-M1-MODEL-RESOLVE).  
+YAML `assignment` → agent frontmatter. **F-M1-MODEL-RESOLVE:** primary-session
+role cycle re-pins model from agent `model:` **only while** `role_switch_allowed`;
+post-lock keeps the model stack; subagent spawn overrides unchanged.  
 **Limitation ID:** **L13**
 
 ## Summary

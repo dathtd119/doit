@@ -155,6 +155,120 @@ impl SessionActor {
             }
             self.chat_state_handle.replace_conversation(conversation);
         }
+        // F-M1-MODEL-RESOLVE: re-pin model from role assignment (agent
+        // frontmatter `model:` written by apply-models from YAML) only while
+        // role_switch_allowed. Post-lock keeps the active model stack.
+        // Subagent spawn overrides are independent (spawn > role > persona >
+        // parent) and never go through this path.
+        if let Some(ref def) = agent_def {
+            let assignment_model_id = match &def.model {
+                xai_grok_agent::config::ModelOverride::Override(id) => Some(id.as_str()),
+                xai_grok_agent::config::ModelOverride::Inherit => None,
+            };
+            let turn_count = self
+                .signals_handle()
+                .snapshot()
+                .await
+                .map(|s| s.turn_count)
+                .unwrap_or(0);
+            match crate::session::role_switch::gate_role_model_repin(
+                turn_count,
+                false,
+                assignment_model_id,
+            ) {
+                crate::session::role_switch::RoleModelRepin::Keep => {
+                    tracing::debug!(
+                        session_id = % self.session_info.id.0,
+                        agent = % def.name,
+                        turn_count,
+                        "role model re-pin kept (locked or inherit)"
+                    );
+                }
+                crate::session::role_switch::RoleModelRepin::Apply => {
+                    if let Some(model_id) = assignment_model_id {
+                        self.repin_model_from_role_assignment(model_id, def.effort.as_ref())
+                            .await;
+                    }
+                }
+            }
+        }
+    }
+
+    /// Apply agent frontmatter model pin to the primary session (YAML
+    /// assignment via apply-models). Only called when
+    /// `gate_role_model_repin` returns Apply (pre-message unlock).
+    pub(super) async fn repin_model_from_role_assignment(
+        &self,
+        model_id: &str,
+        effort: Option<&xai_grok_agent::config::Effort>,
+    ) {
+        use crate::agent::config::{find_model_by_id, resolve_credentials, sampling_config_for_model};
+
+        let models = self.models_manager.models();
+        let Some(entry) = find_model_by_id(&models, model_id) else {
+            tracing::warn!(
+                session_id = % self.session_info.id.0,
+                model_id,
+                "role model re-pin: assignment model not in catalog — keeping stack"
+            );
+            return;
+        };
+        let session_key = self
+            .auth_manager
+            .as_ref()
+            .and_then(|am| am.current_or_expired().map(|a| a.key));
+        let credentials = resolve_credentials(entry, session_key.as_deref());
+        // SamplerConfig is built without full MvpAgent preferred-method
+        // gymnastics; session credentials + catalog entry match set_session_model
+        // for custom [model.*] pins from assignment YAML.
+        let mut sampling = sampling_config_for_model(
+            entry,
+            credentials,
+            None,
+            None,
+            None,
+            None,
+        );
+        if let Some(eff) = effort {
+            let token = match eff {
+                xai_grok_agent::config::Effort::Low => "low",
+                xai_grok_agent::config::Effort::Medium => "medium",
+                xai_grok_agent::config::Effort::High => "high",
+                xai_grok_agent::config::Effort::XHigh => "xhigh",
+                xai_grok_agent::config::Effort::Max => "max",
+            };
+            if let Ok(re) = token.parse::<xai_grok_sampling_types::ReasoningEffort>() {
+                if entry.info().supports_reasoning_effort {
+                    sampling.reasoning_effort = Some(re);
+                }
+            }
+        }
+        let use_concise = entry.info().use_concise;
+        let auto_compact = {
+            // Prefer a conservative default when util resolve is unavailable
+            // without agent Config; handle_set_session_model updates threshold.
+            self.compaction.threshold_percent.get()
+        };
+        match self
+            .handle_set_session_model(sampling, use_concise, true, false, auto_compact)
+            .await
+        {
+            Ok(applied) => {
+                tracing::info!(
+                    session_id = % self.session_info.id.0,
+                    model_id = % applied.0,
+                    "role model re-pin applied from assignment (pre-message)"
+                );
+            }
+            Err(e) => {
+                tracing::warn!(
+                    session_id = % self.session_info.id.0,
+                    model_id,
+                    error = ? e,
+                    "role model re-pin failed — keeping prior model stack"
+                );
+            }
+        }
     }
     /// Bring the plan-mode tracker into agreement with the prompt's mode.
     ///
