@@ -134,8 +134,8 @@ Canonical six-step seed (keep in sync with [prompt-system.md](./prompt-system.md
 |------:|----|-----------|----|------|------------|------------------------|
 | 1 | **M3-CG01** | **CodeGraph product surface design** — lean explore/impact tools vs MCP; cite existing crate | L7 | design + [capability-map](./capability-map.md) | M0 inventory | **Done** — MCP-first in [codegraph.md](./codegraph.md); maps to `xai-codebase-graph` |
 | 2 | **M3-CG02** | **Ship lean agent tools or MCP server** — explore / impact (or equivalent) usable from agent session | L7 | `plugin` / MCP / optional `tool_pack` | M3-CG01 | **Done** — `do-harness/codegraph/` MCP + fixture + `verify-codegraph.sh` (VAL-M3-CG-001) |
-| 3 | **M3-H01** | **Hashline as default edit mode policy** — product default prefers hashline namespace over plain Standard where safe | hashline product | `config` + docs; toolset selection | native hashline exists | Documented default; new sessions/agents get hashline unless overridden; rollback path documented |
-| 4 | **M3-H02** | **Hashline workflow docs + role floors** — when to use hashline_read/edit/grep; worker role defaults | — | docs + `agent` | M3-H01 | Worker/orchestrator guidance references hashline; capability-map updated |
+| 3 | **M3-H01** | **Hashline as default edit mode policy** — product default prefers hashline namespace over plain Standard where safe | hashline product | `config` + docs; toolset selection | native hashline exists | **Done** — [hashline.md](./hashline.md) + `do-harness/config.toolset.toml`; rollback `file_toolset = "standard"` |
+| 4 | **M3-H02** | **Hashline workflow docs + role floors** — when to use hashline_read/edit/grep; worker role defaults | — | docs + `agent` | M3-H01 | **Done** — worker/orchestrator + L1 + floors; `verify-hashline.sh` VAL-M3-HASH-001 |
 | 5 | **M3-T01** | **Always-on harness via tool packs (as needed)** — re-express remaining pi-ness always-on modules that hooks cannot cover | L3 | `tool_pack` | M1–M2 surfaces | Each pack registered **before** first `ToolRegistryBuilder::new()`; no double-register; patch-matrix if crate touch |
 | 6 | **M3-L01** | **LSP-driven workflows (optional)** — first-class refactors using existing `lsp` tool, not a new language stack | — | skill/workflow | M3-CG02 optional | Documented workflows only unless gap proven |
 
@@ -149,7 +149,7 @@ Canonical six-step seed (keep in sync with [prompt-system.md](./prompt-system.md
 ### M3 exit criteria
 
 - [x] CodeGraph (or MCP) usable as default power navigation path (`verify-codegraph.sh` / VAL-M3-CG-001)  
-- [ ] Hashline is product default edit policy with override  
+- [x] Hashline is product default edit policy with override (`verify-hashline.sh` / VAL-M3-HASH-001)  
 - [ ] Any new tool packs documented; no silent crate sprawl  
 - [ ] Docs + CHANGELOGS + commit with `commitId` / `repoPath`
 

@@ -70,8 +70,11 @@ Priority when resuming: interrupt → streak → goal → plan → workflow → 
 - **DO** use continuum tools and light shell for status/tests.
 - **DO** spawn **explorer** for maps, **worker** for implementation, **oracle**
   for architecture/trade-off decisions.
+- **DO** hand implementation to **worker**, who uses product **hashline**
+  edit default (`docs/hashline.md`; native `hashline_*` tools — not reinvented grammar).
 - **DO** return to the human with a clear status when blocked on product choice.
-- **DON'T** bulk-edit the tree yourself — hand implementation to **worker**.
+- **DON'T** bulk-edit the tree yourself — hand implementation to **worker**
+  (`hashline_edit` / `search_replace` / `write` stay on your deny floor).
 - **DON'T** thrash the same failing path; escalate or re-plan.
 
 ## Completion

@@ -53,7 +53,7 @@ Applied frontmatter: `do-harness/agents/<role>.md` (install to `.do/agents/`).
 | **intake** | `plan` | Clarify only | read/list/grep, light shell, ask user, `Agent(explore)` | edit/write/hashline_edit; continuum (`update_goal`, plan mode, `todo_write`) |
 | **orchestrator** | `default` | Coordinate continuum + spawn | read tools, shell, ask, `update_goal` / plan / `todo_write` / `task`, spawn explore/worker/oracle/intake | bulk edit (`write`, `search_replace`, `hashline_edit`) |
 | **explorer** | `plan` | Read-only scout | read/list/grep/lsp, light shell, MCP `search_tool`/`use_tool` | edit/write/hashline_edit; continuum; spawn worker/oracle/orchestrator |
-| **worker** | `default` | Implement + verify | full read/edit (incl. hashline_*), shell, lsp, `todo_write`/`update_goal`, spawn explore | spawn `Agent(oracle)` / `Agent(orchestrator)` |
+| **worker** | `default` | Implement + verify | full read/edit (prefer **hashline_*** under product `file_toolset=hashline`; see [hashline.md](./hashline.md)), shell, lsp, `todo_write`/`update_goal`, spawn explore | spawn `Agent(oracle)` / `Agent(orchestrator)` |
 | **oracle** | `plan` | Decide with evidence | read/lsp/shell/ask, MCP search/use, spawn explore | edit/write/hashline_edit; continuum ownership; spawn worker/orchestrator |
 
 ### Must-deny families (alignment checks)
@@ -95,6 +95,13 @@ bash do-harness/scripts/verify-role-permissions.sh
 
 Do **not** maintain a parallel OpenCode-style permission-rules YAML runtime in
 M2 — that remains a parking-lot item after floors + guided gates.
+
+## Hashline (M3)
+
+Product default prefers hashline file tools for workers when operators install
+`do-harness/config.toolset.toml` (`file_toolset = "hashline"`). Floors above
+still apply: only **worker** allows `hashline_edit`. Policy + rollback:
+[hashline.md](./hashline.md). Verify: `bash do-harness/scripts/verify-hashline.sh`.
 
 ## Non-goals (M2)
 

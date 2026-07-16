@@ -28,6 +28,8 @@ See root [`AGENTS.md`](../AGENTS.md) Customization Order and
 | `codegraph/` | **F-M3-CG / VAL-M3-CG-001** MCP server wrapping `xai-codebase-graph` (`mcp_server.py` + example TOML) |
 | `scripts/verify-codegraph.sh` | **F-M3-CG / VAL-M3-CG-001** design + fixture explore/impact |
 | `fixtures/codegraph/` | Small Rust sample for explore/impact contract |
+| `config.toolset.toml` | **F-M3-HASH / VAL-M3-HASH-001** product recommended `[toolset] file_toolset = "hashline"` fragment |
+| `scripts/verify-hashline.sh` | **F-M3-HASH / VAL-M3-HASH-001** default policy + agent apply + rollback doc |
 
 ## Discovery paths (stock grok)
 
@@ -377,6 +379,42 @@ bash do-harness/scripts/verify-progressive-skills.sh
 # expect: exit 0 and "VAL-M2-SKILL-001: PASS"
 ```
 
+## Hashline default edit policy (F-M3-HASH / VAL-M3-HASH-001)
+
+Policy: [`docs/hashline.md`](../docs/hashline.md)  
+Overlay fragment: [`config.toolset.toml`](./config.toolset.toml)
+
+Product **default** prefers native **GrokBuildHashline** (`file_toolset = "hashline"`)
+over Standard. Stock Rust `FileToolset` Default remains Standard until operators
+merge the fragment into `~/.config/do/config.toml` or project `.do/config.toml`.
+**Does not reinvent** hashline grammar — only stock scheme knobs.
+
+| Surface | Product choice |
+|---------|----------------|
+| Session toolset | `config.toolset.toml` → `file_toolset = "hashline"` |
+| Worker | Prefer `hashline_read` / `hashline_edit` / `hashline_grep` |
+| Orchestrator | Deny `hashline_edit` (hand edits to worker) |
+| Rollback | Set `file_toolset = "standard"` (or remove key) and restart session |
+
+### Enable toolset (operator)
+
+```sh
+# Merge [toolset] from do-harness/config.toolset.toml into your config.toml, e.g.:
+#   ~/.config/do/config.toml
+#   or <project>/.do/config.toml
+#
+# Minimal:
+# [toolset]
+# file_toolset = "hashline"
+```
+
+### Verify hashline policy
+
+```sh
+bash do-harness/scripts/verify-hashline.sh
+# expect: exit 0 and "VAL-M3-HASH-001: PASS"
+```
+
 ## Non-goals
 
 - Auto-applying YAML inside the binary on every session start (harness script
@@ -386,3 +424,5 @@ bash do-harness/scripts/verify-progressive-skills.sh
 - OpenCode-parity path/permission rules surface in do YAML (parking lot; floors + guided gates seal M2)
 - BM25 skill_search / skill_load product tools (future optional; stock progressive/curated is the M2 seal)
 - Doom-loop circuit breaker as a third M2 pack (path-policy + env-expose satisfy ≥2; doom-loop optional later)
+- Changing stock Rust `FileToolset` Default inside the crate (product default is config overlay; M3-H no crate patch)
+- Reinventing hashline grammar / dual Standard+Hashline concurrent file toolsets

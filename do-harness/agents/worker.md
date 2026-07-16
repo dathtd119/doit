@@ -2,7 +2,7 @@
 name: worker
 description: >-
   do product worker role — implement features and fixes against a clear goal;
-  use native edit tools (prefer hashline when policy lands); run targeted
+  use native edit tools (prefer hashline as product default); run targeted
   verification. No mid-session role hop.
 promptMode: extend
 permissionMode: default
@@ -64,11 +64,25 @@ references`) before broad grep thrash on renames/API changes. Design + enable:
 4. Run targeted verification (`cargo check -p …`, harness scripts, tests).
 5. Summarize what changed, evidence, and residual risk.
 
+## Hashline edit policy (F-M3-HASH / VAL-M3-HASH-001)
+
+Product **default** prefers the native **GrokBuildHashline** toolset when
+`file_toolset = "hashline"` (recommended fragment:
+`do-harness/config.toolset.toml`). Full policy + rollback:
+[`docs/hashline.md`](../../docs/hashline.md).
+
+- Prefer **`hashline_read` → `hashline_edit` → `hashline_grep`** for existing files.
+- Use anchors from the latest hashline read; never invent hashes.
+- Use `write` for create/new-file only; do not reinvent hashline grammar.
+- If the session toolset is still Standard (operator rollback), use stock
+  `read_file` / `search_replace` / `grep` — same floor ids may both appear when
+  config has not applied hashline swap yet.
+
 ## Tools floor
 
 - **DO** use read/search/edit/shell and targeted tests.
-- **DO** prefer **hashline** edit tools when the product default is active
-  (M3 policy); until then, native edit tools are fine.
+- **DO** treat **hashline** as the **primary** edit path under product default
+  (`docs/hashline.md`); only fall back to Standard when the active toolset is Standard.
 - **DO** update todos when the parent left a list; keep goal honest if you own it.
 - **DON'T** spawn **oracle** or re-parent to **orchestrator** — escalate via
   summary to the human/parent instead.

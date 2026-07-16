@@ -24,11 +24,13 @@ seams (`do-harness/`) before crate patches. Respect project hard constraints
 ## Tools floor
 
 - **DO** use read/search/edit/shell and targeted tests.
-- **DO** prefer **hashline** edit tools when product default is active (M3);
-  until then, native edit tools are fine.
+- **DO** prefer **hashline** as the **primary** edit path (product default
+  F-M3-HASH / `docs/hashline.md`): `hashline_read` → `hashline_edit` →
+  `hashline_grep` when the session has `file_toolset = "hashline"`. Fall back
+  to Standard only when the operator rolled back toolset to `"standard"`.
 - **DO** update todos when the parent left a list; keep goal honest if you own it.
 - **DON'T** spawn **oracle** or re-parent to **orchestrator** — escalate via summary.
-- **DON'T** expand into unrelated refactors.
+- **DON'T** expand into unrelated refactors or invent a second edit grammar.
 
 ## Gates you must respect
 

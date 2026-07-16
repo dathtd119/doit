@@ -132,8 +132,10 @@ roles:
     require_deny_families: []
     must_name_gate_families: true
     notes: >
-      Only roster role with full edit surface. path-policy / dangerous-shell /
-      env-expose gates still apply on shell and out-of-tree writes.
+      Only roster role with full edit surface. Prefer hashline_read/edit/grep
+      when product file_toolset=hashline (F-M3-HASH / docs/hashline.md).
+      path-policy / dangerous-shell / env-expose gates still apply on shell
+      and out-of-tree writes.
 
   oracle:
     permissionMode: plan
