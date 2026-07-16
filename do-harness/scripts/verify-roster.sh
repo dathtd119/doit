@@ -2,7 +2,7 @@
 # F-M1-ROSTER / VAL-M1-ROSTER-001: five product agents on discovery path.
 #
 # Confirms roster agents exist under do-harness/agents/ and are discoverable
-# via project .grok/agents/ (symlink or copy). Tool floors may be stubs; each
+# via project .do/agents/ (symlink or copy). Tool floors may be stubs; each
 # file must exist, have loadable frontmatter (name + description + model), and
 # a non-empty body.
 #
@@ -65,15 +65,15 @@ for role in "${ROLES[@]}"; do
 done
 
 # ---------------------------------------------------------------------------
-section "2. Project discovery path (.grok/agents/)"
+section "2. Project discovery path (.do/agents/)"
 # ---------------------------------------------------------------------------
 # Evidence: crates/codegen/xai-grok-agent/src/discovery.rs PROJECT_AGENT_SUBDIRS
 
 for role in "${ROLES[@]}"; do
-  disc="$REPO_ROOT/.grok/agents/${role}.md"
+  disc="$REPO_ROOT/.do/agents/${role}.md"
   src="$HARNESS_DIR/agents/${role}.md"
   if [[ -e "$disc" ]]; then
-    ok "discovery: .grok/agents/${role}.md"
+    ok "discovery: .do/agents/${role}.md"
     if [[ -L "$disc" ]]; then
       target="$(resolve "$disc")"
       expected="$(resolve "$src")"
@@ -157,10 +157,10 @@ section "5. Fork discovery evidence"
 # ---------------------------------------------------------------------------
 
 AGENT_DISC_RS="$REPO_ROOT/crates/codegen/xai-grok-agent/src/discovery.rs"
-if [[ -f "$AGENT_DISC_RS" ]] && grep -q '\.grok/agents' "$AGENT_DISC_RS"; then
-  ok "evidence: agent discovery uses .grok/agents ($AGENT_DISC_RS)"
+if [[ -f "$AGENT_DISC_RS" ]] && grep -q '\.do/agents' "$AGENT_DISC_RS"; then
+  ok "evidence: agent discovery uses .do/agents ($AGENT_DISC_RS)"
 else
-  fail "cannot find .grok/agents in forked agent discovery.rs"
+  fail "cannot find .do/agents in forked agent discovery.rs"
 fi
 
 # ---------------------------------------------------------------------------

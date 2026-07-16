@@ -47,7 +47,7 @@ When changing behavior, prefer this order (same as root AGENTS Customization Ord
 | Order | Placement | When |
 |-------|-----------|------|
 | 1 | **do-harness** | Product identity: agents, hooks, skills, prompts, YAML overlays |
-| 2 | **`.grok` / `~/.grok` config & plugins** | Stock discovery root for M0; multi-model TOML |
+| 2 | **`.do` / `~/.config/do` config & plugins** | Product discovery root after CFG; multi-model TOML |
 | 3 | **`register_tool_pack`** | New in-process native tools |
 | 4 | **Surgical crate patches** | Only when extension seams fail — log in patch-matrix |
 | 5 | **Deep pager / TUI fork** | Last resort (M2+ with explicit decision) |
@@ -58,17 +58,18 @@ Do **not** reinvent native tools grok already has (`plan` / plan mode, `update_g
 
 ---
 
-## 4. Config root for M0: reuse `~/.grok`
+## 4. Config root (CFG): `~/.config/do` + project `.do/`
 
-| Decision | M0 choice | Rationale |
-|----------|-----------|-----------|
-| Config home | **`~/.grok`** (and project `.grok/` where stock discovery applies) | Binary already discovers agents, hooks, skills, `config.toml` there |
-| Product brand | **do** in docs, README, do-harness | Branding without fighting runtime paths |
-| Future rebrand | Optional `~/.do` later | Only after extension path is proven (parking lot) |
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| User config home | **`~/.config/do` only** when `GROK_HOME` unset | P-CFG-HOME; no silent `~/.grok` fallback |
+| Project discovery | **`.do/`** (agents, hooks, config, skills, plan, …) | P-CFG-PROJECT; product install targets |
+| Product brand | **do** in docs, README, do-harness | Matches runtime paths |
+| Compat dirs | Keep **`.claude/`** (and other vendor) project walks | Out of scope to remove |
 
-**Do not** invent a second config home the binary ignores in M0. Link or copy `do-harness/` assets onto discovery paths (`~/.grok/...` or project `.grok/...`) as needed for proof agents/hooks.
+Link or copy `do-harness/` assets onto discovery paths (`~/.config/do/...` or project `.do/...`) as needed for proof agents/hooks.
 
-Environment override used by stock grok (when present): `GROK_HOME` — treat as the same family as `~/.grok` for M0 docs.
+Environment override: **`GROK_HOME`** replaces the full user home root (document this one; `DO_HOME` not wired).
 
 ---
 
@@ -78,15 +79,15 @@ Multi-model is **required product behavior**. Accurate facts (do not mis-documen
 
 | Layer | Format | Owns | Runtime? |
 |-------|--------|------|----------|
-| **Stock grok** | TOML `~/.grok/config.toml` | Many `[model.<name>]`, `[models] default`, `api_backend`, agent/role/persona model fields | **Yes** — binary reads this |
-| **do product overlay** | YAML `do-harness/config.models.yaml` | Registry ergonomics + **role → model + effort** assignment table | **M0 template only**; M1 wires into agents |
+| **Stock runtime** | TOML `~/.config/do/config.toml` (via `$GROK_HOME`) | Many `[model.<name>]`, `[models] default`, `api_backend`, agent/role/persona model fields | **Yes** — binary reads this |
+| **do product overlay** | YAML `do-harness/config.models.yaml` | Registry ergonomics + **role → model + effort** assignment table | **Wired** via apply-models → agent frontmatter |
 
 ```
 do-harness/config.models.yaml     (product UX: registry + assignment)
         │ maps / generates / documents
         ▼
-~/.grok/config.toml               (native multi-model runtime)
-  + agent / role frontmatter model pins
+~/.config/do/config.toml          (native multi-model runtime; GROK_HOME override)
+  + agent / role frontmatter model pins under project .do/agents/
 ```
 
 - Grok **already** supports N custom models via `[model.*]` — gap is **assignment UX** (limitation **L13**), not “add multi-model”
@@ -122,7 +123,7 @@ Upstream grok-build is treated as a **private/local** lineage for this product. 
 |-------------|--------|
 | Product intent | [README.md](./README.md) + this file §1 |
 | Extension-before-deep-fork | §3 + [AGENTS.md](./AGENTS.md) Customization Order |
-| Config root `~/.grok` for M0 | §4 |
+| Config root `~/.config/do` + project `.do/` | §4 |
 | Dual TOML + do YAML model surface | §5 + [docs/models-and-config.md](./docs/models-and-config.md) |
 | No external upstream PRs as product path | §6 + Non-Goals in AGENTS |
 | Sibling trees read-only | §2 |
@@ -147,7 +148,7 @@ Upstream grok-build is treated as a **private/local** lineage for this product. 
 ## 10. Non-goals (fork scope)
 
 - Full OpenTUI / Node port of pi-ness TUI  
-- Competing multi-model runtime that bypasses `~/.grok/config.toml`  
+- Competing multi-model runtime that bypasses `~/.config/do/config.toml` (or `$GROK_HOME/config.toml`)
 - Speculative abstractions before M0 baseline seals  
 - Deep pager fork before extension seams are exhausted  
 - Public upstream PR workflow as the definition of “done” for do features

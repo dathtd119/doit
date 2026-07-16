@@ -209,11 +209,11 @@ fn load_requirements_permissions() -> Vec<Sourced<PermissionRule>> {
         .collect()
 }
 
-/// Find every `<dir>/.grok/config.toml` from `cwd` upward to the git repo
-/// root (or just `<cwd>/.grok/config.toml` when there is no git repo).
+/// Find every `<dir>/.do/config.toml` from `cwd` upward to the git repo
+/// root (or just `<cwd>/.do/config.toml` when there is no git repo).
 ///
 /// Returned paths are ordered from repo root (lowest priority) to `cwd`
-/// (highest priority), matching `xai-grok-shell::config::find_project_configs`.
+/// (highest priority), matching `xai_grok_workspace::project_config::find_project_configs`.
 fn find_project_grok_configs(cwd: &Path) -> Vec<PathBuf> {
     let git_root = git2::Repository::discover(cwd)
         .ok()
@@ -223,7 +223,8 @@ fn find_project_grok_configs(cwd: &Path) -> Vec<PathBuf> {
     if let Some(ref root) = git_root {
         let mut current = Some(cwd.to_path_buf());
         while let Some(dir) = current {
-            let p = dir.join(".grok").join("config.toml");
+            // CFG P-CFG-PROJECT: product project config is `.do/config.toml`.
+            let p = dir.join(".do").join("config.toml");
             if p.is_file() {
                 configs.push(p);
             }
@@ -234,7 +235,7 @@ fn find_project_grok_configs(cwd: &Path) -> Vec<PathBuf> {
         }
         configs.reverse();
     } else {
-        let p = cwd.join(".grok").join("config.toml");
+        let p = cwd.join(".do").join("config.toml");
         if p.is_file() {
             configs.push(p);
         }
@@ -244,8 +245,8 @@ fn find_project_grok_configs(cwd: &Path) -> Vec<PathBuf> {
 
 /// Load `[permission]` rules from native Grok TOML config files:
 ///
-///   * `~/.grok/config.toml` (lowest priority)
-///   * Each `.grok/config.toml` from the git repo root down to `cwd`
+///   * user `$GROK_HOME/config.toml` (lowest priority; default `~/.config/do`)
+///   * Each `.do/config.toml` from the git repo root down to `cwd`
 ///     (highest priority last)
 ///
 /// Returns the rules tagged with `RequirementSource::Config`. Empty if no
@@ -253,8 +254,8 @@ fn find_project_grok_configs(cwd: &Path) -> Vec<PathBuf> {
 fn load_config_toml_permissions(cwd: &Path) -> Vec<Sourced<PermissionRule>> {
     let mut rules = Vec::new();
 
-    // Global `~/.grok/config.toml` first (lowest priority within this layer).
-    // Gated on user_grok_home() so a project's .grok/config.toml is never read as
+    // Global user config first (lowest priority within this layer).
+    // Gated on user_grok_home() so a project's .do/config.toml is never read as
     // global permissions when neither GROK_HOME nor a home dir resolves.
     if let Some(global_path) = xai_grok_config::user_grok_home().map(|g| g.join("config.toml"))
         && global_path.is_file()

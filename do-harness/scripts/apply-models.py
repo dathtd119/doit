@@ -10,7 +10,7 @@ VAL-M1-MODEL-001 / F-M1-MODEL-APPLY
 - --apply: write model (and optional effort) into do-harness/agents/<role>.md
   frontmatter. Always validates first.
 
-Stock ~/.grok/config.toml remains the runtime multi-model source of truth.
+Stock ~/.config/do/config.toml remains the runtime multi-model source of truth.
 This script only pins agent frontmatter model: / effort: from the YAML policy.
 """
 

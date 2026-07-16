@@ -2,7 +2,7 @@
 
 Product identity layer for **do** (forked grok-build): agents, hooks, skills,
 prompts, and model-assignment YAML. Source of truth lives **here**; install onto
-stock grok discovery paths (`~/.grok` conventions for M0, or project `.grok/`).
+product discovery paths (`~/.config/do` user home, project `.do/`).
 
 See root [`AGENTS.md`](../AGENTS.md) Customization Order and
 [`docs/grok-build/extension-seams.md`](../docs/grok-build/extension-seams.md).
@@ -28,16 +28,16 @@ paths the forked binary already walks:
 
 | Asset | Runtime discovery path | Evidence in fork |
 |-------|------------------------|------------------|
-| Agents | `<project>/.grok/agents/*.md` (cwd → git root), then `~/.grok/agents/` | `crates/codegen/xai-grok-agent/src/discovery.rs` (`PROJECT_AGENT_SUBDIRS`) |
-| Hooks | `<git-root>/.grok/hooks/*.json`, then `~/.grok/hooks/` | `crates/codegen/xai-grok-shell/src/util/hooks.rs` (`discover_hook_source_paths`); load via `xai-grok-hooks` `HookSource::Directory` |
+| Agents | `<project>/.do/agents/*.md` (cwd → git root), then `~/.config/do/agents/` | `crates/codegen/xai-grok-agent/src/discovery.rs` (`PROJECT_AGENT_SUBDIRS`) |
+| Hooks | `<git-root>/.do/hooks/*.json`, then `~/.config/do/hooks/` | `crates/codegen/xai-grok-shell/src/util/hooks.rs` (`discover_hook_source_paths`); load via `xai-grok-hooks` `HookSource::Directory` |
 
-**M0 install pattern:** symlink from project `.grok/` into `do-harness/` so the
+**Install pattern:** symlink from project `.do/` into `do-harness/` so the
 repo is the single source of truth.
 
 ## Product roster (M1 — F-M1-ROSTER / VAL-M1-ROSTER-001)
 
 Five primary-session roles under [`agents/`](./agents/). Source of truth is
-`do-harness/agents/`; install onto project `.grok/agents/` (symlinks preferred).
+`do-harness/agents/`; install onto project `.do/agents/` (symlinks preferred).
 
 | Role | Source | Typical use | Tool floor (M1 stub OK) |
 |------|--------|-------------|-------------------------|
@@ -49,7 +49,7 @@ Five primary-session roles under [`agents/`](./agents/). Source of truth is
 
 Model pins: `config.models.yaml` `assignment.<role>` applied into agent
 frontmatter via `scripts/apply-models.sh` (**F-M1-MODEL-APPLY** / VAL-M1-MODEL-001).
-Stock `~/.grok/config.toml` remains the runtime multi-model registry — this
+Stock `~/.config/do/config.toml` remains the runtime multi-model registry — this
 script does **not** invent a second runtime.
 
 Role switch lock (product policy): Tab/Shift+Tab **only pre-message**; locked
@@ -78,7 +78,7 @@ bash do-harness/scripts/verify-roster.sh
 ### Intake agent (F-EXT-001 / VAL-EXT-001)
 
 - Source: [`agents/intake.md`](./agents/intake.md)
-- Discovery: `.grok/agents/intake.md` → symlink to source
+- Discovery: `.do/agents/intake.md` → symlink to source
 - Role: clarify-only intake; `permissionMode: plan`; no file edits
 - **M1:** intake remains part of the five-role product roster (above)
 
@@ -86,7 +86,7 @@ bash do-harness/scripts/verify-roster.sh
 
 - Source: [`hooks/guided-dangerous-shell.json`](./hooks/guided-dangerous-shell.json)
   + [`hooks/bin/guided-dangerous-shell.py`](./hooks/bin/guided-dangerous-shell.py)
-- Discovery: `.grok/hooks/*` → symlinks to source
+- Discovery: `.do/hooks/*` → symlinks to source
 - Behavior: PreToolUse on shell tools; deny dangerous patterns with
   `[GATE: …]` + **Do this instead** (never bare “Permission denied”)
 - Enablement detail: [`hooks/README.md`](./hooks/README.md)
@@ -97,17 +97,17 @@ From the **do** repo root:
 
 ```sh
 # Full product roster (M1)
-mkdir -p .grok/agents
+mkdir -p .do/agents
 for role in intake orchestrator explorer worker oracle; do
-  ln -sfn ../../do-harness/agents/${role}.md .grok/agents/${role}.md
+  ln -sfn ../../do-harness/agents/${role}.md .do/agents/${role}.md
 done
 
 # Hook (M0 proof; still recommended)
-mkdir -p .grok/hooks/bin
+mkdir -p .do/hooks/bin
 ln -sfn ../../do-harness/hooks/guided-dangerous-shell.json \
-  .grok/hooks/guided-dangerous-shell.json
+  .do/hooks/guided-dangerous-shell.json
 ln -sfn ../../../do-harness/hooks/bin/guided-dangerous-shell.py \
-  .grok/hooks/bin/guided-dangerous-shell.py
+  .do/hooks/bin/guided-dangerous-shell.py
 chmod +x do-harness/hooks/bin/guided-dangerous-shell.py
 ```
 
@@ -116,13 +116,13 @@ Project hooks may require `/hooks-trust` in a live session (stock grok).
 ### Enable (user-global)
 
 ```sh
-mkdir -p ~/.grok/agents ~/.grok/hooks/bin
+mkdir -p ~/.config/do/agents ~/.config/do/hooks/bin
 for role in intake orchestrator explorer worker oracle; do
-  cp do-harness/agents/${role}.md ~/.grok/agents/
+  cp do-harness/agents/${role}.md ~/.config/do/agents/
 done
-cp do-harness/hooks/guided-dangerous-shell.json ~/.grok/hooks/
-cp do-harness/hooks/bin/guided-dangerous-shell.py ~/.grok/hooks/bin/
-chmod +x ~/.grok/hooks/bin/guided-dangerous-shell.py
+cp do-harness/hooks/guided-dangerous-shell.json ~/.config/do/hooks/
+cp do-harness/hooks/bin/guided-dangerous-shell.py ~/.config/do/hooks/bin/
+chmod +x ~/.config/do/hooks/bin/guided-dangerous-shell.py
 ```
 
 ## Verify discovery (F-EXT-003 / VAL-EXT-003)
@@ -142,12 +142,12 @@ bash do-harness/scripts/verify-discovery.sh
 What the script proves:
 
 1. Source files exist under `do-harness/`
-2. Project `.grok/agents/intake.md` and `.grok/hooks/…` exist and resolve to source
+2. Project `.do/agents/intake.md` and `.do/hooks/…` exist and resolve to source
 3. Agent frontmatter matches grok agent conventions (`name: intake`, …)
 4. Hook JSON has `PreToolUse` + shell matcher + `type: command` handler
 5. Hook command target exists under the hook `source_dir`
 6. Guided deny/allow self-test passes (`[GATE: …]` shape)
-7. Forked source still documents `.grok/agents` and `.grok/hooks` as discovery paths
+7. Forked source still documents `.do/agents` and `.do/hooks` as discovery paths
 
 Optional override:
 
@@ -180,7 +180,7 @@ python3 do-harness/hooks/bin/guided-dangerous-shell.py --self-test
 
 Policy file: [`config.models.yaml`](./config.models.yaml) — registry ergonomics
 + role→model table. Runtime multi-model still lives in stock
-`~/.grok/config.toml` (`[model.*]` + default). The apply script maps
+`~/.config/do/config.toml` (`[model.*]` + default). The apply script maps
 `assignment.<role>` into `agents/<role>.md` frontmatter `model:` (and optional
 `effort:` for structured pins). See
 [`docs/models-and-config.md`](../docs/models-and-config.md).
@@ -215,7 +215,7 @@ Optional flags (Python script):
 - Product roster roles are missing from `assignment` (unless partial allowed)
 - Assigned role has no agent file under `agents/`
 
-**Does not:** rewrite `~/.grok/config.toml`, invent a second runtime registry,
+**Does not:** rewrite `~/.config/do/config.toml`, invent a second runtime registry,
 or re-pin mid-session (role lock is F-M1-LOCK / F-M1-MODEL-RESOLVE).
 
 ### After editing assignment
@@ -223,7 +223,7 @@ or re-pin mid-session (role lock is F-M1-LOCK / F-M1-MODEL-RESOLVE).
 1. Ensure registry names exist in both YAML and stock TOML (hand-sync TOML).
 2. `bash do-harness/scripts/apply-models.sh --validate`
 3. `bash do-harness/scripts/apply-models.sh --apply`
-4. Agents under `.grok/agents/` already symlink to `do-harness/agents/` — no
+4. Agents under `.do/agents/` already symlink to `do-harness/agents/` — no
    re-link required for project install.
 
 ## Progressive skills (F-M1-SKILL / VAL-M1-SKILL-001)
@@ -242,7 +242,7 @@ listing seed). Product roster **reduces firehose** for clarify/scout/analysis:
 | orchestrator | true | curated direction (M2 may tighten) |
 | worker | true | curated direction (M2 may tighten) |
 
-Operator ignore/disabled lists still merge into stock `~/.grok/config.toml`
+Operator ignore/disabled lists still merge into stock `~/.config/do/config.toml`
 `[skills]` (see config overlay `recommended_toml`). MCP stays progressive via
 `search_tool` / `use_tool`.
 

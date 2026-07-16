@@ -2476,7 +2476,7 @@ fn skill_source_str(skill: &SkillInfo) -> String {
             xai_grok_tools::types::config_source::ConfigSource::Project { path } => {
                 let s = path.display().to_string();
                 if s.contains("/.grok/") {
-                    ".grok/skills".into()
+                    ".do/skills".into()
                 } else if s.contains("/.claude/") {
                     ".claude/skills".into()
                 } else {

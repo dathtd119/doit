@@ -849,9 +849,10 @@ pub fn discover_skills_for_paths(
     already_checked: &mut HashSet<PathBuf>,
     compat: CompatConfig,
 ) -> Vec<SkillInfo> {
-    // `.grok` and `.agents` are always scanned; `.claude` is gated on the
+    // `.do` and `.agents` are always scanned; `.claude` is gated on the
     // claude-vendor skills cell. (`.cursor` is excluded here by design — see fn docs.)
-    let mut config_dir_names: Vec<&str> = vec![".grok", ".agents"];
+    // CFG P-CFG-PROJECT: product skill root is `.do`.
+    let mut config_dir_names: Vec<&str> = vec![".do", ".agents"];
     if compat.claude.skills {
         config_dir_names.push(".claude");
     }
@@ -1466,8 +1467,8 @@ model: test-model
             "---\nname: shell\ndescription: cursor builtin\n---\n",
         )
         .unwrap();
-        // Same name under /.grok/ → kept (user content).
-        let grok_shell = tmp.path().join(".grok").join("skills").join("shell");
+        // Same name under /.do/ → kept (product/user content).
+        let grok_shell = tmp.path().join(".do").join("skills").join("shell");
         std::fs::create_dir_all(&grok_shell).unwrap();
         std::fs::write(
             grok_shell.join("SKILL.md"),
@@ -1480,7 +1481,7 @@ model: test-model
             (grok_shell.join("SKILL.md"), SkillScope::User),
         ]);
         assert_eq!(skills.len(), 1, "cursor builtin must be dropped");
-        assert!(skills[0].path.contains("/.grok/"));
+        assert!(skills[0].path.contains("/.do/"));
     }
 
     #[test]
@@ -1515,7 +1516,7 @@ model: test-model
         let sub = repo.join("sub");
         std::fs::create_dir_all(&sub).unwrap();
 
-        // A .claude skill and a .grok skill in an intermediate dir.
+        // A .claude skill and a .do skill in an intermediate dir.
         let claude_skill = sub.join(".claude").join("skills").join("claude-dyn");
         std::fs::create_dir_all(&claude_skill).unwrap();
         std::fs::write(
@@ -1523,7 +1524,7 @@ model: test-model
             "---\nname: claude-dyn\n---\n",
         )
         .unwrap();
-        let grok_skill = sub.join(".grok").join("skills").join("grok-dyn");
+        let grok_skill = sub.join(".do").join("skills").join("grok-dyn");
         std::fs::create_dir_all(&grok_skill).unwrap();
         std::fs::write(grok_skill.join("SKILL.md"), "---\nname: grok-dyn\n---\n").unwrap();
 

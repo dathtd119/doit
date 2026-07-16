@@ -2,7 +2,7 @@
 //!
 //! Discovers plugins from multiple sources in priority order:
 //! 1. CLI `--plugin-dir` paths (scope: `CliOverride`)
-//! 2. `.grok/plugins/*/` (scope: `Project`, walked from cwd to worktree root)
+//! 2. `.do/plugins/*/` (scope: `Project`, walked from cwd to worktree root)
 //! 3. `.claude/plugins/*/` (scope: `Project`, compat)
 //! 4. `~/.grok/plugins/*/` (scope: `User`)
 //! 5. `~/.claude/plugins/*/` (scope: `User`, compat)
@@ -68,7 +68,7 @@ impl std::fmt::Display for PluginScope {
 pub enum PluginOrigin {
     /// CLI `--plugin-dir`.
     CliOverride,
-    /// Project `.grok/plugins/`.
+    /// Project `.do/plugins/`.
     ProjectGrok,
     /// Project `.claude/plugins/`.
     ProjectClaude,
@@ -227,7 +227,7 @@ fn user_plugin_dirs(home: Option<&Path>, grok: Option<&Path>) -> Vec<(PathBuf, P
     dirs
 }
 
-/// Origin for a project plugins parent dir: `.claude/plugins` vs `.grok/plugins`.
+/// Origin for a project plugins parent dir: `.claude/plugins` vs `.do/plugins`.
 fn project_plugins_dir_origin(plugins_dir: &Path) -> PluginOrigin {
     let is_claude = plugins_dir
         .parent()
@@ -240,7 +240,7 @@ fn project_plugins_dir_origin(plugins_dir: &Path) -> PluginOrigin {
     }
 }
 
-/// Project-scoped plugin parent dirs (`.grok/plugins`, `.claude/plugins`) that
+/// Project-scoped plugin parent dirs (`.do/plugins`, `.claude/plugins`) that
 /// exist along the `cwd`→git-worktree-root walk (inclusive), or just `cwd`'s own
 /// when `cwd` is not inside a git repo, paired with the resolved git worktree
 /// root (when any). This is the exact set [`discover_plugins`] scans for
@@ -256,12 +256,13 @@ pub fn project_plugin_dirs(cwd: Option<&Path>) -> (Vec<PathBuf>, Option<PathBuf>
     (project_plugin_dirs_in(&chain.dirs), chain.git_root)
 }
 
-/// Existing project plugin parent dirs (`.grok/plugins`, `.claude/plugins`)
+/// Existing project plugin parent dirs (`.do/plugins`, `.claude/plugins`)
 /// under each dir of a precomputed cwd→git-root chain
 /// ([`crate::repo::RepoDirChain`]). The folder-trust gate reuses its one shared
 /// chain here so detection and discovery can never drift.
 pub fn project_plugin_dirs_in(chain_dirs: &[PathBuf]) -> Vec<PathBuf> {
-    crate::repo::existing_subdirs_along(chain_dirs, &[".grok/plugins", ".claude/plugins"])
+    // CFG P-CFG-PROJECT: product project plugins under `.do/plugins`.
+    crate::repo::existing_subdirs_along(chain_dirs, &[".do/plugins", ".claude/plugins"])
 }
 
 /// Discover all plugins from the filesystem.
@@ -298,7 +299,7 @@ pub fn discover_plugins(
         }
     }
 
-    // 2-3. Project plugins (.grok/plugins/, .claude/plugins/) — scan the SAME
+    // 2-3. Project plugins (.do/plugins/, .claude/plugins/) — scan the SAME
     // dirs the folder-trust gate detects, via the shared `project_plugin_dirs`
     // walk (cwd→git root), so discovery and gating can never drift.
     if let Some(cwd) = cwd {
@@ -959,7 +960,7 @@ mod tests {
     #[test]
     fn project_plugins_dir_origin_distinguishes_grok_and_claude() {
         assert_eq!(
-            project_plugins_dir_origin(Path::new("/repo/.grok/plugins")),
+            project_plugins_dir_origin(Path::new("/repo/.do/plugins")),
             PluginOrigin::ProjectGrok
         );
         assert_eq!(

@@ -12,7 +12,7 @@
 |------|---------|
 | `plugin` | Installable bundle (skills + hooks + agents + MCP) via grok plugin discovery |
 | `hook` | Pre/Post tool / session hooks (`PreToolUse`, …) |
-| `agent` | Agent/persona profiles under discovery paths (`do-harness/agents/`, `.grok/agents/`) |
+| `agent` | Agent/persona profiles under discovery paths (`do-harness/agents/`, `.do/agents/`) |
 | `skill` | Skill files + discovery / reminder tuning |
 | `tool_pack` | In-process `register_tool_pack` before first `ToolRegistryBuilder::new()` |
 | `crate_patch` | Surgical edit under `crates/` — last resort; document here |
@@ -274,6 +274,14 @@ Scout: [`plans/reports/scout-config-home-xdg-do-260716.md`](../plans/reports/sco
 |------|----|--------|--------------|--------|------|------------------------|
 | 2026-07-16 | **P-CFG-HOME** | **applied** | `xai-grok-config` `paths.rs` (`default_grok_home` → `.config/do`, `DEFAULT_USER_HOME_REL`); `xai-fast-worktree` `db/mod.rs` `resolve_grok_home` (synced); `xai-grok-workspace` `worktree/mod.rs` fallback join; `xai-grok-agent` `discovery.rs` drop legacy `~/.grok` dual-read in `user_agent_dirs` | Product default user config/session/home root is XDG-style `~/.config/do`; no silent `~/.grok` fallback for default resolve or agent scan | Medium | Env-only `GROK_HOME=~/.config/do` leaves stock default `~/.grok`; extension/docs cannot change `default_grok_home` / `resolve_grok_home` hardcodes |
 
+### Applied — P-CFG-PROJECT (CFG F-CFG-PROJECT)
+
+Product **project** discovery root is **`.do/`** (not `.grok/`). Vendor compat (`.claude/`, …) kept. User home remains `$GROK_HOME` / `~/.config/do` (P-CFG-HOME).
+
+| Date | ID | Status | Crate / path | Reason | Risk | Alternatives exhausted |
+|------|----|--------|--------------|--------|------|------------------------|
+| 2026-07-16 | **P-CFG-PROJECT** | **applied** | `xai-grok-agent` `discovery.rs` `PROJECT_AGENT_SUBDIRS` + plugins `project_plugin_dirs_in`; `xai-grok-shell` `util/hooks.rs` project hooks + `config/` personas/roles + watcher/mcp/claude_import; `xai-grok-workspace` `project_config.rs`, `permission/resolution.rs`, `folder_trust.rs`, `discovery.rs`, checkpoint store; `xai-grok-tools` `PLAN_FILE_RELATIVE_PATH`, `compat` skill/rules dirs, `lsp/config.rs`, `skills/discovery.rs`, `agents_md_tracker` RULES_DIRS; `xai-grok-sandbox` profiles; `xai-grok-pager` agents/import/extensions modals; do-harness verify/install → `.do/` | Project agents/hooks/config/skills/plan/plugins discover under `.do/`; harness install + verify scripts exit 0 | Medium | Extension cannot change in-process discovery string roots; do-harness-only symlinks to `.grok/` would stay invisible after product rebrand |
+
 ---
 
 ## Milestone → matrix slice
@@ -283,7 +291,7 @@ Scout: [`plans/reports/scout-config-home-xdg-do-260716.md`](../plans/reports/sco
 | **M0** | L10 docs; L13 template; L6/L8 proof (hook + intake agent); this matrix + limitations sealed |
 | **M1** | L1 Tab lock + role roster; L13 YAML→agent wire; L2 prompt layers; start L4 |
 | **PRIV** | P-NOTEL-01..06 fail-closed SpaceXAI telemetry; P-AUTH-01 BYOK skip forced OAuth (**applied**, 2026-07-16) |
-| **CFG** | P-CFG-HOME user home `~/.config/do` (**applied**); P-CFG-PROJECT project `.do/` discovery (next) |
+| **CFG** | P-CFG-HOME user home `~/.config/do` (**applied**); P-CFG-PROJECT project `.do/` discovery (**applied**) |
 | **M2** | L5 continuation; L6 harden; L4 progressive catalog; L11 only if explicit |
 | **M3** | L7 CodeGraph product surface; L3 tool packs as needed; hashline default policy (backlog) |
 

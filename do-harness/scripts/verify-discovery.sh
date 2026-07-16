@@ -3,9 +3,9 @@
 # agent + guided PreToolUse hook.
 #
 # Confirms proof assets sit on the **real** paths stock grok discovers:
-#   agents: <project>/.grok/agents/*.md
-#           (crates/codegen/xai-grok-agent/src/discovery.rs — PROJECT_AGENT_SUBDIRS)
-#   hooks:  <git-root>/.grok/hooks/*.json
+#   agents: <project>/.do/agents/*.md
+#           (crates/codegen/xai-grok-agent/src/discovery.rs — PROJECT_AGENT_SUBDIRS; .do/agents)
+#   hooks:  <git-root>/.do/hooks/*.json
 #           (crates/codegen/xai-grok-shell/src/util/hooks.rs — discover_hook_source_paths;
 #            crates/codegen/xai-grok-hooks/src/discovery.rs — HookSource::Directory)
 #
@@ -86,17 +86,17 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-section "2. Project discovery path (real grok locations)"
+section "2. Project discovery path (product .do/ locations)"
 # ---------------------------------------------------------------------------
-# Agents: cwd→git-root walk of .grok/agents (discovery.rs PROJECT_AGENT_SUBDIRS)
-# Hooks:  <git_root>/.grok/hooks (util/hooks.rs project.push(...join("hooks")))
+# Agents: cwd→git-root walk of .do/agents (discovery.rs PROJECT_AGENT_SUBDIRS; .do/agents)
+# Hooks:  <git_root>/.do/hooks (util/hooks.rs project.push(...join("hooks")))
 
-AGENT_DISC="$REPO_ROOT/.grok/agents/intake.md"
-HOOK_JSON_DISC="$REPO_ROOT/.grok/hooks/guided-dangerous-shell.json"
-HOOK_BIN_DISC="$REPO_ROOT/.grok/hooks/bin/guided-dangerous-shell.py"
+AGENT_DISC="$REPO_ROOT/.do/agents/intake.md"
+HOOK_JSON_DISC="$REPO_ROOT/.do/hooks/guided-dangerous-shell.json"
+HOOK_BIN_DISC="$REPO_ROOT/.do/hooks/bin/guided-dangerous-shell.py"
 
 if [[ -e "$AGENT_DISC" ]]; then
-  ok "project agent on discovery path: .grok/agents/intake.md"
+  ok "project agent on discovery path: .do/agents/intake.md"
   if [[ -L "$AGENT_DISC" ]]; then
     target="$(resolve "$AGENT_DISC")"
     expected="$(resolve "$AGENT_SRC")"
@@ -114,7 +114,7 @@ else
 fi
 
 if [[ -e "$HOOK_JSON_DISC" ]]; then
-  ok "project hook JSON on discovery path: .grok/hooks/guided-dangerous-shell.json"
+  ok "project hook JSON on discovery path: .do/hooks/guided-dangerous-shell.json"
   if [[ -L "$HOOK_JSON_DISC" ]]; then
     target="$(resolve "$HOOK_JSON_DISC")"
     expected="$(resolve "$HOOK_JSON_SRC")"
@@ -131,7 +131,7 @@ else
 fi
 
 if [[ -e "$HOOK_BIN_DISC" ]]; then
-  ok "hook command target on discovery path: .grok/hooks/bin/guided-dangerous-shell.py"
+  ok "hook command target on discovery path: .do/hooks/bin/guided-dangerous-shell.py"
 else
   fail "hook command target missing: $HOOK_BIN_DISC (command is relative to source_dir)"
 fi
@@ -206,9 +206,9 @@ for g in groups:
         if h.get("type") == "command" and h.get("command"):
             found_command = True
             cmd = h["command"]
-            # Relative commands resolve against source_dir (.grok/hooks/)
+            # Relative commands resolve against source_dir (.do/hooks/)
             if not pathlib.Path(cmd).is_absolute():
-                # source_dir for project hooks is .grok/hooks
+                # source_dir for project hooks is .do/hooks
                 rel = pathlib.Path(cmd)
                 # Accept bin/... as installed
                 if "guided-dangerous-shell" not in str(cmd):
@@ -268,14 +268,14 @@ AGENT_DISC_RS="$REPO_ROOT/crates/codegen/xai-grok-agent/src/discovery.rs"
 HOOKS_UTIL_RS="$REPO_ROOT/crates/codegen/xai-grok-shell/src/util/hooks.rs"
 HOOKS_DISC_RS="$REPO_ROOT/crates/codegen/xai-grok-hooks/src/discovery.rs"
 
-if [[ -f "$AGENT_DISC_RS" ]] && grep -q '\.grok/agents' "$AGENT_DISC_RS"; then
-  ok "evidence: agent discovery uses .grok/agents ($AGENT_DISC_RS)"
+if [[ -f "$AGENT_DISC_RS" ]] && grep -q '\.do/agents' "$AGENT_DISC_RS"; then
+  ok "evidence: agent discovery uses .do/agents ($AGENT_DISC_RS)"
 else
-  fail "cannot find .grok/agents in forked agent discovery.rs"
+  fail "cannot find .do/agents in forked agent discovery.rs"
 fi
 
 if [[ -f "$HOOKS_UTIL_RS" ]] && grep -q 'join("hooks")' "$HOOKS_UTIL_RS"; then
-  ok "evidence: project hooks path is <git_root>/.grok/hooks ($HOOKS_UTIL_RS)"
+  ok "evidence: project hooks path is <git_root>/.do/hooks ($HOOKS_UTIL_RS)"
 else
   fail "cannot find project hooks path in util/hooks.rs"
 fi

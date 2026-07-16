@@ -52,6 +52,7 @@ plans/
 .claude/
 .pi/
 .grok/
+.do/
 
 # Local overrides
 *.local
