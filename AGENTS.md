@@ -214,12 +214,13 @@ Date: 2026-07-16
 - **Patch matrix L1–L13** — **sealed** (F-DOC-002 / VAL-DOC-002): `docs/patch-matrix.md` maps each gap → path / risk / order; cites limitations + grok-build seams; crate patch log ready
 - **Capability map** — **sealed** (F-DOC-003 / VAL-DOC-003): `docs/capability-map.md` maps pi-ness native modules / L0–L6 / roles / continuum / **model registry+assignment** → grok tools/APIs/hooks/config or `"gap"`
 - **README + FORK policy** — **sealed** (F-DOC-004 / VAL-DOC-004): product intent in `README.md`; `FORK.md` documents extension-before-deep-fork, `~/.grok` M0 config root, dual TOML+YAML model surface, no external upstream PRs
-- **Not yet** — do-harness proof agent + guided hook; YAML→agent wiring (M1); M1–M3 backlog doc; M0 seal commit
+- **Proof intake agent** — **sealed** (F-EXT-001 / VAL-EXT-001): `do-harness/agents/intake.md` + project `.grok/agents/intake.md` symlink on discovery path
+- **Not yet** — guided PreToolUse hook (F-EXT-002); discovery e2e verify (F-EXT-003); YAML→agent wiring (M1); M1–M3 backlog doc; M0 seal commit
 - **Process** — git at do; commit every milestone; docs under `/docs`; English + conventional commits
 
 ### Next steps
 
-1. M0: proof intake agent + guided PreToolUse hook + discovery verification
+1. M0: guided PreToolUse hook + discovery verification (F-EXT-002 / F-EXT-003)
 2. M0: `docs/backlog-m1-m3.md` including multi-model assignment wiring + **role Tab cycle + post-message lock** + seal commit
 3. M1: roles + prompt layers on grok seams; **wire role→model from do YAML into agents**; **implement Tab/Shift+Tab role cycle with post-first-message lock**
 4. M2: continuation coordinator + guided-block safety

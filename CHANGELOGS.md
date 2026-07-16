@@ -4,6 +4,34 @@ Append-only ship log for **do**. Not a status essay — one entry per substantiv
 
 ---
 
+## 2026-07-16 — F-EXT-001 intake agent profile proof
+
+**Scope:** do-harness agent + project discovery install  
+**Feature:** F-EXT-001 · **VAL:** VAL-EXT-001
+
+### Sealed
+
+- `do-harness/agents/intake.md` — grok-compatible agent definition (YAML frontmatter + prompt body):
+  - `name: intake`, `permissionMode: plan`, clarify-only tools floor
+  - Allowlist: `read_file`, `list_dir`, `grep`, `run_terminal_cmd`, `ask_user_question`, `Agent(explore)`
+  - Denylist: edits, plan/goal/todo ownership tools
+  - Intent Pack capture fields; no implementation; M1 model pin noted (`model: inherit` for M0)
+- Project discovery install: `.grok/agents/intake.md` → symlink to `do-harness/agents/intake.md` (source of truth under do-harness; on path used by `xai-grok-agent` discovery walk)
+
+### Not in scope
+
+- F-EXT-002 guided PreToolUse hook
+- F-EXT-003 end-to-end binary/scripted discovery verification + `do-harness/README.md`
+- Full role roster / Tab cycle (M1)
+
+### Files
+
+- `do-harness/agents/intake.md`
+- `.grok/agents/intake.md` (symlink)
+- This CHANGELOGS entry
+
+---
+
 ## 2026-07-16 — F-DOC-004 README + FORK policy seal
 
 **Scope:** docs only (`README.md`, `FORK.md`, index, living status)  
