@@ -1,0 +1,36 @@
+# do product model overlay (M0 template)
+#
+# Purpose:
+#   - Human-friendly registry + role → model assignment (OpenCode-like pins)
+#   - Maps to stock grok ~/.grok/config.toml [model.*] + agent frontmatter model
+#   - NOT auto-applied by the binary in M0; operators may hand-sync
+#   - M1: wire assignment into do-harness agent profiles
+#
+# Secrets: use env var names only — never commit API keys.
+# Docs: docs/models-and-config.md  |  Limitation: L13
+
+models:
+  default: combo-big
+  registry:
+    combo-big:
+      model: your-large-model-id
+      base_url: https://api.example.com/v1
+      api_backend: chat_completions
+      # api_key_env: EXAMPLE_API_KEY
+    combo-small:
+      model: your-small-model-id
+      base_url: https://api.example.com/v1
+      api_backend: chat_completions
+      # api_key_env: EXAMPLE_API_KEY
+
+# Role / agent → registry name (optional effort when backend supports it)
+assignment:
+  intake: combo-small
+  orchestrator: combo-big
+  explorer: combo-small
+  worker: combo-big
+  oracle: combo-big
+  # Example structured pin (future / when schema supports it):
+  # orchestrator:
+  #   model: combo-big
+  #   effort: high

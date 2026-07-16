@@ -1,128 +1,70 @@
-<div align="center">
+# do
 
-<h1>
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://media.x.ai/v1/website/spacexai-symbol-white-transparent-0c31957f.png">
-    <source media="(prefers-color-scheme: light)" srcset="https://media.x.ai/v1/website/spacexai-symbol-black-transparent-6435cf42.png">
-    <img alt="SpaceXAI logo" src="https://media.x.ai/v1/website/spacexai-symbol-black-transparent-6435cf42.png" width="96">
-  </picture>
-  <br>
-  Grok Build (<code>grok</code>)
-</h1>
+**do** is a forked **Grok Build** coding-agent harness that absorbs **pi-ness** harness-control ideas and **OpenCode-style** multi-model / config control ergonomics.
 
-**Grok Build** is SpaceXAI's terminal-based AI coding agent. It runs as a
-full-screen TUI that understands your codebase, edits files, executes shell
-commands, searches the web, and manages long-running tasks — interactively,
-headlessly for scripting/CI, or embedded in editors via the Agent Client
-Protocol (ACP).
+This tree is a **private/local fork** of Grok Build (Rust: pager, shell, tools, agent). Upstream grok-build and pi-ness trees are **read-only references** — we import by **copy**, never modify them in place.
 
-[Installing the released binary](#installing-the-released-binary) ·
-[Building from source](#building-from-source) ·
-[Documentation](#documentation) ·
-[Repository layout](#repository-layout) ·
-[Development](#development) ·
-[Contributing](#contributing) ·
-[License](#license)
+| Surface | Role |
+|---------|------|
+| `crates/` + codegen | Forked grok-build workspace (binary lineage `xai-grok-pager-bin`) |
+| `do-harness/` | Product identity: agents, hooks, skills, prompts, model assignment YAML |
+| `docs/` | Durable design, inventories, ship discipline |
+| `AGENTS.md` | Operating contract for humans and agents |
+| `CHANGELOGS.md` | What shipped |
 
-![Grok Build TUI](https://media.x.ai/v1/website/universe-tui-screenshot-6f7a0837.png)
+## Product intent
 
-**Learn more about Grok Build at [x.ai/cli](https://x.ai/cli)**
+- Harness control on a native-rich base: roles, prompt layers, progressive catalogs, guided gates, workspace continuum, continuation
+- **Multi-model is required:** register N models; assign orchestrator / explorer / worker / oracle (and intake) like OpenCode agent model pins
+- Prefer **extension** (do-harness, config, plugins) before crate patches
+- Dual config: stock `~/.grok/config.toml` for native multi-model; optional do YAML overlay for assignment UX
 
-This repository contains the Rust source for the `grok` CLI/TUI and its agent
-runtime. It is synced periodically from the SpaceXAI monorepo.
+## Docs (start here)
 
-</div>
+| Doc | For |
+|-----|-----|
+| [AGENTS.md](./AGENTS.md) | Operating contract + living status |
+| [docs/index.md](./docs/index.md) | Doc map |
+| [docs/architecture.md](./docs/architecture.md) | System architecture |
+| [docs/models-and-config.md](./docs/models-and-config.md) | Multi-model + role assignment design |
+| [docs/milestone-ship-discipline.md](./docs/milestone-ship-discipline.md) | Docs + commit every milestone |
+| [CHANGELOGS.md](./CHANGELOGS.md) | Ship log |
 
----
+## Build (forked binary)
 
-## Installing the released binary
-
-Prebuilt binaries are published for macOS, Linux, and Windows:
+Requirements: Rust (see `rust-toolchain.toml`), protoc (`bin/protoc` or `PATH`).
 
 ```sh
-curl -fsSL https://x.ai/cli/install.sh | bash   # macOS / Linux / Git Bash
-irm https://x.ai/cli/install.ps1 | iex          # Windows PowerShell
-grok --version
+cargo check -p xai-grok-pager-bin            # smoke
+cargo run -p xai-grok-pager-bin              # build + launch TUI
+cargo build -p xai-grok-pager-bin --release  # release binary
 ```
 
-See the [changelog](https://x.ai/build/changelog) for the latest fixes,
-features, and improvements in each release.
+The artifact is named `xai-grok-pager` (upstream installs as `grok`). Config discovery for M0 keeps **`~/.grok`** conventions; product brand is **do** in docs and harness.
 
-## Building from source
+## Multi-model (accurate facts)
 
-Requirements:
+Grok-build **already** supports multiple custom models in `~/.grok/config.toml` (`[model.<name>]` × N, `[models] default`, api backends). Subagents resolve model as: spawn override > role > persona > parent.
 
-- **Rust** — the toolchain is pinned by [`rust-toolchain.toml`](rust-toolchain.toml);
-  `rustup` installs it automatically on first build.
-- **protoc** — proto codegen resolves [`bin/protoc`](bin/protoc) (a
-  [dotslash](https://dotslash-cli.com) launcher) or falls back to a `protoc` on
-  `PATH` / `$PROTOC`.
-- macOS and Linux are supported build hosts; Windows builds are best-effort
-  and not currently tested from this tree.
+**do** adds product ergonomics: `do-harness/config.models.yaml` (registry + role assignment) mapping into stock TOML and agent frontmatter. See [docs/models-and-config.md](./docs/models-and-config.md). Gap vs OpenCode assignment UX is limitation **L13**.
 
-```sh
-cargo run -p xai-grok-pager-bin              # build + launch the TUI
-cargo build -p xai-grok-pager-bin --release  # release binary: target/release/xai-grok-pager
-cargo check -p xai-grok-pager-bin            # fast validation
-```
+## Constraints (short)
 
-The binary artifact is named `xai-grok-pager`; official installs ship it as
-`grok`. On first launch it opens your browser to authenticate — see the
-[authentication guide](crates/codegen/xai-grok-pager/docs/user-guide/02-authentication.md).
+- Never modify `~/code/pi-ness` or `~/code/grok-build`
+- Extension-before-deep-fork
+- English only; conventional commits; commit every milestone
+- Preserve Apache-2.0 + `THIRD-PARTY-NOTICES` / LICENSE from import
 
-## Documentation
-
-Full online documentation is available at
-[docs.x.ai/build/overview](https://docs.x.ai/build/overview).
-
-The user guide ships with the pager crate:
-[`crates/codegen/xai-grok-pager/docs/user-guide/`](crates/codegen/xai-grok-pager/docs/user-guide/)
-— getting started, keyboard shortcuts, slash commands, configuration, theming,
-MCP servers, skills, plugins, hooks, headless mode, sandboxing, and more.
-
-## Repository layout
-
-| Path | Contents |
-|------|----------|
-| `crates/codegen/xai-grok-pager-bin` | Composition-root package; builds the `xai-grok-pager` binary |
-| `crates/codegen/xai-grok-pager` | The TUI: scrollback, prompt, modals, rendering |
-| `crates/codegen/xai-grok-shell` | Agent runtime + leader/stdio/headless entry points |
-| `crates/codegen/xai-grok-tools` | Tool implementations (terminal, file edit, search, ...) |
-| `crates/codegen/xai-grok-workspace` | Host filesystem, VCS, execution, checkpoints |
-| `crates/codegen/...` | The rest of the CLI crate closure (config, MCP, markdown, sandbox, ...) |
-| `crates/common/`, `crates/build/`, `prod/mc/` | Small shared leaf crates pulled in by the closure |
-| `third_party/` | Vendored upstream source (Mermaid diagram stack) — see below |
-
-> [!IMPORTANT]
-> The root `Cargo.toml` (workspace members, dependency versions, lints,
-> profiles) is **generated** — treat it as read-only. Prefer editing per-crate
-> `Cargo.toml` files.
-
-## Development
-
-```sh
-cargo check -p <crate>        # always target specific crates; full-workspace builds are slow
-cargo test -p xai-grok-config # per-crate tests
-cargo clippy -p <crate>       # lint config: clippy.toml at the repo root
-cargo fmt --all               # rustfmt.toml at the repo root
-```
-
-## Contributing
-
-> [!NOTE]
-> External contributions are not accepted. See [`CONTRIBUTING.md`](CONTRIBUTING.md).
+Full rules: [AGENTS.md](./AGENTS.md). Fork policy expansion: `FORK.md` (M0 deliverable).
 
 ## License
 
-First-party code in this repository is licensed under the **Apache License,
-Version 2.0** — see [`LICENSE`](LICENSE).
+Apache-2.0 and third-party notices from the grok-build import — see `LICENSE` / `THIRD-PARTY-NOTICES` when present in tree.
 
-Third-party and vendored code remains under its original licenses. See:
+---
 
-- [`THIRD-PARTY-NOTICES`](THIRD-PARTY-NOTICES) — crates.io / git dependencies,
-  bundled UI themes, and **in-tree source ports** (including openai/codex and
-  sst/opencode tool implementations)
-- [`crates/codegen/xai-grok-tools/THIRD_PARTY_NOTICES.md`](crates/codegen/xai-grok-tools/THIRD_PARTY_NOTICES.md)
-  — crate-local notice for the codex and opencode ports (license texts +
-  Apache §4(b) change notice)
-- [`third_party/NOTICE`](third_party/NOTICE) — vendored Mermaid-stack index
+### Upstream Grok Build notes
+
+The imported tree remains a Grok Build coding agent (TUI, headless, ACP). Official upstream docs live at [docs.x.ai/build](https://docs.x.ai/build/overview). Local user guide may ship under `crates/codegen/xai-grok-pager/docs/user-guide/`.
+
+This README’s **product framing** is for **do**; crate-level upstream README content may still appear in subtrees.
