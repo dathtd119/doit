@@ -48,6 +48,58 @@ python3 do-harness/hooks/bin/continuation-nudge.py \
 bash do-harness/scripts/verify-continuation.sh
 ```
 
+## F-M2-GATES: Guided-block product pack (VAL-M2-GATE-001)
+
+Product standard: every do-owned denial uses `[GATE: …]` + **Do this instead**
+(+ Human involvement / Do not when needed). Shared helper:
+`bin/guided_block.py`. Catalog: `do-harness/prompts/gates.md`.
+Verify: `bash do-harness/scripts/verify-gates.sh`.
+
+| Pack | JSON | Engine | Gate ids (summary) |
+|------|------|--------|--------------------|
+| Dangerous shell (M0) | `guided-dangerous-shell.json` | `bin/guided-dangerous-shell.py` | `dangerous-shell-*` |
+| Path policy (M2) | `guided-path-policy.json` | `bin/guided-path-policy.py` | `path-policy-write-outside` |
+| Env expose (M2) | `guided-env-expose.json` | `bin/guided-env-expose.py` | `env-expose-dotenv`, `env-expose-printenv`, `env-expose-secret-echo` |
+
+### Path policy behavior
+
+PreToolUse on write/edit tools and shell redirects:
+
+1. Resolve write target against session `cwd` (workspace root)
+2. Deny when target is outside that root
+3. Guided reason with workspace path and safer alternatives
+
+### Env expose behavior
+
+PreToolUse on shell tools:
+
+1. Deny `cat`/readers of real `.env` files (allow `.env.example` etc.)
+2. Deny full env dumps (`env`, bare `printenv`, `export -p`)
+3. Deny echo of sensitive variable names (`$OPENAI_API_KEY`, …)
+
+### Enable path + env packs (project-scoped)
+
+```sh
+mkdir -p .do/hooks/bin
+ln -sfn ../../do-harness/hooks/guided-path-policy.json .do/hooks/guided-path-policy.json
+ln -sfn ../../../do-harness/hooks/bin/guided-path-policy.py .do/hooks/bin/guided-path-policy.py
+ln -sfn ../../do-harness/hooks/guided-env-expose.json .do/hooks/guided-env-expose.json
+ln -sfn ../../../do-harness/hooks/bin/guided-env-expose.py .do/hooks/bin/guided-env-expose.py
+ln -sfn ../../../do-harness/hooks/bin/guided_block.py .do/hooks/bin/guided_block.py
+chmod +x do-harness/hooks/bin/guided-path-policy.py \
+         do-harness/hooks/bin/guided-env-expose.py
+```
+
+### Verify gates pack
+
+```sh
+bash do-harness/scripts/verify-gates.sh
+# expect: exit 0 and "VAL-M2-GATE-001: PASS"
+
+python3 do-harness/hooks/bin/guided-path-policy.py --self-test
+python3 do-harness/hooks/bin/guided-env-expose.py --self-test
+```
+
 ## F-EXT-002: Guided dangerous-shell PreToolUse
 
 | File | Role |

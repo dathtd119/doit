@@ -38,9 +38,17 @@ Do this instead:
 
 Optional lines: `Human involvement:` / `Do not:`.
 
-Named gates (current product pack): see `do-harness/prompts/gates.md`. At
-minimum expect the **dangerous-shell-*** family on shell PreToolUse. When a gate
-fires: follow **Do this instead**; do not thrash the same blocked command.
+Named gates (current product pack): see `do-harness/prompts/gates.md`. Expect:
+
+| Family | When |
+|--------|------|
+| **dangerous-shell-*** | Destructive / privileged shell patterns |
+| **path-policy-*** | Writes outside the session workspace |
+| **env-expose-*** | Dumping secrets / full env / `.env` files via shell |
+
+When a gate fires: follow **Do this instead**; do not thrash the same blocked
+call. Never treat bare “Permission denied” as complete guidance from do-owned
+gates.
 
 ## Layers (for operators / self)
 

@@ -16,6 +16,7 @@ See root [`AGENTS.md`](../AGENTS.md) Customization Order and
 | `hooks/` | PreToolUse guided gates + PostToolUse continuation nudge + scripts |
 | `fixtures/continuation/` | Multi-step thrash fixture for VAL-M2-CONT-001 |
 | `scripts/verify-continuation.sh` | **F-M2-CONT / VAL-M2-CONT-001** policy + hooks + no-thrash fixture |
+| `scripts/verify-gates.sh` | **F-M2-GATES / VAL-M2-GATE-001** guided-block standard + expanded pack |
 | `config.models.yaml` | Multi-model registry + role→model assignment (policy overlay) |
 | `config.skills.yaml` | **F-M1-SKILL / VAL-M1-SKILL-001** progressive skill presentation policy overlay |
 | `scripts/apply-models.sh` | **F-M1-MODEL-APPLY / VAL-M1-MODEL-001** YAML assignment → agent frontmatter |
@@ -104,6 +105,22 @@ bash do-harness/scripts/verify-roster.sh
 - Verify: `bash do-harness/scripts/verify-continuation.sh`
 - Enablement: [`hooks/README.md`](./hooks/README.md)
 
+### Guided-block product pack (F-M2-GATES / VAL-M2-GATE-001)
+
+- Standard: [`prompts/gates.md`](./prompts/gates.md) + L0/role prompt naming
+- Shared helper: [`hooks/bin/guided_block.py`](./hooks/bin/guided_block.py)
+- Packs beyond M0 dangerous-shell:
+  - **path-policy** — [`hooks/guided-path-policy.json`](./hooks/guided-path-policy.json)
+    + [`hooks/bin/guided-path-policy.py`](./hooks/bin/guided-path-policy.py)
+    (`path-policy-write-outside`)
+  - **env-expose** — [`hooks/guided-env-expose.json`](./hooks/guided-env-expose.json)
+    + [`hooks/bin/guided-env-expose.py`](./hooks/bin/guided-env-expose.py)
+    (`env-expose-dotenv`, `env-expose-printenv`, `env-expose-secret-echo`)
+- Behavior: PreToolUse denials always use `[GATE: …]` + **Do this instead**
+  (never bare “Permission denied”)
+- Verify: `bash do-harness/scripts/verify-gates.sh`
+- Enablement detail: [`hooks/README.md`](./hooks/README.md)
+
 ## Enable (project-scoped — recommended)
 
 From the **do** repo root:
@@ -115,7 +132,7 @@ for role in intake orchestrator explorer worker oracle; do
   ln -sfn ../../do-harness/agents/${role}.md .do/agents/${role}.md
 done
 
-# Hooks (M0 guided shell + M2 continuation)
+# Hooks (M0 guided shell + M2 continuation + M2 path-policy + env-expose)
 mkdir -p .do/hooks/bin
 ln -sfn ../../do-harness/hooks/guided-dangerous-shell.json \
   .do/hooks/guided-dangerous-shell.json
@@ -125,8 +142,20 @@ ln -sfn ../../do-harness/hooks/continuation-nudge.json \
   .do/hooks/continuation-nudge.json
 ln -sfn ../../../do-harness/hooks/bin/continuation-nudge.py \
   .do/hooks/bin/continuation-nudge.py
+ln -sfn ../../do-harness/hooks/guided-path-policy.json \
+  .do/hooks/guided-path-policy.json
+ln -sfn ../../../do-harness/hooks/bin/guided-path-policy.py \
+  .do/hooks/bin/guided-path-policy.py
+ln -sfn ../../do-harness/hooks/guided-env-expose.json \
+  .do/hooks/guided-env-expose.json
+ln -sfn ../../../do-harness/hooks/bin/guided-env-expose.py \
+  .do/hooks/bin/guided-env-expose.py
+ln -sfn ../../../do-harness/hooks/bin/guided_block.py \
+  .do/hooks/bin/guided_block.py
 chmod +x do-harness/hooks/bin/guided-dangerous-shell.py
 chmod +x do-harness/hooks/bin/continuation-nudge.py
+chmod +x do-harness/hooks/bin/guided-path-policy.py
+chmod +x do-harness/hooks/bin/guided-env-expose.py
 ```
 
 Project hooks may require `/hooks-trust` in a live session (stock grok).
@@ -142,8 +171,15 @@ cp do-harness/hooks/guided-dangerous-shell.json ~/.config/do/hooks/
 cp do-harness/hooks/bin/guided-dangerous-shell.py ~/.config/do/hooks/bin/
 cp do-harness/hooks/continuation-nudge.json ~/.config/do/hooks/
 cp do-harness/hooks/bin/continuation-nudge.py ~/.config/do/hooks/bin/
+cp do-harness/hooks/guided-path-policy.json ~/.config/do/hooks/
+cp do-harness/hooks/bin/guided-path-policy.py ~/.config/do/hooks/bin/
+cp do-harness/hooks/guided-env-expose.json ~/.config/do/hooks/
+cp do-harness/hooks/bin/guided-env-expose.py ~/.config/do/hooks/bin/
+cp do-harness/hooks/bin/guided_block.py ~/.config/do/hooks/bin/
 chmod +x ~/.config/do/hooks/bin/guided-dangerous-shell.py
 chmod +x ~/.config/do/hooks/bin/continuation-nudge.py
+chmod +x ~/.config/do/hooks/bin/guided-path-policy.py
+chmod +x ~/.config/do/hooks/bin/guided-env-expose.py
 ```
 
 ## Verify discovery (F-EXT-003 / VAL-EXT-003)
@@ -262,6 +298,21 @@ python3 do-harness/hooks/bin/continuation-nudge.py \
   --fixture do-harness/fixtures/continuation/multi-step-thrash.json
 ```
 
+## Guided gates pack (F-M2-GATES / VAL-M2-GATE-001)
+
+```sh
+bash do-harness/scripts/verify-gates.sh
+# expect: exit 0 and "VAL-M2-GATE-001: PASS"
+```
+
+Also:
+
+```sh
+python3 do-harness/hooks/bin/guided-path-policy.py --self-test
+python3 do-harness/hooks/bin/guided-env-expose.py --self-test
+python3 do-harness/hooks/bin/guided-dangerous-shell.py --self-test
+```
+
 ## Progressive skills (F-M1-SKILL / VAL-M1-SKILL-001)
 
 Policy: [`docs/progressive-skills.md`](../docs/progressive-skills.md)  
@@ -294,7 +345,7 @@ bash do-harness/scripts/verify-progressive-skills.sh
 - Auto-applying YAML inside the binary on every session start (harness script
   + operator run; optional later `do models apply` CLI)
 - Tab cycle + post-message lock implementation (M1 crate/session; not this script)
-- Always-on guided-block productization (M2)
 - Deep crate patches for discovery (extension path is enough)
 - Role permission floors productization beyond stub floors (M2 F-M2-PERM)
 - BM25 skill_search / skill_load product tools (M2 progressive catalog)
+- Doom-loop circuit breaker as a third M2 pack (path-policy + env-expose satisfy ≥2; doom-loop optional later)

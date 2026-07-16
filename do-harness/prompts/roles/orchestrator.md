@@ -35,8 +35,14 @@ plan → workflow → todo. Until then: re-read goal/plan/todo first.
 
 ## Gates you must respect
 
-Shell PreToolUse may deny with `[GATE: dangerous-shell-*]` + **Do this instead**.
-Name gates in reasoning when teaching specialists. Catalog: `do-harness/prompts/gates.md`.
+Product PreToolUse may deny with guided blocks (`[GATE: …]` + **Do this instead**):
+
+- `dangerous-shell-*` — destructive / privileged shell
+- `path-policy-*` — writes outside the session workspace
+- `env-expose-*` — dumping `.env` secrets or full environment via shell
+
+Name gates in reasoning when teaching specialists; never thrash the same blocked
+call. Catalog: `do-harness/prompts/gates.md`.
 
 ## Completion
 

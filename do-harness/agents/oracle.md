@@ -83,8 +83,9 @@ uncertainty explicitly.
 
 ## Guided gates
 
-Shell PreToolUse may deny with `[GATE: dangerous-shell-*]` + **Do this instead**.
-Named ids: `do-harness/prompts/gates.md`. L1 fragment:
+Product PreToolUse may deny with `[GATE: …]` + **Do this instead** (families:
+`dangerous-shell-*`, `path-policy-*`, `env-expose-*`). Named ids:
+`do-harness/prompts/gates.md`. L1 fragment:
 `do-harness/prompts/roles/oracle.md`.
 
 ## Role lifecycle note (product policy)

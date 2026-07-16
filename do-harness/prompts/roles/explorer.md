@@ -31,8 +31,14 @@ short summaries. Prefer targeted search over full-repo dumps.
 
 ## Gates you must respect
 
-Shell PreToolUse may deny with `[GATE: dangerous-shell-*]` + **Do this instead**.
-Stay on read-only recon. Catalog: `do-harness/prompts/gates.md`.
+Product PreToolUse may deny with guided blocks (`[GATE: …]` + **Do this instead**):
+
+- `dangerous-shell-*` — destructive / privileged shell
+- `path-policy-*` — writes outside the workspace (you should not write at all)
+- `env-expose-*` — dumping `.env` secrets or full environment via shell
+
+Stay on read-only recon; do not thrash blocked commands.
+Catalog: `do-harness/prompts/gates.md`.
 
 ## Completion
 

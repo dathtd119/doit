@@ -87,8 +87,9 @@ do primary roles: **intake** → **orchestrator** / **explorer** / **worker** /
 
 ## Guided gates
 
-Shell PreToolUse may deny with `[GATE: dangerous-shell-*]` + **Do this instead**
-(never bare “Permission denied”). Named ids: `do-harness/prompts/gates.md`.
+Product PreToolUse may deny with `[GATE: …]` + **Do this instead** (families:
+`dangerous-shell-*`, `path-policy-*`, `env-expose-*`). Never bare “Permission
+denied”. Named ids: `do-harness/prompts/gates.md`.
 L1 fragment: `do-harness/prompts/roles/intake.md`.
 
 ## Role lifecycle note (product policy)

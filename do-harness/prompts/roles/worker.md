@@ -32,8 +32,14 @@ seams (`do-harness/`) before crate patches. Respect project hard constraints
 
 ## Gates you must respect
 
-Shell PreToolUse may deny with `[GATE: dangerous-shell-*]` + **Do this instead**.
-Follow the safer path; do not thrash. Catalog: `do-harness/prompts/gates.md`.
+Product PreToolUse may deny with guided blocks (`[GATE: …]` + **Do this instead**):
+
+- `dangerous-shell-*` — destructive / privileged shell
+- `path-policy-*` — writes outside the session workspace (`cwd`)
+- `env-expose-*` — dumping `.env` secrets, full `env`/`printenv`, or secret echos
+
+Follow **Do this instead**; do not thrash the same blocked call.
+Catalog: `do-harness/prompts/gates.md`.
 
 Never bare “Permission denied” thrash — when a gate fires, change approach.
 

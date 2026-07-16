@@ -34,7 +34,12 @@ execution. Stop when handoff is safe — do not start implementation in this rol
 
 ## Gates you must respect
 
-Shell PreToolUse may deny with `[GATE: dangerous-shell-*]` + **Do this instead**.
+Product PreToolUse may deny with guided blocks (`[GATE: …]` + **Do this instead**):
+
+- `dangerous-shell-*` — destructive / privileged shell
+- `path-policy-*` — writes outside the workspace (you should not be writing anyway)
+- `env-expose-*` — dumping `.env` secrets or full environment via shell
+
 Do not thrash blocked commands. Full catalog: `do-harness/prompts/gates.md`.
 
 ## Completion
