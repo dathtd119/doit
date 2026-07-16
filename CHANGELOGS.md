@@ -4,6 +4,38 @@ Append-only ship log for **do**. Not a status essay — one entry per substantiv
 
 ---
 
+## 2026-07-16 — F-DOC-003 capability-map seal
+
+**Scope:** docs only (`docs/capability-map.md`, index, living status)  
+**Feature:** F-DOC-003 · **VAL:** VAL-DOC-003
+
+### Sealed
+
+- `docs/capability-map.md` maps:
+  - pi-ness **native modules** (tools, safety, continuum, session glue, subagent) → grok tools/APIs/hooks/config or `"gap"`
+  - **L0–L6 / layer purposes** → grok inject points + do-harness homes
+  - **Roles** and **continuum** (goal / plan / todo / continuation)
+  - **Model registry + assignment** (L13 dual TOML + do YAML; resolution chain; M1 wire)
+  - Explicit `"gap"` register with L* / milestone / preferred path
+  - “Use, don’t reinvent” native tool table
+- Cross-linked from `docs/index.md`, `docs/limitations.md`, living status
+
+### Not in scope
+
+- F-DOC-004 README/FORK; runtime wiring of any gap
+- Implementation of L1 Tab lock or L13 YAML auto-apply
+
+### Files
+
+- `docs/capability-map.md` (new)
+- `docs/index.md`
+- `docs/limitations.md` (cross-ref)
+- Root `AGENTS.md` living status + next steps
+- `docs/current-status.md`
+- This CHANGELOGS entry
+
+---
+
 ## 2026-07-16 — F-DOC-002 patch-matrix L1–L13 seal
 
 **Scope:** docs only (`docs/patch-matrix.md`, index, living status)  

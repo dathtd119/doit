@@ -212,18 +212,18 @@ Date: 2026-07-16
 - **Grok-build inventory** — **sealed** (F-GROK-001 / VAL-GROK-001): `docs/grok-build/` README + overview, native-tools, extension-seams, hard-limits, patterns — fork evidence paths; linked from `docs/index.md`
 - **Limitations L1–L13** — **sealed** (F-DOC-001 / VAL-DOC-001): `docs/limitations.md` evidence-backed vs pi-ness + forked grok (L13: multi-model registry exists; gap is assignment UX)
 - **Patch matrix L1–L13** — **sealed** (F-DOC-002 / VAL-DOC-002): `docs/patch-matrix.md` maps each gap → path / risk / order; cites limitations + grok-build seams; crate patch log ready
-- **Not yet** — capability-map (F-DOC-003); README/FORK (F-DOC-004); do-harness proof agent + guided hook; YAML→agent wiring (M1); M0 seal commit
+- **Capability map** — **sealed** (F-DOC-003 / VAL-DOC-003): `docs/capability-map.md` maps pi-ness native modules / L0–L6 / roles / continuum / **model registry+assignment** → grok tools/APIs/hooks/config or `"gap"`
+- **Not yet** — README/FORK (F-DOC-004); do-harness proof agent + guided hook; YAML→agent wiring (M1); M0 seal commit
 - **Process** — git at do; commit every milestone; docs under `/docs`; English + conventional commits
 
 ### Next steps
 
-1. M0: write `docs/capability-map.md` (F-DOC-003) — pi-ness modules → grok tools/APIs; cite `docs/grok-build/*` + limitations
-2. M0: README identity + `FORK.md` policy expansion (F-DOC-004)
-3. M0: proof intake agent + guided PreToolUse hook + discovery verification
-4. M0: `docs/backlog-m1-m3.md` including multi-model assignment wiring + **role Tab cycle + post-message lock** + seal commit
-5. M1: roles + prompt layers on grok seams; **wire role→model from do YAML into agents**; **implement Tab/Shift+Tab role cycle with post-first-message lock**
-6. M2: continuation coordinator + guided-block safety
-7. M3: native power tools (CodeGraph, hashline default policy)
+1. M0: README identity + `FORK.md` policy expansion (F-DOC-004)
+2. M0: proof intake agent + guided PreToolUse hook + discovery verification
+3. M0: `docs/backlog-m1-m3.md` including multi-model assignment wiring + **role Tab cycle + post-message lock** + seal commit
+4. M1: roles + prompt layers on grok seams; **wire role→model from do YAML into agents**; **implement Tab/Shift+Tab role cycle with post-first-message lock**
+5. M2: continuation coordinator + guided-block safety
+6. M3: native power tools (CodeGraph, hashline default policy)
 
 ### Future Plan
 

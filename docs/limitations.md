@@ -4,7 +4,7 @@
 
 **Product thesis:** pi-ness harness control + OpenCode assignment ergonomics on forked Grok Build. Each row: idea → stock grok status → gap → preferred path → evidence.
 
-**How to use:** Prefer [grok-build/extension-seams.md](./grok-build/extension-seams.md) before [grok-build/hard-limits.md](./grok-build/hard-limits.md). Map work into [patch-matrix.md](./patch-matrix.md). Capability mapping (module → tool/API) is F-DOC-003 (`docs/capability-map.md`).
+**How to use:** Prefer [grok-build/extension-seams.md](./grok-build/extension-seams.md) before [grok-build/hard-limits.md](./grok-build/hard-limits.md). Map work into [patch-matrix.md](./patch-matrix.md). Module → tool/API mapping: [capability-map.md](./capability-map.md) (**sealed** F-DOC-003 / VAL-DOC-003).
 
 | Trees | Path | Access |
 |-------|------|--------|
@@ -551,7 +551,7 @@ Operators hand-edit TOML + scattered agent files without a single **assignment**
 1. **Extension order (binding):** config / agents / hooks / plugins / skills / YAML → `register_tool_pack` → surgical crate patch → deep TUI last.  
 2. **Do not reinvent** native plan/goal/todo/task/hashline/MCP/multi-`[model.*]` — compose product policy on top.  
 3. **Evidence thin areas (honest):** primary-session Tab keybinds in forked shell were not found as a complete role-cycle machine (L1 implementation is M1); side-ask has no grok twin (L8); exact default skill-prompt dump size vs pi-ness dynamic mode is qualitative (L4).  
-4. **Related M0 features:** F-DOC-002 patch-matrix **sealed**; F-DOC-003 capability-map; F-EXT-001..003 proof agent/hook; F-BACK-001 M1–M3 backlog.
+4. **Related M0 features:** F-DOC-002 patch-matrix **sealed**; F-DOC-003 capability-map **sealed**; F-EXT-001..003 proof agent/hook; F-BACK-001 M1–M3 backlog.
 
 ---
 

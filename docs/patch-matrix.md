@@ -267,4 +267,4 @@ _No product crate patches yet (M0 docs/extension only). Add rows when a surgical
 - [grok-build/hard-limits.md](./grok-build/hard-limits.md) — where we cannot casually fight  
 - [grok-build/patterns.md](./grok-build/patterns.md) — adopt native plan/goal/task/hashline  
 - Root [AGENTS.md](../AGENTS.md) — customization order, gates, living status  
-- Capability mapping (module → API): [capability-map.md](./capability-map.md) (F-DOC-003)
+- Capability mapping (module → API): [capability-map.md](./capability-map.md) (**sealed** F-DOC-003 / VAL-DOC-003)

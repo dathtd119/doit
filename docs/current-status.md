@@ -41,6 +41,9 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
     - `docs/patch-matrix.md` maps every L1–L13 gap → preferred path / risk / recommended order
     - Expanded rows cite limitations + grok-build extension-seams / hard-limits
     - Crate patch log scaffold; milestone → matrix slice (M0–M3)
+- **Capability map** **sealed** (F-DOC-003 / VAL-DOC-003):
+    - `docs/capability-map.md` maps pi-ness native modules, L0–L6 layer purposes, roles, continuum, and **model registry + assignment** to grok tools/APIs/hooks/config or `"gap"`
+    - Includes dual TOML/YAML assignment flow; explicit gap register tied to L* / milestones
 
 ### In progress / pending (M0)
 
@@ -50,7 +53,7 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
 | Grok-build inventory docs | F-GROK-001 / VAL-GROK-001 | **Done** — evidence-backed six-file inventory + index links |
 | Limitations L1–L13 deep evidence | F-DOC-001 / VAL-DOC-001 | **Done** — every L1–L13 row has evidence paths |
 | patch-matrix L1–L13 | F-DOC-002 / VAL-DOC-002 | **Done** — path/risk/order for every gap; sealed |
-| capability-map | F-DOC-003 | pending — pi-ness modules → grok tools/APIs |
+| capability-map | F-DOC-003 / VAL-DOC-003 | **Done** — modules + model assignment surfaces; sealed |
 | README identity + FORK policy expansion | F-DOC-004 | Partial README; FORK.md pending |
 | Proof intake agent + guided hook | F-EXT-001..003 | do-harness agents/hooks |
 | M1–M3 backlog including multi-model wire + role Tab lock | F-BACK-001 | role→model wiring + post-message lock |
@@ -67,10 +70,9 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
 
 ## Near-term sequence
 
-1. Write capability-map (F-DOC-003)
-2. README identity + FORK policy expansion (F-DOC-004)
-3. Extension proof path (F-EXT-001..003)
-4. Backlog + M0 seal commit
+1. README identity + FORK policy expansion (F-DOC-004)
+2. Extension proof path (F-EXT-001..003)
+3. Backlog + M0 seal commit
 
 ## Links
 
