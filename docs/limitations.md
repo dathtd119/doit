@@ -551,7 +551,7 @@ Operators hand-edit TOML + scattered agent files without a single **assignment**
 1. **Extension order (binding):** config / agents / hooks / plugins / skills / YAML → `register_tool_pack` → surgical crate patch → deep TUI last.  
 2. **Do not reinvent** native plan/goal/todo/task/hashline/MCP/multi-`[model.*]` — compose product policy on top.  
 3. **Evidence thin areas (honest):** primary-session Tab keybinds in forked shell were not found as a complete role-cycle machine (L1 implementation is M1); side-ask has no grok twin (L8); exact default skill-prompt dump size vs pi-ness dynamic mode is qualitative (L4).  
-4. **Related M0 features:** F-DOC-002 patch-matrix refine; F-DOC-003 capability-map; F-EXT-001..003 proof agent/hook; F-BACK-001 M1–M3 backlog.
+4. **Related M0 features:** F-DOC-002 patch-matrix **sealed**; F-DOC-003 capability-map; F-EXT-001..003 proof agent/hook; F-BACK-001 M1–M3 backlog.
 
 ---
 

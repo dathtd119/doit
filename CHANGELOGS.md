@@ -4,6 +4,38 @@ Append-only ship log for **do**. Not a status essay — one entry per substantiv
 
 ---
 
+## 2026-07-16 — F-DOC-002 patch-matrix L1–L13 seal
+
+**Scope:** docs only (`docs/patch-matrix.md`, index, living status)  
+**Feature:** F-DOC-002 · **VAL:** VAL-DOC-002
+
+### Sealed
+
+- `docs/patch-matrix.md` maps **every L1–L13** gap to:
+  - Preferred path (`plugin` | `hook` | `agent` | `skill` | `tool_pack` | `crate_patch` | `defer` + `config` overlay)
+  - Risk band
+  - Recommended implementation **order** (master table + expanded rows)
+- Expanded per-gap fields: seams, avoid, milestone, links to limitations + grok-build extension-seams / hard-limits
+- Crate patch log scaffold (empty — no product crate patches yet)
+- Milestone → matrix slice (M0–M3)
+- Living status + `docs/index.md` updated
+
+### Not in scope
+
+- F-DOC-003 capability-map
+- Runtime implementation of any L* gap
+
+### Files
+
+- `docs/patch-matrix.md`
+- `docs/index.md`
+- Root `AGENTS.md` living status + next steps
+- `docs/current-status.md`
+- `docs/limitations.md` (cross-ref only)
+- This CHANGELOGS entry
+
+---
+
 ## 2026-07-16 — F-DOC-001 limitations L1–L13 seal
 
 **Scope:** docs only (`docs/limitations.md`, index, living status)  

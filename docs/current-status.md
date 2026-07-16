@@ -37,6 +37,10 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
 - **Limitations L1–L13** **sealed** (F-DOC-001 / VAL-DOC-001):
     - `docs/limitations.md` fully evidence-backed (pi-ness + forked grok paths per row)
     - L13: multi-model registry **exists**; gap is assignment UX / do YAML wire (see models-and-config)
+- **Patch matrix L1–L13** **sealed** (F-DOC-002 / VAL-DOC-002):
+    - `docs/patch-matrix.md` maps every L1–L13 gap → preferred path / risk / recommended order
+    - Expanded rows cite limitations + grok-build extension-seams / hard-limits
+    - Crate patch log scaffold; milestone → matrix slice (M0–M3)
 
 ### In progress / pending (M0)
 
@@ -45,7 +49,8 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
 | `cargo check -p xai-grok-pager-bin` | F-FORK-002 | **Done** — VAL-FORK-002; needs `dotslash` |
 | Grok-build inventory docs | F-GROK-001 / VAL-GROK-001 | **Done** — evidence-backed six-file inventory + index links |
 | Limitations L1–L13 deep evidence | F-DOC-001 / VAL-DOC-001 | **Done** — every L1–L13 row has evidence paths |
-| patch-matrix + capability-map | F-DOC-002..003 | patch-matrix exists (L13 sealed); refine + write capability-map |
+| patch-matrix L1–L13 | F-DOC-002 / VAL-DOC-002 | **Done** — path/risk/order for every gap; sealed |
+| capability-map | F-DOC-003 | pending — pi-ness modules → grok tools/APIs |
 | README identity + FORK policy expansion | F-DOC-004 | Partial README; FORK.md pending |
 | Proof intake agent + guided hook | F-EXT-001..003 | do-harness agents/hooks |
 | M1–M3 backlog including multi-model wire + role Tab lock | F-BACK-001 | role→model wiring + post-message lock |
@@ -62,7 +67,7 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
 
 ## Near-term sequence
 
-1. Refine patch-matrix + write capability-map (F-DOC-002..003)
+1. Write capability-map (F-DOC-003)
 2. README identity + FORK policy expansion (F-DOC-004)
 3. Extension proof path (F-EXT-001..003)
 4. Backlog + M0 seal commit
