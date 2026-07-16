@@ -245,18 +245,18 @@ Each row: gap → path → risk → order → seams → avoid → links.
 | 2026-07-16 | `xai-grok-pager` `dispatch/modes.rs`, `agent_view/prompt.rs`, `actions` | L1 | Tab/Shift+Tab product-role cycle pre-message; no-op after lock (Shift+Tab reverts to plan/yolo CycleMode) | Medium | Keybind lives in pager input path; extension-only cannot intercept Tab before completion UI |
 | 2026-07-16 | `xai-grok-shell` `session/role_switch.rs` + `acp_session_impl/session_mode.rs` | L13 + L1 | Role→model re-pin from agent frontmatter (YAML assignment) only while `role_switch_allowed`; post-lock Keep; subagent spawn path untouched | Medium | Apply script only writes frontmatter; primary session must re-pin on pre-message set_mode — hooks cannot change sampling config |
 
-### Planned (not applied) — P-NOTEL from grok-build-no-telemetry
+### Applied — P-NOTEL from grok-build-no-telemetry (PRIV F-PRIV-NOTEL)
 
-Source: `~/code/grok-build-no-telemetry/patches/0001`–`0006`. Scout: [`plans/reports/scout-grok-build-no-telemetry-260716.md`](../plans/reports/scout-grok-build-no-telemetry-260716.md). Keep `GROK_EXTERNAL_OTEL`. **Do not treat as applied.**
+Source: `~/code/grok-build-no-telemetry/patches/0001`–`0006` (manual port; no blind `git apply`). Scout: [`plans/reports/scout-grok-build-no-telemetry-260716.md`](../plans/reports/scout-grok-build-no-telemetry-260716.md). External OTEL via `GROK_EXTERNAL_OTEL` + `OTEL_*` preserved (`xai-grok-telemetry/src/external/` untouched).
 
-| ID | Status | Scope (one-line) | Upstream patch | Risk |
-|----|--------|------------------|----------------|------|
-| **P-NOTEL-01** | **planned** | Fail-closed product analytics + telemetry config defaults | `0001-disable-product-analytics.patch` | Medium |
-| **P-NOTEL-02** | **planned** | Neuter Mixpanel crate (defense-in-depth no-op) | `0002-neuter-mixpanel-crate.patch` | Low |
-| **P-NOTEL-03** | **planned** | Disable Sentry / error reporting | `0003-disable-sentry.patch` | Low |
-| **P-NOTEL-04** | **planned** | Disable internal OTLP export; preserve external OTEL | `0004-disable-otlp-export.patch` | Medium |
-| **P-NOTEL-05** | **planned** | Disable trace upload paths | `0005-disable-trace-upload.patch` | Low–Medium |
-| **P-NOTEL-06** | **planned** | Disable feedback extension / resolve_feedback | `0006-disable-feedback.patch` | Low |
+| Date | ID | Status | Crate / path | Reason | Risk | Alternatives exhausted |
+|------|----|--------|--------------|--------|------|------------------------|
+| 2026-07-16 | **P-NOTEL-01** | **applied** | `xai-grok-telemetry` `client.rs`/`config.rs`; `xai-grok-shell` `agent/config.rs` (`is_telemetry_enabled`, `resolve_telemetry_mode`) | Fail-closed product analytics + null defaults; env/remote cannot re-enable SpaceXAI events/Mixpanel | Medium | Config-only opt-out is re-enableable via remote/env; product policy is hard-off |
+| 2026-07-16 | **P-NOTEL-02** | **applied** | `xai-mixpanel` `lib.rs` | Defense-in-depth no-op `track`/`engage` (no network) | Low | Optional if 01 holds; retained for crate reuse safety |
+| 2026-07-16 | **P-NOTEL-03** | **applied** | `xai-grok-telemetry` `sentry.rs`; shell `is_error_reporting_disabled_sync` | No Sentry DSN init / crash phone-home | Low | Env-gated Sentry still re-arms via DSN |
+| 2026-07-16 | **P-NOTEL-04** | **applied** | `instrumentation.rs`, `otel_layer/mod.rs`, shell `is_telemetry_explicitly_disabled_sync`, `credential_provider` OTLP layer | Disable internal OTLP to SpaceXAI proxy; keep external OTEL | Medium | Runtime TOML alone cannot force fail-closed on baked/default Server mode |
+| 2026-07-16 | **P-NOTEL-05** | **applied** | shell `is_trace_upload_enabled`/`resolve_trace_upload`; telemetry `trace_upload` defaults | Disable session/trace/GCS upload | Low–Medium | Env/config opt-in still re-enabled upload without crate pin |
+| 2026-07-16 | **P-NOTEL-06** | **applied** | shell `is_feedback_enabled`/`resolve_feedback`; `extensions/feedback.rs` message | Disable `/feedback` posts to cli-chat-proxy | Low | Config feedback flag remains re-enableable without resolve hard-off |
 
 ---
 

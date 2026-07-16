@@ -2034,13 +2034,16 @@ impl Config {
         }
     }
     pub fn is_telemetry_enabled(&self) -> bool {
-        self.resolve_telemetry_mode().value.is_enabled()
+        // **no-telemetry fork:** product analytics permanently off.
+        false
     }
     pub fn is_trace_upload_enabled(&self) -> bool {
-        self.resolve_trace_upload().value
+        // **no-telemetry fork:** never upload session/trace artifacts to SpaceXAI GCS.
+        false
     }
     pub fn is_feedback_enabled(&self) -> bool {
-        self.resolve_feedback().value
+        // **no-telemetry fork:** feedback submission to SpaceXAI permanently off.
+        false
     }
     pub fn is_session_recap_enabled(&self) -> bool {
         self.resolve_session_recap().value
@@ -2052,42 +2055,27 @@ impl Config {
         self.resolve_two_pass_compaction().value
     }
     pub(crate) fn resolve_telemetry_mode(&self) -> Resolved<TelemetryMode> {
-        if let Some(mode) = self.requirements.telemetry.pinned() {
-            return Resolved::new(mode, ConfigSource::Requirement);
-        }
-        if let Some(mode) = env_telemetry_mode("GROK_TELEMETRY_ENABLED") {
-            return Resolved::new(mode, ConfigSource::Env);
-        }
-        if let Some(mode) = self.features.telemetry {
-            return Resolved::new(mode, ConfigSource::Config);
-        }
-        if let Some(rs) = self.remote_settings.as_ref() {
-            if let Some(mode_str) = rs.telemetry_mode.as_deref()
-                && let Some(mode) = TelemetryMode::parse(mode_str)
-            {
-                return Resolved::new(mode, ConfigSource::Remote);
-            }
-            if let Some(val) = rs.telemetry_enabled {
-                return Resolved::new(TelemetryMode::from(val), ConfigSource::Remote);
-            }
-        }
+        // **no-telemetry fork:** ignore env/config/remote/requirements. SpaceXAI
+        // product telemetry cannot be re-enabled in this tree.
+        let _ = (
+            self.requirements.telemetry.pinned(),
+            env_telemetry_mode("GROK_TELEMETRY_ENABLED"),
+            self.features.telemetry,
+            self.remote_settings.as_ref(),
+        );
         Resolved::new(TelemetryMode::Disabled, ConfigSource::Default)
     }
     pub(crate) fn resolve_trace_upload(&self) -> Resolved<bool> {
-        let mode = self.resolve_telemetry_mode();
-        let ff = if mode.value.is_disabled() {
-            None
-        } else {
+        // **no-telemetry fork:** never enable trace/session artifact upload.
+        let _ = (
+            self.resolve_telemetry_mode(),
             self.remote_settings
                 .as_ref()
-                .and_then(|s| s.trace_upload_enabled)
-        };
-        BoolFlag::env("GROK_TELEMETRY_TRACE_UPLOAD")
-            .requirement(self.requirements.trace_upload.pinned())
-            .config(self.telemetry.trace_upload)
-            .feature_flag(ff)
-            .default(mode.value.is_enabled())
-            .resolve()
+                .and_then(|s| s.trace_upload_enabled),
+            self.requirements.trace_upload.pinned(),
+            self.telemetry.trace_upload,
+        );
+        Resolved::new(false, ConfigSource::Default)
     }
     /// Resolve jemalloc heap-profile config from stored remote settings + gates.
     pub fn resolve_jemalloc_heap_profile(
@@ -2140,16 +2128,16 @@ impl Config {
         )
     }
     pub(crate) fn resolve_feedback(&self) -> Resolved<bool> {
-        let ff = self
-            .remote_settings
-            .as_ref()
-            .and_then(|s| s.feedback_enabled);
-        BoolFlag::env("GROK_FEEDBACK_ENABLED")
-            .requirement(self.requirements.feedback.pinned())
-            .config(self.features.feedback)
-            .feature_flag(ff)
-            .default(true)
-            .resolve()
+        // **no-telemetry fork:** ignore env/config/remote/requirements. Feedback
+        // posts to SpaceXAI cli-chat-proxy cannot be re-enabled in this tree.
+        let _ = (
+            self.remote_settings
+                .as_ref()
+                .and_then(|s| s.feedback_enabled),
+            self.requirements.feedback.pinned(),
+            self.features.feedback,
+        );
+        Resolved::new(false, ConfigSource::Default)
     }
     pub(crate) fn resolve_two_pass_compaction(&self) -> Resolved<bool> {
         let ff = self
@@ -2900,20 +2888,19 @@ pub fn is_telemetry_disabled_sync() -> bool {
 /// *explicitly* off; absence is not disabled (`.default(true)`) so remote-only
 /// enablement still builds the OTLP exporter (the runtime gate then governs it).
 pub fn is_telemetry_explicitly_disabled_sync() -> bool {
-    !SyncBoolFlag::new(telemetry_enabled_from_toml)
-        .disable_env("DISABLE_TELEMETRY")
-        .enable_env(grok_telemetry_env_enabled)
-        .default(true)
-        .resolve()
+    // **no-telemetry fork:** always treat product telemetry as disabled.
+    let _ = (
+        telemetry_enabled_from_toml,
+        grok_telemetry_env_enabled as fn() -> Option<bool>,
+    );
+    true
 }
 /// Sync sibling of [`is_telemetry_disabled_sync`] scoped to Sentry. Inherits
 /// from telemetry when no Sentry-specific signal is set.
 pub fn is_error_reporting_disabled_sync() -> bool {
-    !SyncBoolFlag::new(error_reporting_enabled_from_toml)
-        .disable_env("DISABLE_ERROR_REPORTING")
-        .enable_env(|| env_bool("GROK_ERROR_REPORTING"))
-        .inherit(|| !is_telemetry_disabled_sync())
-        .resolve()
+    // **no-telemetry fork:** always disable Sentry / error reporting phone-home.
+    let _ = error_reporting_enabled_from_toml;
+    true
 }
 /// `[features] telemetry` as enabled bool. SessionMetrics counts as enabled
 /// — see ERROR_REPORTING_PLAN.md. `None` for absent or unparseable.
@@ -7807,13 +7794,13 @@ reasoning_effort = "low"
     }
     #[test]
     #[serial]
-    fn resolve_feedback_defaults_to_true_when_unset() {
-        unsafe { std::env::remove_var("GROK_FEEDBACK_ENABLED") };
-        unsafe { std::env::remove_var("GROK_TELEMETRY_ENABLED") };
+    fn resolve_feedback_always_false_in_no_telemetry_fork() {
+        unsafe { std::env::set_var("GROK_FEEDBACK_ENABLED", "true") };
         let cfg = Config::default();
         let r = cfg.resolve_feedback();
-        assert!(r.value, "feedback should be true by default");
+        assert!(!r.value, "feedback must stay off even with env opt-in");
         assert_eq!(r.source, ConfigSource::Default);
+        unsafe { std::env::remove_var("GROK_FEEDBACK_ENABLED") };
     }
     #[test]
     #[serial]
@@ -8034,7 +8021,7 @@ reasoning_effort = "low"
     }
     #[test]
     #[serial]
-    fn resolve_feedback_env_overrides_all() {
+    fn resolve_feedback_ignores_env_in_no_telemetry_fork() {
         unsafe { std::env::set_var("GROK_FEEDBACK_ENABLED", "true") };
         let mut cfg = Config::default();
         cfg.features.feedback = Some(false);
@@ -8043,13 +8030,13 @@ reasoning_effort = "low"
             ..Default::default()
         });
         let r = cfg.resolve_feedback();
-        assert_eq!(r.source, ConfigSource::Env);
-        assert!(r.value);
+        assert_eq!(r.source, ConfigSource::Default);
+        assert!(!r.value, "env opt-in must not re-enable feedback");
         unsafe { std::env::remove_var("GROK_FEEDBACK_ENABLED") };
     }
     #[test]
     #[serial]
-    fn resolve_feedback_config_overrides_remote_settings() {
+    fn resolve_feedback_ignores_config_in_no_telemetry_fork() {
         unsafe { std::env::remove_var("GROK_FEEDBACK_ENABLED") };
         let mut cfg = Config::default();
         cfg.features.feedback = Some(true);
@@ -8058,12 +8045,12 @@ reasoning_effort = "low"
             ..Default::default()
         });
         let r = cfg.resolve_feedback();
-        assert_eq!(r.source, ConfigSource::Config);
-        assert!(r.value);
+        assert_eq!(r.source, ConfigSource::Default);
+        assert!(!r.value, "config opt-in must not re-enable feedback");
     }
     #[test]
     #[serial]
-    fn resolve_feedback_remote_settings_used_when_no_local() {
+    fn resolve_feedback_ignores_remote_settings_in_no_telemetry_fork() {
         unsafe { std::env::remove_var("GROK_FEEDBACK_ENABLED") };
         let cfg = Config {
             remote_settings: Some(crate::util::config::RemoteSettings {
@@ -8073,8 +8060,8 @@ reasoning_effort = "low"
             ..Default::default()
         };
         let r = cfg.resolve_feedback();
-        assert_eq!(r.source, ConfigSource::Remote);
-        assert!(r.value);
+        assert_eq!(r.source, ConfigSource::Default);
+        assert!(!r.value, "remote settings must not re-enable feedback");
     }
     #[test]
     #[serial]
@@ -8093,7 +8080,7 @@ reasoning_effort = "low"
     }
     #[test]
     #[serial]
-    fn resolve_trace_upload_explicit_config_wins_over_telemetry_off() {
+    fn resolve_trace_upload_ignores_explicit_opt_ins_in_no_telemetry_fork() {
         unsafe { std::env::remove_var("GROK_TELEMETRY_ENABLED") };
         unsafe { std::env::remove_var("GROK_TELEMETRY_TRACE_UPLOAD") };
         let mut cfg = Config::default();
@@ -8101,15 +8088,15 @@ reasoning_effort = "low"
         cfg.telemetry.trace_upload = Some(true);
         let r = cfg.resolve_trace_upload();
         assert!(
-            r.value,
-            "explicit trace_upload config wins over telemetry off"
+            !r.value,
+            "explicit trace_upload config must not re-enable uploads"
         );
-        assert_eq!(r.source, ConfigSource::Config);
+        assert_eq!(r.source, ConfigSource::Default);
         cfg.telemetry.trace_upload = None;
         cfg.requirements
             .trace_upload
             .pin(true, crate::config::RequirementSource::Unknown);
-        assert!(cfg.resolve_trace_upload().value);
+        assert!(!cfg.resolve_trace_upload().value);
     }
     #[test]
     #[serial]
@@ -8130,13 +8117,15 @@ reasoning_effort = "low"
         assert_eq!(d["has_remote_settings"], serde_json::json!(true));
         cfg.telemetry.trace_upload = Some(true);
         let d = cfg.trace_upload_decision_debug();
-        assert_eq!(d["trace_upload"], serde_json::json!(true));
-        assert_eq!(d["trace_upload_source"], serde_json::json!("config"));
+        // **no-telemetry fork:** raw inputs are still reported, but the
+        // resolved decision is pinned to disabled.
+        assert_eq!(d["trace_upload"], serde_json::json!(false));
+        assert_eq!(d["trace_upload_source"], serde_json::json!("default"));
         assert_eq!(d["in_cfg_telemetry_trace_upload"], serde_json::json!(true));
     }
     #[test]
     #[serial]
-    fn resolve_trace_upload_honors_config_when_telemetry_on() {
+    fn resolve_trace_upload_stays_off_even_with_telemetry_on() {
         unsafe { std::env::remove_var("GROK_TELEMETRY_ENABLED") };
         unsafe { std::env::remove_var("GROK_TELEMETRY_TRACE_UPLOAD") };
         let mut cfg = Config::default();
@@ -8144,10 +8133,10 @@ reasoning_effort = "low"
         cfg.telemetry.trace_upload = Some(false);
         let r = cfg.resolve_trace_upload();
         assert!(!r.value);
-        assert_eq!(r.source, ConfigSource::Config);
+        assert_eq!(r.source, ConfigSource::Default);
         cfg.telemetry.trace_upload = None;
         let r = cfg.resolve_trace_upload();
-        assert!(r.value, "defaults on when telemetry fully enabled");
+        assert!(!r.value, "never defaults on in the no-telemetry fork");
     }
     #[test]
     #[serial]
@@ -10379,12 +10368,13 @@ telemetry = "garbage"
     }
     #[test]
     #[serial]
-    fn is_telemetry_explicitly_disabled_sync_env_signals() {
+    fn is_telemetry_explicitly_disabled_sync_ignores_env_in_no_telemetry_fork() {
         unsafe { std::env::set_var("GROK_TELEMETRY_ENABLED", "0") };
         unsafe { std::env::remove_var("DISABLE_TELEMETRY") };
         assert!(is_telemetry_explicitly_disabled_sync());
+        // Env opt-in must not re-arm the OTLP exporter in this fork.
         unsafe { std::env::set_var("GROK_TELEMETRY_ENABLED", "1") };
-        assert!(!is_telemetry_explicitly_disabled_sync());
+        assert!(is_telemetry_explicitly_disabled_sync());
         unsafe { std::env::remove_var("GROK_TELEMETRY_ENABLED") };
         unsafe { std::env::set_var("DISABLE_TELEMETRY", "1") };
         assert!(is_telemetry_explicitly_disabled_sync());
