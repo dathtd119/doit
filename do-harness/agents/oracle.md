@@ -13,7 +13,8 @@ skills: []
 # Model pin from do-harness/config.models.yaml assignment.oracle (M1 wire).
 # Applied by: bash do-harness/scripts/apply-models.sh --apply
 model: combo-big
-# Analysis floor — read-heavy; no bulk implementation.
+# Role tool floors (F-M2-PERM / VAL-M2-PERM-001): analysis + MCP; no bulk edit/continuum.
+# Policy: docs/role-permissions.md + do-harness/config.permissions.yaml
 tools:
   - read_file
   - list_dir

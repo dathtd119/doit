@@ -13,7 +13,8 @@ skills: []
 # Model pin from do-harness/config.models.yaml assignment.explorer (M1 wire).
 # Applied by: bash do-harness/scripts/apply-models.sh --apply
 model: combo-small
-# Read/scout floor — no file edits; shell for light status only.
+# Role tool floors (F-M2-PERM / VAL-M2-PERM-001): read-only scout + MCP.
+# Policy: docs/role-permissions.md + do-harness/config.permissions.yaml
 tools:
   - read_file
   - list_dir

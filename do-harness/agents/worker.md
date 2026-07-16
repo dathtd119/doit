@@ -15,7 +15,8 @@ skills: []
 # Model pin from do-harness/config.models.yaml assignment.worker (M1 wire).
 # Applied by: bash do-harness/scripts/apply-models.sh --apply
 model: combo-big
-# Implementation floor — full edit surface; continuum updates optional.
+# Role tool floors (F-M2-PERM / VAL-M2-PERM-001): full edit surface; gates still apply.
+# Policy: docs/role-permissions.md + do-harness/config.permissions.yaml
 tools:
   - read_file
   - list_dir

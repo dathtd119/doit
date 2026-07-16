@@ -15,7 +15,8 @@ skills: []
 # Model pin from do-harness/config.models.yaml assignment.orchestrator (M1 wire).
 # Applied by: bash do-harness/scripts/apply-models.sh --apply
 model: combo-big
-# Coordination floor — continuum + spawn; heavy edits deferred to worker.
+# Role tool floors (F-M2-PERM / VAL-M2-PERM-001): continuum + spawn; no bulk write.
+# Policy: docs/role-permissions.md + do-harness/config.permissions.yaml
 tools:
   - read_file
   - list_dir

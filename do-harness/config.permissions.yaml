@@ -1,0 +1,166 @@
+# Role tool permission floors — product policy overlay (F-M2-PERM / VAL-M2-PERM-001).
+# Source of truth for *expected* floors. Applied frontmatter lives in agents/<role>.md.
+# Stock runtime still enforces agent tools/disallowedTools/permissionMode (no second engine).
+# Align with guided gates: do-harness/prompts/gates.md + hooks/guided-*.json
+
+version: 1
+policy: role_tool_floors
+val: VAL-M2-PERM-001
+feature: F-M2-PERM
+
+# Layer B gate families every role must anticipate (named in prompts).
+guided_gate_families:
+  - dangerous-shell
+  - path-policy
+  - env-expose
+
+# Must-deny tool families for non-implementer roles (defense-in-depth).
+edit_surface_tools:
+  - search_replace
+  - write
+  - hashline_edit
+
+continuum_tools:
+  - update_goal
+  - enter_plan_mode
+  - exit_plan_mode
+  - todo_write
+
+roles:
+  intake:
+    permissionMode: plan
+    intent: clarify_only
+    mode_label: read_clarify
+    tools:
+      - read_file
+      - list_dir
+      - grep
+      - run_terminal_cmd
+      - ask_user_question
+      - Agent(explore)
+    disallowedTools:
+      - search_replace
+      - write
+      - hashline_edit
+      - enter_plan_mode
+      - exit_plan_mode
+      - update_goal
+      - todo_write
+    require_deny_families:
+      - edit_surface
+      - continuum
+    must_name_gate_families: true
+
+  orchestrator:
+    permissionMode: default
+    intent: coordinate_continuum_spawn
+    mode_label: continuum_spawn
+    tools:
+      - read_file
+      - list_dir
+      - grep
+      - run_terminal_cmd
+      - ask_user_question
+      - update_goal
+      - todo_write
+      - enter_plan_mode
+      - exit_plan_mode
+      - task
+      - Agent(explore)
+      - Agent(explorer)
+      - Agent(worker)
+      - Agent(oracle)
+      - Agent(intake)
+    disallowedTools:
+      - write
+      - search_replace
+      - hashline_edit
+    require_deny_families:
+      - edit_surface
+    must_name_gate_families: true
+
+  explorer:
+    permissionMode: plan
+    intent: read_only_scout
+    mode_label: read_scout
+    tools:
+      - read_file
+      - list_dir
+      - grep
+      - run_terminal_cmd
+      - lsp
+      - search_tool
+      - use_tool
+    disallowedTools:
+      - search_replace
+      - write
+      - hashline_edit
+      - enter_plan_mode
+      - exit_plan_mode
+      - update_goal
+      - todo_write
+      - Agent(worker)
+      - Agent(oracle)
+      - Agent(orchestrator)
+    require_deny_families:
+      - edit_surface
+      - continuum
+    must_name_gate_families: true
+
+  worker:
+    permissionMode: default
+    intent: implement_verify
+    mode_label: implement
+    tools:
+      - read_file
+      - list_dir
+      - grep
+      - run_terminal_cmd
+      - search_replace
+      - write
+      - hashline_read
+      - hashline_edit
+      - hashline_grep
+      - lsp
+      - todo_write
+      - update_goal
+      - Agent(explore)
+      - Agent(explorer)
+    disallowedTools:
+      - Agent(oracle)
+      - Agent(orchestrator)
+    require_deny_families: []
+    must_name_gate_families: true
+    notes: >
+      Only roster role with full edit surface. path-policy / dangerous-shell /
+      env-expose gates still apply on shell and out-of-tree writes.
+
+  oracle:
+    permissionMode: plan
+    intent: decide_with_evidence
+    mode_label: analysis
+    tools:
+      - read_file
+      - list_dir
+      - grep
+      - run_terminal_cmd
+      - lsp
+      - ask_user_question
+      - search_tool
+      - use_tool
+      - Agent(explore)
+      - Agent(explorer)
+    disallowedTools:
+      - search_replace
+      - write
+      - hashline_edit
+      - enter_plan_mode
+      - exit_plan_mode
+      - update_goal
+      - todo_write
+      - Agent(worker)
+      - Agent(orchestrator)
+    require_deny_families:
+      - edit_surface
+      - continuum
+    must_name_gate_families: true

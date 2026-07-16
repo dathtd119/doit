@@ -47,7 +47,8 @@ Read **before crate work**. Evidence-backed map of the forked Grok Build base: p
 | [prompt-system.md](./prompt-system.md) | L0–L6 → grok inject map + role lifecycle + fragments under `do-harness/prompts/` (**M1**) |
 | [workspace.md](./workspace.md) | Continuum contract: goal / plan / todo → `.do/` + `~/.config/do` sessions; no dual-write (**CFG**) |
 | [continuation.md](./continuation.md) | L5 continuation priority (interrupt→streak→goal→plan→workflow→todo) + thrash-safe hooks (**M2**) |
-| [progressive-skills.md](./progressive-skills.md) | L4 progressive skill presentation policy start + reduced firehose surfaces (**M1**) |
+| [progressive-skills.md](./progressive-skills.md) | L4 progressive skill / MCP catalog: progressive/curated default; firehose opt-in (**M2**) |
+| [role-permissions.md](./role-permissions.md) | L1/L3 role tool allow/deny floors + guided-gate alignment (**M2** F-M2-PERM) |
 
 ## Agent readiness / quality
 

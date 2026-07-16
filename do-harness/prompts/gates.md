@@ -48,8 +48,9 @@ Hook JSON: `do-harness/hooks/guided-path-policy.json`
 
 **Allow:** writes under workspace root (relative or absolute).  
 **Deny:** absolute paths outside cwd; `..` escapes that resolve outside.  
-**Out of scope for this pack:** pure read tools (read/list/grep) — path floors for
-read-only roles live under F-M2-PERM / agent profiles.
+**Role floors (F-M2-PERM / VAL-M2-PERM-001):** pure read roles (intake / explorer /
+oracle) and orchestrator deny the edit surface via `disallowedTools`; workers still
+hit this gate for out-of-tree writes. Policy: `docs/role-permissions.md`.
 
 ## M2 — env expose family
 

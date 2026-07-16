@@ -19,10 +19,12 @@ See root [`AGENTS.md`](../AGENTS.md) Customization Order and
 | `scripts/verify-gates.sh` | **F-M2-GATES / VAL-M2-GATE-001** guided-block standard + expanded pack |
 | `config.models.yaml` | Multi-model registry + role→model assignment (policy overlay) |
 | `config.skills.yaml` | **F-M2-SKILL / VAL-M2-SKILL-001** progressive/curated skill + MCP presentation overlay |
+| `config.permissions.yaml` | **F-M2-PERM / VAL-M2-PERM-001** role tool allow/deny floors policy (applied in agents/) |
 | `scripts/apply-models.sh` | **F-M1-MODEL-APPLY / VAL-M1-MODEL-001** YAML assignment → agent frontmatter |
 | `scripts/verify-discovery.sh` | **F-EXT-003** end-to-end discovery path check (intake + guided hook) |
 | `scripts/verify-roster.sh` | **F-M1-ROSTER / VAL-M1-ROSTER-001** five-agent roster discovery |
 | `scripts/verify-progressive-skills.sh` | **F-M2-SKILL / VAL-M2-SKILL-001** progressive/curated default + MCP search/use |
+| `scripts/verify-role-permissions.sh` | **F-M2-PERM / VAL-M2-PERM-001** role floors applied + gate alignment |
 
 ## Discovery paths (stock grok)
 
@@ -42,13 +44,16 @@ repo is the single source of truth.
 Five primary-session roles under [`agents/`](./agents/). Source of truth is
 `do-harness/agents/`; install onto project `.do/agents/` (symlinks preferred).
 
-| Role | Source | Typical use | Tool floor (M1 stub OK) |
-|------|--------|-------------|-------------------------|
-| **intake** | [`agents/intake.md`](./agents/intake.md) | Clarify intent; Intent Pack; no implementation | plan; read/list/grep; no edits |
-| **orchestrator** | [`agents/orchestrator.md`](./agents/orchestrator.md) | Goal/plan/todo; spawn specialists | continuum + task; no bulk write |
-| **explorer** | [`agents/explorer.md`](./agents/explorer.md) | Fast scout / maps / citations | plan; read-only scout |
-| **worker** | [`agents/worker.md`](./agents/worker.md) | Implementation + targeted verify | default; full edit surface |
-| **oracle** | [`agents/oracle.md`](./agents/oracle.md) | Architecture / hard decisions | plan; analysis; no bulk edit |
+| Role | Source | Typical use | Tool floor (F-M2-PERM) |
+|------|--------|-------------|------------------------|
+| **intake** | [`agents/intake.md`](./agents/intake.md) | Clarify intent; Intent Pack; no implementation | `plan`; read/list/grep; **deny** edits + continuum |
+| **orchestrator** | [`agents/orchestrator.md`](./agents/orchestrator.md) | Goal/plan/todo; spawn specialists | continuum + task; **deny** bulk write |
+| **explorer** | [`agents/explorer.md`](./agents/explorer.md) | Fast scout / maps / citations | `plan`; read-only + MCP; **deny** edits + continuum |
+| **worker** | [`agents/worker.md`](./agents/worker.md) | Implementation + targeted verify | `default`; full edit surface; guided gates still apply |
+| **oracle** | [`agents/oracle.md`](./agents/oracle.md) | Architecture / hard decisions | `plan`; analysis + MCP; **deny** edits + continuum |
+
+Policy: [`docs/role-permissions.md`](../docs/role-permissions.md) +
+[`config.permissions.yaml`](./config.permissions.yaml).
 
 Model pins: `config.models.yaml` `assignment.<role>` applied into agent
 frontmatter via `scripts/apply-models.sh` (**F-M1-MODEL-APPLY** / VAL-M1-MODEL-001).
@@ -313,6 +318,28 @@ python3 do-harness/hooks/bin/guided-env-expose.py --self-test
 python3 do-harness/hooks/bin/guided-dangerous-shell.py --self-test
 ```
 
+## Role tool floors (F-M2-PERM / VAL-M2-PERM-001)
+
+Policy: [`docs/role-permissions.md`](../docs/role-permissions.md)  
+Overlay: [`config.permissions.yaml`](./config.permissions.yaml)  
+Applied: each `agents/<role>.md` frontmatter (`tools`, `disallowedTools`, `permissionMode`)
+
+| Layer | Surface | Shape |
+|-------|---------|-------|
+| **A — Floors** | agent allow/deny lists | Capability envelope (stock tool visibility) |
+| **B — Gates** | PreToolUse guided hooks | `[GATE: …]` + **Do this instead** inside allowed tools |
+
+All five roster roles carry explicit floors. Non-implementers deny the edit surface;
+continuum ownership stays on orchestrator/worker. Guided families (`dangerous-shell-*`,
+`path-policy-*`, `env-expose-*`) are named in every role prompt.
+
+### Verify role floors
+
+```sh
+bash do-harness/scripts/verify-role-permissions.sh
+# expect: exit 0 and "VAL-M2-PERM-001: PASS"
+```
+
 ## Progressive skills / MCP (F-M2-SKILL / VAL-M2-SKILL-001)
 
 Policy: [`docs/progressive-skills.md`](../docs/progressive-skills.md)  
@@ -353,6 +380,6 @@ bash do-harness/scripts/verify-progressive-skills.sh
   + operator run; optional later `do models apply` CLI)
 - Tab cycle + post-message lock implementation (M1 crate/session; not this script)
 - Deep crate patches for skill prompt builder (extension path is enough for M2)
-- Role permission floors productization beyond stub floors (M2 F-M2-PERM)
+- OpenCode-parity path/permission rules surface in do YAML (parking lot; floors + guided gates seal M2)
 - BM25 skill_search / skill_load product tools (future optional; stock progressive/curated is the M2 seal)
 - Doom-loop circuit breaker as a third M2 pack (path-policy + env-expose satisfy ≥2; doom-loop optional later)

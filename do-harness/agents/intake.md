@@ -14,7 +14,9 @@ skills: []
 # Model pin from do-harness/config.models.yaml assignment.intake (M1 wire).
 # Applied by: bash do-harness/scripts/apply-models.sh --apply
 model: combo-small
-# Read/clarify floor — no file edits. Shell only for light orientation (ls/git status).
+# Role tool floors (F-M2-PERM / VAL-M2-PERM-001): read/clarify only.
+# Policy: docs/role-permissions.md + do-harness/config.permissions.yaml
+# Shell only for light orientation (ls/git status); guided gates still apply.
 tools:
   - read_file
   - list_dir
