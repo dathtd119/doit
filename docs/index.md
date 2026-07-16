@@ -38,7 +38,7 @@ Read **before crate work**. Evidence-backed map of the forked Grok Build base: p
 | [limitations.md](./limitations.md) | L1–**L13** evidence-backed inventory; **sealed** F-DOC-001 / VAL-DOC-001 (L13 design also in models-and-config) |
 | [patch-matrix.md](./patch-matrix.md) | Gap → extension path / risk / order for **L1–L13**; **sealed** F-DOC-002 / VAL-DOC-002 |
 | [capability-map.md](./capability-map.md) | pi-ness modules / L0–L6 / roles / continuum / **model assignment** → grok tools/APIs or `"gap"`; **sealed** F-DOC-003 / VAL-DOC-003 |
-| [backlog-m1-m3.md](./backlog-m1-m3.md) | Ordered M1–M3 backlog; M1 **exit criteria sealed** (F-M1-SHIP); next PRIV then M2/M3; plan doc **sealed** F-BACK-001 / VAL-BACK-001 |
+| [backlog-m1-m3.md](./backlog-m1-m3.md) | Ordered M1–M3 backlog; M0–M2 **exit criteria sealed** (F-M2-SHIP 2026-07-16); next **M3**; plan doc **sealed** F-BACK-001 / VAL-BACK-001 |
 
 ## Subsystem contracts
 
@@ -74,4 +74,4 @@ Quality scripts live under `scripts/`; CI: `.github/workflows/ci.yml`. Pre-commi
 
 ## Mission
 
-Active mission: `mis_413072d4` under OpenCode missions. Mission `AGENTS.md` points here for the whole-idea contract; mission boundaries remain binding for workers.
+Active Factory mission: `mis_e0bdf86b` (M1 seal → PRIV → CFG → M2 → M3; prior `mis_413072d4` / OpenCode `mis_3ce18e2a`). Mission `AGENTS.md` points here for the whole-idea contract; mission boundaries remain binding for workers.

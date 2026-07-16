@@ -6,10 +6,11 @@ Long-lived ideas for **do**. Root `AGENTS.md` **Future Plan** stays short; promo
 
 - Goal-as-mission full runner: validators + structured handoffs on grok continuum (`update_goal` / plan / todo)
 - Side-ask dual stream / intake productization (L8)
-- Progressive skill/MCP catalog dynamic mode parity with pi-ness (L4)
+- Progressive skill/MCP BM25 `skill_search` / `skill_load` parity with pi-ness (L4; M2 sealed progressive/curated defaults without BM25 crate)
 - Explicit L0–L6 fragment registry with maxBytes budgets (L2)
-- Unified continuation coordinator priority stack (L5)
-- Guided-block standard across all denials (L6)
+- **M2 continuation hooks (done):** priority lanes + PostToolUse nudge thrash-safe — sealed F-M2-SHIP / VAL-M2-CONT-001. Optional crate coordinator only if multi-lane races reappear
+- **M2 guided blocks (done):** product standard + path-policy + env-expose packs beyond dangerous-shell — sealed F-M2-SHIP / VAL-M2-GATE-001. Remaining: any future denials must keep the shape
+- **M2 role floors (done):** five-agent allow/deny floors + guided-gate alignment — sealed F-M2-SHIP / VAL-M2-PERM-001. Remaining: OpenCode-parity permission rules YAML surface
 - **M1 role lock (done):** Tab/Shift+Tab only pre-message; lock + toast after first user message; model re-resolve only while switch allowed — sealed F-M1-SHIP. Remaining polish: proactive first-message toast
 
 ## Models & config

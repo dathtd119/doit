@@ -1,12 +1,12 @@
 # Current status (expanded)
 
 Date: **2026-07-16**  
-Mission: Factory **M1 → PRIV → CFG → M2/M3** (`mis_e0bdf86b`; prior history `mis_413072d4` / OpenCode `mis_3ce18e2a`)  
+Mission: Factory **M1 → PRIV → CFG → M2 → M3** (`mis_e0bdf86b`; prior history `mis_413072d4` / OpenCode `mis_3ce18e2a`)  
 Compact status lives in root [AGENTS.md](../AGENTS.md) (may be gitignored); **this file is the committed living-status mirror**.
 
 ## Where we are
 
-**do** is a private/local fork of Grok Build intended to absorb pi-ness harness-control ideas without porting OpenTUI. **M0, M1, PRIV, and CFG are sealed.** Next product track is **M2** then M3 per [backlog-m1-m3.md](./backlog-m1-m3.md).
+**do** is a private/local fork of Grok Build intended to absorb pi-ness harness-control ideas without porting OpenTUI. **M0, M1, PRIV, CFG, and M2 are sealed.** Next product track is **M3** per [backlog-m1-m3.md](./backlog-m1-m3.md).
 
 ### M0 sealed (summary)
 
@@ -55,14 +55,24 @@ Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-PRIV-SHIP.
 
 Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-CFG-SHIP.
 
+### M2 sealed (continuity & safety)
+
+| Surface | Evidence |
+|---------|----------|
+| Continuation priority | `1e523b2` — lanes interrupt→streak→goal→plan→workflow→todo; `verify-continuation.sh` VAL-M2-CONT-001 |
+| Guided-block pack | `324c959` — path-policy + env-expose beyond dangerous-shell; `verify-gates.sh` VAL-M2-GATE-001; gate names in all five role prompts |
+| Progressive skill/MCP | `803f415` — product-wide progressive/curated (`discoverSkills: false`); firehose opt-in; MCP `search_tool`/`use_tool`; `verify-progressive-skills.sh` VAL-M2-SKILL-001 |
+| Role tool floors | `0b63f7b` — allow/deny floors on five agents + `config.permissions.yaml`; `verify-role-permissions.sh` VAL-M2-PERM-001 |
+| Docs | [continuation.md](./continuation.md), [progressive-skills.md](./progressive-skills.md), [role-permissions.md](./role-permissions.md), `do-harness/prompts/gates.md` |
+
+M2 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-M2-SHIP.
+
 ### In progress / next
 
 | Item | Track | Notes |
 |------|-------|-------|
-| Continuation priority + guided pack | **M2** | Native goal/plan/todo; ≥2 more gates beyond shell |
-| Progressive skill/MCP deepen | **M2** | Dynamic mode parity start |
-| Role permission floors | **M2** | Agent skill/tool floors beyond stubs |
-| CodeGraph + hashline default | **M3** | After M2 |
+| CodeGraph product surface | **M3** | MCP-first vs tool_pack wrapping `xai-codebase-graph` |
+| Hashline default edit policy | **M3** | Prefer hashline namespace where safe |
 
 ### True-now constraints
 
@@ -70,14 +80,15 @@ Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-CFG-SHIP.
 - Extension-before-deep-fork
 - Config root: **`~/.config/do`** + project **`.do/`** (CFG sealed); `GROK_HOME` overrides user home
 - Role cycle remains **pre-message only** (no mid-session hop)
+- Guided denials for do-owned gates: **`[GATE: …]` + Do this instead**
+- Continuation nudges re-surface **one** highest open lane (no continuum dump thrash)
 - SpaceXAI telemetry fail-closed; external OTEL optional
 - BYOK / `preferred_method=api_key` does not force grok.com OAuth
 - Commit every milestone; handoff needs `commitId` + `repoPath`
 
 ## Near-term sequence
 
-1. **M2** continuation + guided-block harden + progressive deepen + role floors
-2. **M3** CodeGraph + hashline default
+1. **M3** CodeGraph + hashline default + final seal
 
 ## Links
 

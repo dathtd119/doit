@@ -1,6 +1,6 @@
 # Backlog: M1–M3
 
-**Status:** M0 **sealed**. **M1 sealed** (F-M1-SHIP / VAL-M1-*). **PRIV sealed** (F-PRIV-SHIP / VAL-PRIV-NOTEL|AUTH|SHIP-001). **CFG sealed** (F-CFG-SHIP / VAL-CFG-HOME|PROJECT|SHIP-001, 2026-07-16). Next: **M2**.  
+**Status:** M0 **sealed**. **M1 sealed** (F-M1-SHIP / VAL-M1-*). **PRIV sealed** (F-PRIV-SHIP / VAL-PRIV-NOTEL|AUTH|SHIP-001). **CFG sealed** (F-CFG-SHIP / VAL-CFG-HOME|PROJECT|SHIP-001). **M2 sealed** (F-M2-SHIP / VAL-M2-CONT|GATE|SKILL|PERM|SHIP-001, 2026-07-16). Next: **M3**.  
 **Purpose:** Ordered product backlog after M0 (limitations, patch matrix, proof extension).  
 **Sources of truth for gaps:** [limitations.md](./limitations.md), [patch-matrix.md](./patch-matrix.md), [capability-map.md](./capability-map.md), [models-and-config.md](./models-and-config.md), [prompt-system.md](./prompt-system.md).
 
@@ -113,11 +113,11 @@ Canonical six-step seed (keep in sync with [prompt-system.md](./prompt-system.md
 
 ### M2 exit criteria
 
-- [ ] Continuation priority policy shipped and exercised on native continuum tools  
-- [ ] Guided-block shape is the product default for do-owned denials  
-- [x] Progressive skill/MCP policy reduced firehose vs M0 stock (F-M2-SKILL / VAL-M2-SKILL-001)  
-
-- [ ] Docs + CHANGELOGS + commit with `commitId` / `repoPath`
+- [x] Continuation priority policy shipped and exercised on native continuum tools (`verify-continuation.sh` / VAL-M2-CONT-001 / `1e523b2`)  
+- [x] Guided-block shape is the product default for do-owned denials (`verify-gates.sh` / VAL-M2-GATE-001 / `324c959`)  
+- [x] Progressive skill/MCP policy reduced firehose vs M0 stock (F-M2-SKILL / VAL-M2-SKILL-001 / `803f415`)  
+- [x] Role tool allow/deny floors documented and applied on five agents (F-M2-PERM / VAL-M2-PERM-001 / `0b63f7b`)  
+- [x] Docs + CHANGELOGS + commit with `commitId` / `repoPath` (**F-M2-SHIP** / VAL-M2-SHIP-001)
 
 ---
 

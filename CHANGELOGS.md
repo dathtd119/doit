@@ -4,6 +4,49 @@ Append-only ship log for **do**. Not a status essay — one entry per substantiv
 
 ---
 
+## 2026-07-16 — F-M2-SHIP continuity & safety seal (VAL-M2-SHIP-001)
+
+**Scope:** seal M2 implement evidence + living docs; no new product harness code this commit  
+**Feature:** F-M2-SHIP · **VALs:** VAL-M2-CONT-001, VAL-M2-GATE-001, VAL-M2-SKILL-001, VAL-M2-PERM-001, VAL-M2-SHIP-001
+
+### Sealed product surface (prior implement commits)
+
+| Track | Commit | Surface |
+|-------|--------|---------|
+| **F-M2-CONT** | `1e523b2` `feat(harness): continuation priority policy and nudges` | Priority lanes interrupt→streak→goal→plan→workflow→todo; PostToolUse `continuation-nudge`; multi-step thrash fixture |
+| **F-M2-GATES** | `324c959` `feat(harness): product guided-block gates pack` | Product standard `[GATE: …]` + **Do this instead**; path-policy + env-expose packs beyond dangerous-shell; gates in all five role prompts |
+| **F-M2-SKILL** | `803f415` `feat(harness): progressive skill MCP catalog default` | Progressive/curated default on five roster roles (`discoverSkills: false`); firehose opt-in; MCP via `search_tool`/`use_tool` |
+| **F-M2-PERM** | `0b63f7b` `feat(harness): role tool floors on five agents` | Allow/deny floors via agent frontmatter + `config.permissions.yaml`; aligned with guided gate families |
+
+### Evidence (this ship)
+
+| Command | Result |
+|---------|--------|
+| `bash do-harness/scripts/verify-continuation.sh` | PASS — VAL-M2-CONT-001 (21 checks) |
+| `bash do-harness/scripts/verify-gates.sh` | PASS — VAL-M2-GATE-001 (39 checks) |
+| `bash do-harness/scripts/verify-progressive-skills.sh` | PASS — VAL-M2-SKILL-001 (32 checks) |
+| `bash do-harness/scripts/verify-role-permissions.sh` | PASS — VAL-M2-PERM-001 (floors + deny families + gate naming) |
+
+### Docs this ship
+
+- Root `AGENTS.md` Status/Next: M2 **sealed**; next **M3** (CodeGraph + hashline default)
+- [docs/current-status.md](./docs/current-status.md) narrative refreshed for M2 seal
+- [docs/backlog-m1-m3.md](./docs/backlog-m1-m3.md) M2 exit criteria checked
+- [docs/future-plan.md](./docs/future-plan.md) — M2-shipped items marked done; M3 remains active
+- Prior implement docs already present: [continuation.md](./docs/continuation.md), [progressive-skills.md](./docs/progressive-skills.md), [role-permissions.md](./docs/role-permissions.md), gates catalog under `do-harness/prompts/gates.md`
+- This CHANGELOGS entry
+
+### Next (not in this seal)
+
+1. **M3** — CodeGraph product surface + hashline default edit policy; final seal
+2. Parked polish: proactive first-message role-lock toast; BM25 skill_search/load parity; deep multi-provider auth
+
+### Key commits (implement lineage)
+
+- `1e523b2` CONT · `324c959` GATES · `803f415` SKILL · `0b63f7b` PERM
+
+---
+
 ## 2026-07-16 — F-CFG-SHIP config rebrand seal (VAL-CFG-SHIP-001)
 
 **Scope:** seal CFG implement evidence + living docs; no new product crate code this commit  
