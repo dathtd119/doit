@@ -205,18 +205,18 @@ Date: 2026-07-16
 - **Mission** — `mis_413072d4` active; M0 not sealed
 - **Fork import** — grok-build tree present under `/home/datht/code/do` (F-FORK-001 done); `cargo check` smoke still pending
 - **Control plane** — root `AGENTS.md` + docs split **sealed** (F-CTRL-001 / VAL-CTRL-001..003): index, architecture, future-plan, current-status, ship-discipline, related-projects, **models-and-config** + CHANGELOGS + README; mission AGENTS points here
-- **Multi-model requirement** — captured: grok already multi-`[model.*]`; gap is OpenCode-like role assignment + do YAML overlay (L13); template at `do-harness/config.models.yaml`
+- **Multi-model (L13)** — **sealed** (F-MODEL-001 / VAL-MODEL-001..002): `docs/models-and-config.md` (fork evidence + OpenCode gap + YAML schema + TOML map); template `do-harness/config.models.yaml`; L13 in `docs/limitations.md` + `docs/patch-matrix.md`
 - **Role switch lock** — **sealed** (F-ROLE-001 / VAL-ROLE-001): Tab/Shift+Tab **only pre-message**; disabled after first user message / conversation content; M1 implements (see `docs/prompt-system.md` Role lifecycle + M1 note)
-- **Scout** — pi-ness harness ideas + grok native tools inventory in mission architecture / L1–L12 sketch; L13 added for model assignment UX
+- **Scout** — pi-ness harness ideas + grok native tools inventory in mission architecture / L1–L12 sketch; L13 assignment UX documented
 - **Grok-build inventory** — `docs/grok-build/` (overview, native-tools, extension-seams, hard-limits, patterns) scaffolded with fork evidence paths; expand under F-GROK-001 / VAL-GROK-001
-- **Not yet** — limitations/patch-matrix/capability-map evidence docs; do-harness proof agent + guided hook; YAML→TOML wiring; M0 seal commit
+- **Not yet** — L1–L12 deep evidence (F-DOC-001..003); capability-map; do-harness proof agent + guided hook; YAML→agent wiring (M1); M0 seal commit
 - **Process** — git at do; commit every milestone; docs under `/docs`; English + conventional commits
 
 ### Next steps
 
 1. M0: `cargo check -p xai-grok-pager-bin` smoke (F-FORK-002)
 2. M0: expand/verify `docs/grok-build/` inventory (F-GROK-001 / VAL-GROK-001) — **required read before crate work**
-3. M0: `docs/limitations.md` (L1–L13), `docs/patch-matrix.md`, `docs/capability-map.md`
+3. M0: deepen L1–L12 in limitations/patch-matrix + write capability-map (F-DOC-001..003)
 4. M0: README identity + `FORK.md` policy expansion (F-DOC-004)
 5. M0: proof intake agent + guided PreToolUse hook + discovery verification
 6. M0: `docs/backlog-m1-m3.md` including multi-model assignment wiring + **role Tab cycle + post-message lock** + seal commit

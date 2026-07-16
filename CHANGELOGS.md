@@ -56,3 +56,30 @@ Append-only ship log for **do**. Not a status essay — one entry per substantiv
 - `docs/prompt-system.md` — Role lifecycle + M1 implementation note
 - `docs/architecture.md` — Session / role control table + M1 note
 - `docs/current-status.md` — F-ROLE-001 marked done
+
+---
+
+## 2026-07-16 — F-MODEL-001 multi-model + L13 seal
+
+**Scope:** docs + do-harness YAML template (no Rust product code)  
+**Feature:** F-MODEL-001 · **VALs:** VAL-MODEL-001, VAL-MODEL-002
+
+### Sealed
+
+- `docs/models-and-config.md` — grok multi-`[model.*]` facts with **fork evidence paths**, subagent resolution spawn > role > persona > parent, OpenCode assignment gap, do YAML schema, map to TOML + agent/role model fields, full **L13** statement; example ≥2 models and ≥3 role assignments
+- `do-harness/config.models.yaml` — template with `models.registry` + `assignment` (intake/orchestrator/explorer/worker/oracle) and comments; not auto-applied in M0
+- `docs/limitations.md` — L1–L13 inventory; L13 detail with evidence table
+- `docs/patch-matrix.md` — every L1–L13 → path/risk/order; L13 = `config` + `agent`, low risk, M1 wire
+
+### Product decisions confirmed
+
+- Multi-model registry **already exists** in stock grok — do not reimplement
+- Gap is assignment UX / role→model **policy** (L13)
+- Dual surface: stock TOML runtime + do YAML product overlay
+- M1 wires YAML assignment into agents/roles; no second runtime registry
+
+### Files
+
+- `docs/models-and-config.md`, `docs/limitations.md`, `docs/patch-matrix.md`, `docs/index.md`
+- `do-harness/config.models.yaml`
+- Root `AGENTS.md` living status, `docs/current-status.md`, this CHANGELOGS entry

@@ -30,14 +30,14 @@ Read **before crate work**. Evidence-backed map of the forked Grok Build base: p
 | [grok-build/hard-limits.md](./grok-build/hard-limits.md) | **Where we cannot / deep-fork only** |
 | [grok-build/patterns.md](./grok-build/patterns.md) | Patterns to adopt (plan, goal, subagents, hashline, hooks, ACP, …) |
 
-## Inventory (M0 evidence docs — pending full write)
+## Inventory (M0 evidence docs)
 
 | Doc | Purpose |
 |-----|---------|
-| [limitations.md](./limitations.md) | L1–L13 evidence-backed gaps (create under F-DOC-001) |
-| [patch-matrix.md](./patch-matrix.md) | Gap → extension path / risk / order |
-| [capability-map.md](./capability-map.md) | pi-ness concepts → grok tools/APIs or `"gap"` (pairs with grok-build inventory) |
-| [backlog-m1-m3.md](./backlog-m1-m3.md) | Ordered M1–M3 backlog |
+| [limitations.md](./limitations.md) | L1–L13 gaps; **L13 sealed** (F-MODEL-001); L1–L12 deepened under F-DOC-001 |
+| [patch-matrix.md](./patch-matrix.md) | Gap → extension path / risk / order; **L13 row sealed** |
+| [capability-map.md](./capability-map.md) | pi-ness concepts → grok tools/APIs or `"gap"` (pairs with grok-build inventory; F-DOC-003) |
+| [backlog-m1-m3.md](./backlog-m1-m3.md) | Ordered M1–M3 backlog (F-BACK-001) |
 
 ## Subsystem stubs
 

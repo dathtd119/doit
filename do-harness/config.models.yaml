@@ -2,12 +2,20 @@
 #
 # Purpose:
 #   - Human-friendly registry + role → model assignment (OpenCode-like pins)
-#   - Maps to stock grok ~/.grok/config.toml [model.*] + agent frontmatter model
+#   - Maps to stock grok ~/.grok/config.toml [model.*] + agent/role model fields
 #   - NOT auto-applied by the binary in M0; operators may hand-sync
-#   - M1: wire assignment into do-harness agent profiles
+#   - M1: wire assignment into do-harness agent profiles / subagent roles
+#
+# Schema (see docs/models-and-config.md):
+#   models.default          → [models] default
+#   models.registry.<name>  → [model.<name>] block
+#   assignment.<role>       → role/agent model pin (short form: registry name)
+#   assignment.<role>.model + .effort → model + reasoning_effort when structured
 #
 # Secrets: use env var names only — never commit API keys.
-# Docs: docs/models-and-config.md  |  Limitation: L13
+# Limitation: L13  |  Feature: F-MODEL-001
+#
+# Example below: ≥2 models, ≥3 role assignments (full product roster).
 
 models:
   default: combo-big
@@ -17,13 +25,18 @@ models:
       base_url: https://api.example.com/v1
       api_backend: chat_completions
       # api_key_env: EXAMPLE_API_KEY
+      # name: Combo Big
+      # context_window: 200000
     combo-small:
       model: your-small-model-id
       base_url: https://api.example.com/v1
       api_backend: chat_completions
       # api_key_env: EXAMPLE_API_KEY
+      # name: Combo Small
+      # context_window: 128000
 
-# Role / agent → registry name (optional effort when backend supports it)
+# Role / agent → registry name
+# Product roster: intake, orchestrator, explorer, worker, oracle
 assignment:
   intake: combo-small
   orchestrator: combo-big
