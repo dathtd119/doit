@@ -1,6 +1,6 @@
 # Backlog: M1–M3
 
-**Status:** M0 **sealed**. **M1 sealed** (F-M1-SHIP / VAL-M1-* evidence gates pass 2026-07-16). Next: **PRIV** then M2.  
+**Status:** M0 **sealed**. **M1 sealed** (F-M1-SHIP / VAL-M1-*). **PRIV sealed** (F-PRIV-SHIP / VAL-PRIV-NOTEL|AUTH|SHIP-001, 2026-07-16). Next: **CFG** rebrand then M2 (not M2 immediately).  
 **Purpose:** Ordered product backlog after M0 (limitations, patch matrix, proof extension).  
 **Sources of truth for gaps:** [limitations.md](./limitations.md), [patch-matrix.md](./patch-matrix.md), [capability-map.md](./capability-map.md), [models-and-config.md](./models-and-config.md), [prompt-system.md](./prompt-system.md).
 
@@ -188,8 +188,8 @@ Parked in [future-plan.md](./future-plan.md) — promote into a milestone only w
 |------|----------------|
 | Goal-as-mission full runner (validators + structured handoffs) | Needs M1–M2 continuum solid |
 | Side-ask dual stream UI (L8) | High TUI cost; intake agent first |
-| `~/.do` rebrand | Keep `~/.grok` until extension path proven |
-| Multi-provider auth beyond stock | Out of M0–M3 core harness |
+| Config home/project rebrand (`~/.config/do` + `.do/`) | **Promoted to CFG** (next after PRIV seal) — not deferred |
+| Multi-provider auth beyond stock | Out of M0–M3 core harness (BYOK skip-OAuth shipped PRIV) |
 | OpenCode-parity permission rules in do YAML | After L6 hooks + M2 floors |
 | Full OpenTUI / Node port | Non-goal |
 | Upstream PRs to xAI grok-build | Non-goal (private/local fork) |

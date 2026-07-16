@@ -4,6 +4,39 @@ Append-only ship log for **do**. Not a status essay — one entry per substantiv
 
 ---
 
+## 2026-07-16 — F-PRIV-SHIP privacy seal (VAL-PRIV-SHIP-001)
+
+**Scope:** seal PRIV implement evidence + living docs; no new product code this commit  
+**Feature:** F-PRIV-SHIP · **VALs:** VAL-PRIV-NOTEL-001, VAL-PRIV-AUTH-001, VAL-PRIV-SHIP-001
+
+### Sealed product surface (prior implement commits)
+
+| Track | Commit | Surface |
+|-------|--------|---------|
+| **P-NOTEL-01..06** | `4458c69` `feat(privacy): fail-closed SpaceXAI telemetry` | Product analytics, Mixpanel, Sentry, internal OTLP, trace upload, feedback — fail-closed; **preserve** `GROK_EXTERNAL_OTEL` + `OTEL_*` |
+| **P-AUTH-01** | `11d8752` `feat(privacy): skip forced OAuth for BYOK` | BYOK / `[auth] preferred_method=api_key` skips interactive grok.com OAuth at `workspace_start`; ACP already preferred `xai.api_key` first |
+
+### Docs this ship
+
+- `docs/patch-matrix.md` — **applied** rows for P-NOTEL-01..06 + P-AUTH-01 (from implement commits; restated in ship narrative)
+- `docs/models-and-config.md` — Auth section: custom models / BYOK config-first + P-AUTH-01 runtime paths
+- Root `AGENTS.md` Status/Next: PRIV **sealed**; next **CFG** (`~/.config/do` + project `.do/`) **then** M2 (not M2 immediately)
+- `docs/current-status.md` narrative refreshed (AGENTS.md may be gitignored — this file is the committed living mirror)
+- `docs/future-plan.md` — P-NOTEL + P-AUTH parked items marked done
+- This CHANGELOGS entry
+
+### Next (not in this seal)
+
+1. **CFG** — default user home `~/.config/do` only (no `~/.grok` fallback); project discovery `.do/`; docs + CHANGELOGS seal
+2. **M2** — continuation priority + guided-block pack + progressive deepen + role floors
+3. **M3** — CodeGraph product surface + hashline default
+
+### Key commits (implement lineage)
+
+- `4458c69` P-NOTEL-01..06 · `11d8752` P-AUTH-01
+
+---
+
 ## 2026-07-16 — F-M1-SHIP M1 harness control seal (VAL-M1-SHIP-001)
 
 **Scope:** seal M1 implement evidence + living docs; no new product code  

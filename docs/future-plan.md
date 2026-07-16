@@ -18,8 +18,7 @@ Long-lived ideas for **do**. Root `AGENTS.md` **Future Plan** stays short; promo
 - Optional richer `do models validate|apply` CLI that diffs against `~/.grok/config.toml`
 - Effort / reasoning level pins per role when backends support them
 - OpenCode-parity permission rules surface in do YAML (beyond model assignment)
-- `~/.do` rebrand when extension path is proven (keep `~/.grok` for M0)
-- Multi-provider auth beyond stock grok paths
+- Multi-provider auth beyond stock grok paths (deeper redesign; BYOK skip-OAuth shipped PRIV)
 - Project-local model overrides (workspace config) without breaking user home registry
 
 ## Native power tools
@@ -41,16 +40,20 @@ Long-lived ideas for **do**. Root `AGENTS.md` **Future Plan** stays short; promo
 - Deep pager/TUI fork before extension seams exhausted
 - Upstream PRs to xAI grok-build
 
-## Privacy & offline auth (parked)
+## Privacy & offline auth
 
 ### Native no-telemetry (from grok-build-no-telemetry)
 
-- Port 6 patches from `~/code/grok-build-no-telemetry` into do crates as **P-NOTEL-01..06**
-- Scout: [`plans/reports/scout-grok-build-no-telemetry-260716.md`](../plans/reports/scout-grok-build-no-telemetry-260716.md)
-- Fail-closed SpaceXAI analytics / Mixpanel / Sentry / internal OTLP / trace upload / feedback
-- Keep `GROK_EXTERNAL_OTEL`
+- **Done (F-PRIV-NOTEL / P-NOTEL-01..06, 2026-07-16):** fail-closed SpaceXAI analytics / Mixpanel / Sentry / internal OTLP / trace upload / feedback. External OTEL via `GROK_EXTERNAL_OTEL` preserved. Scout: [`plans/reports/scout-grok-build-no-telemetry-260716.md`](../plans/reports/scout-grok-build-no-telemetry-260716.md). Patch log: [patch-matrix.md](./patch-matrix.md).
 
 ### Custom-models-only / no forced Grok OAuth
 
 - **Done (F-PRIV-AUTH / P-AUTH-01, 2026-07-16):** config-first BYOK + `[auth] preferred_method=api_key`; crate skips `workspace_start` `ensure_authenticated` when satisfied. See [models-and-config.md](./models-and-config.md) Auth section.
+- **PRIV ship sealed** (F-PRIV-SHIP / VAL-PRIV-SHIP-001, 2026-07-16).
 - Remaining parked: deeper multi-provider auth redesign / full offline product mode UX
+
+## Config rebrand (next after PRIV)
+
+- Default user home **`~/.config/do` only** (no `~/.grok` fallback) — CFG F-CFG-HOME
+- Project discovery **`.do/`** (agents/hooks/…) — CFG F-CFG-PROJECT
+- Docs + CHANGELOGS seal — CFG F-CFG-SHIP

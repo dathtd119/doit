@@ -274,6 +274,8 @@ Config-first: `[models] default` + `[model.*]` `api_key`/`env_key` + optional `[
 |-----------|----------------|
 | **M0** | L10 docs; L13 template; L6/L8 proof (hook + intake agent); this matrix + limitations sealed |
 | **M1** | L1 Tab lock + role roster; L13 YAML→agent wire; L2 prompt layers; start L4 |
+| **PRIV** | P-NOTEL-01..06 fail-closed SpaceXAI telemetry; P-AUTH-01 BYOK skip forced OAuth (**applied**, 2026-07-16) |
+| **CFG** | P-CFG-* user home `~/.config/do` + project `.do/` discovery (next) |
 | **M2** | L5 continuation; L6 harden; L4 progressive catalog; L11 only if explicit |
 | **M3** | L7 CodeGraph product surface; L3 tool packs as needed; hashline default policy (backlog) |
 

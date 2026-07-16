@@ -1,12 +1,12 @@
 # Current status (expanded)
 
 Date: **2026-07-16**  
-Mission: Factory **M1 seal → PRIV → M2/M3** (`mis_e0bdf86b`; prior history `mis_413072d4` / OpenCode `mis_3ce18e2a`)  
-Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrative expansion.
+Mission: Factory **M1 → PRIV → CFG → M2/M3** (`mis_e0bdf86b`; prior history `mis_413072d4` / OpenCode `mis_3ce18e2a`)  
+Compact status lives in root [AGENTS.md](../AGENTS.md) (may be gitignored); **this file is the committed living-status mirror**.
 
 ## Where we are
 
-**do** is a private/local fork of Grok Build intended to absorb pi-ness harness-control ideas without porting OpenTUI. **M0 is sealed.** **M1 is sealed** (F-M1-SHIP). Next product track is **PRIV**, then M2/M3 per [backlog-m1-m3.md](./backlog-m1-m3.md).
+**do** is a private/local fork of Grok Build intended to absorb pi-ness harness-control ideas without porting OpenTUI. **M0, M1, and PRIV are sealed.** Next product track is **CFG** (config home + project discovery rebrand), then M2/M3 per [backlog-m1-m3.md](./backlog-m1-m3.md).
 
 ### M0 sealed (summary)
 
@@ -32,26 +32,39 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
 
 M1 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-M1-SHIP.
 
+### PRIV sealed (privacy track)
+
+| Surface | Evidence |
+|---------|----------|
+| Fail-closed SpaceXAI telemetry | `4458c69` — P-NOTEL-01..06 (analytics, Mixpanel, Sentry, internal OTLP, trace upload, feedback) |
+| External OTEL preserved | `GROK_EXTERNAL_OTEL` + `OTEL_*`; `xai-grok-telemetry/src/external/` intact |
+| BYOK / no forced OAuth | `11d8752` — P-AUTH-01; `should_require_interactive_oauth` + `workspace_start` skip; Auth docs in [models-and-config.md](./models-and-config.md) |
+| Patch matrix | [patch-matrix.md](./patch-matrix.md) **applied** rows for P-NOTEL-01..06 + P-AUTH-01 |
+
+Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-PRIV-SHIP.
+
 ### In progress / next
 
 | Item | Track | Notes |
 |------|-------|-------|
-| No-telemetry fail-closed | **PRIV** | P-NOTEL-01..06 from `~/code/grok-build-no-telemetry` (manual port) |
-| Custom models / BYOK no forced OAuth | **PRIV** | Config-first; P-AUTH-01 if crate needed |
-| Continuation priority + guided pack | **M2** | Native goal/plan/todo; ≥2 more gates |
+| User config home `~/.config/do` only | **CFG** | No silent `~/.grok` fallback default; P-CFG-* |
+| Project discovery `.do/` | **CFG** | Agents/hooks/install targets leave `.grok/` product paths |
+| Continuation priority + guided pack | **M2** | After CFG; native goal/plan/todo; ≥2 more gates |
 | CodeGraph + hashline default | **M3** | After M2 |
 
 ### True-now constraints
 
 - Do not modify `~/code/pi-ness`, `~/code/grok-build`, or `~/code/grok-build-no-telemetry` (read-only)
 - Extension-before-deep-fork
-- Config root remains `~/.grok` for M0/M1; brand as do in docs
+- Config root remains `~/.grok` **until CFG ships** `~/.config/do` + project `.do/`
 - Role cycle remains **pre-message only** (no mid-session hop)
+- SpaceXAI telemetry fail-closed; external OTEL optional
+- BYOK / `preferred_method=api_key` does not force grok.com OAuth
 - Commit every milestone; handoff needs `commitId` + `repoPath`
 
 ## Near-term sequence
 
-1. **PRIV** seal (no-telemetry + BYOK auth)
+1. **CFG** rebrand (home `~/.config/do` + project `.do/`) — **before M2**
 2. **M2** continuation + guided-block harden
 3. **M3** CodeGraph + hashline default
 
@@ -60,6 +73,7 @@ M1 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full
 - [architecture.md](./architecture.md)
 - [models-and-config.md](./models-and-config.md)
 - [backlog-m1-m3.md](./backlog-m1-m3.md)
+- [patch-matrix.md](./patch-matrix.md)
 - [prompt-system.md](./prompt-system.md)
 - [workspace.md](./workspace.md)
 - [progressive-skills.md](./progressive-skills.md)
