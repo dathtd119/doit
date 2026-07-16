@@ -4,6 +4,53 @@ Append-only ship log for **do**. Not a status essay — one entry per substantiv
 
 ---
 
+## 2026-07-16 — F-M3-SHIP native power tools seal (VAL-M3-SHIP-001)
+
+**Scope:** seal M3 implement evidence + living docs / capability-map; no new product harness code this commit  
+**Feature:** F-M3-SHIP · **VALs:** VAL-M3-CG-001, VAL-M3-HASH-001, VAL-M3-SHIP-001  
+**Mission:** `mis_e0bdf86b` backlog M1–M3 **complete**
+
+### Sealed product surface (prior implement commits)
+
+| Track | Commit | Surface |
+|-------|--------|---------|
+| **F-M3-CG** | `7a55c75` `feat(codegraph): ship MCP explore/impact surface` | MCP-first `do-codegraph` wrapping `xai-codebase-graph` (`codegraph_explore` / `codegraph_impact` / `codegraph_stats`); design [docs/codegraph.md](./docs/codegraph.md); fixture + `verify-codegraph.sh` |
+| **F-M3-HASH** | `ef06622` `feat(harness): hashline default edit policy` | Product `file_toolset = "hashline"` via `do-harness/config.toolset.toml`; worker/orchestrator guidance + floors; rollback `file_toolset = "standard"`; [docs/hashline.md](./docs/hashline.md); `verify-hashline.sh` |
+
+### Evidence (this ship)
+
+| Command | Result |
+|---------|--------|
+| `bash do-harness/scripts/verify-codegraph.sh` | PASS — VAL-M3-CG-001 (29 checks) |
+| `bash do-harness/scripts/verify-hashline.sh` | PASS — VAL-M3-HASH-001 (45 checks) |
+
+### Docs this ship
+
+- Root `AGENTS.md` Status/Next: M3 **sealed**; mission backlog complete; next = parking-lot promotions only
+- [docs/current-status.md](./docs/current-status.md) narrative refreshed for M3 seal
+- [docs/backlog-m1-m3.md](./docs/backlog-m1-m3.md) M3 exit criteria **all checked** (including no silent tool-pack sprawl)
+- [docs/capability-map.md](./docs/capability-map.md) — L1–L13 master map + gap register refreshed for post-M3 truth
+- [docs/future-plan.md](./docs/future-plan.md) — M3 CodeGraph/hashline marked done
+- [docs/index.md](./docs/index.md) — backlog header notes M3 sealed
+- Prior implement docs already present: [codegraph.md](./docs/codegraph.md), [hashline.md](./docs/hashline.md)
+- This CHANGELOGS entry
+
+### Placement notes
+
+- **No crate patch** for M3 power tools: CodeGraph = MCP extension; hashline = config + agent overlay on stock `FileToolset::Hashline`
+- M3-T01 tool packs: none required this milestone (documented as such on exit checklist)
+
+### Next (not in this seal)
+
+1. Parked polish from [future-plan.md](./docs/future-plan.md): goal-as-mission runner, side-ask dual stream, BM25 skill_search, multi-provider auth, permission-rules YAML, optional CodeGraph `tool_pack`
+2. Proactive first-message role-lock toast (optional UX)
+
+### Key commits (implement lineage)
+
+- `7a55c75` CG · `ef06622` HASH
+
+---
+
 ## 2026-07-16 — F-M2-SHIP continuity & safety seal (VAL-M2-SHIP-001)
 
 **Scope:** seal M2 implement evidence + living docs; no new product harness code this commit  

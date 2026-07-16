@@ -1,6 +1,6 @@
 # Capability map: pi-ness → grok-build / do
 
-**Status:** M0 **sealed** for F-DOC-003 / VAL-DOC-003.  
+**Status:** M0 inventory **sealed** (F-DOC-003 / VAL-DOC-003). **M1–M3 product surfaces applied** (role lock, L0–L6, progressive skills, guided blocks, continuation, CodeGraph MCP, hashline default) — refresh sealed under **F-M3-SHIP** / VAL-M3-SHIP-001 (2026-07-16).  
 **Purpose:** Map pi-ness harness modules, L0–L6 prompt layers, roles, continuum concepts, and **model assignment** surfaces onto forked grok-build tools / APIs / plugins / hooks / config — or **`"gap"`**.
 
 **How to use:** Prefer existing grok surfaces; do not reinvent. For gaps, follow [patch-matrix.md](./patch-matrix.md) path/order and [limitations.md](./limitations.md). Base inventory: [grok-build/](./grok-build/).
@@ -30,19 +30,19 @@
 
 | L* | pi-ness idea | Primary grok surface | Map status |
 |----|--------------|----------------------|------------|
-| L1 | Primary-session roles + Tab cycle + post-message lock | Agents/personas (subagent-strong); keybind/session flag | **Partial** — profiles exist; primary Tab+lock = **`"gap"`** (M1) |
-| L2 | L0–L6 layered prompts + fragment budgets | System + agent prompts, skills, reminders | **Partial** — no named L0–L6 registry |
-| L3 | Always-on TS harness factories | Rust tool registry + plugins/hooks + `register_tool_pack` | **Re-express** — no TS factories ([hard-limits](./grok-build/hard-limits.md)) |
+| L1 | Primary-session roles + Tab cycle + post-message lock | Agents + `role_switch_allowed` + Tab gate + lock toast | **Mapped (product)** — M1 sealed (five roster agents, pre-message cycle, post-message lock + toast) |
+| L2 | L0–L6 layered prompts + fragment budgets | System + agent prompts + `do-harness/prompts/` | **Mapped (partial budgets)** — L0–L6 inject map implementable; named maxBytes fragment registry still optional later |
+| L3 | Always-on TS harness factories | Rust tool registry + plugins/hooks + `register_tool_pack` | **Re-express** — no TS factories ([hard-limits](./grok-build/hard-limits.md)); M3 needed **no** new tool packs |
 | L4 | Progressive skill/MCP catalog | Skill tool + `SkillDiscoveryReminder`; MCP search/use; [progressive-skills.md](./progressive-skills.md) | **Mapped (extension)** — M2 progressive/curated default on all five roles; firehose opt-in; MCP via `search_tool`/`use_tool` (no BM25 skill_search product tools) |
-| L5 | Continuation coordinator | `update_goal`, plan mode, `todo_write`, task + [continuation.md](./continuation.md) + PostToolUse nudge | **Partial** — priority policy + thrash-safe hooks (M2 F-M2-CONT); full settle inject = optional later |
-| L6 | Guided blocks `[GATE:…]` | Permissions + PreToolUse hooks | **Partial** — hooks exist; guided shape product-wide = **`"gap"`** (M0 proof / M2) |
-| L7 | CodeGraph lean tools | `xai-codebase-graph` + MCP `do-codegraph` | **Mapped (extension)** — M3 MCP-first explore/impact (`docs/codegraph.md`, `verify-codegraph.sh` / VAL-M3-CG-001); `tool_pack` deferred |
-| L8 | Side-ask / intake default | `ask_user_question`, agent profiles | **Partial** — intake profile pending; dual-stream UI = **`"gap"`** |
-| L9 | `.piness/` workspace disk | Session dir + plan/goal tools | **Map** — different layout; document contract |
+| L5 | Continuation coordinator | `update_goal`, plan mode, `todo_write`, task + [continuation.md](./continuation.md) + PostToolUse nudge | **Mapped (hooks)** — priority policy + thrash-safe hooks (M2); optional crate coordinator only if races reappear |
+| L6 | Guided blocks `[GATE:…]` | Permissions + PreToolUse hooks + role prompts | **Mapped (product)** — M2 product default (`[GATE: …]` + **Do this instead**); path-policy + env-expose + dangerous-shell |
+| L7 | CodeGraph lean tools | `xai-codebase-graph` + MCP `do-codegraph` | **Mapped (MCP)** — M3 sealed (`docs/codegraph.md`, `verify-codegraph.sh` / VAL-M3-CG-001); `tool_pack` deferred |
+| L8 | Side-ask / intake default | `ask_user_question`, agent profiles | **Partial** — intake agent exists; dual-stream UI = **`"gap"`** (parking lot) |
+| L9 | `.piness/` workspace disk | Session dir + plan/goal tools under `.do/` + `~/.config/do` | **Mapped (contract)** — [workspace.md](./workspace.md) continuum under CFG roots |
 | L10 | Overlay-first / fork hygiene | Full fork under `do/` | **Process** — FORK policy (F-DOC-004) |
-| L11 | Node/OpenTUI | Rust/ratatui pager | **Accept** — no OpenTUI port M0–M1 |
+| L11 | Node/OpenTUI | Rust/ratatui pager | **Accept** — no OpenTUI port M0–M3 |
 | L12 | Patch mergeability | Surgical crate patches | **Process** — patch-matrix crate log |
-| **L13** | OpenCode-like model assignment | Multi-`[model.*]` + subagent resolution | **Registry exists**; assignment UX / YAML wire = **partial → M1** |
+| **L13** | OpenCode-like model assignment | Multi-`[model.*]` + subagent resolution + YAML apply | **Mapped (apply wire)** — M1 `apply-models.py` + role re-pin only while unlocked; stock TOML remains runtime SoT |
 
 ---
 
@@ -58,7 +58,7 @@ Source group table: `/home/datht/code/pi-ness/packages/piness-core/src/native/RE
 | **mcp-client** | `native/mcp-client/` | Cap enabled tools; discover then call | `SearchTool` / `UseTool`; `xai-grok-mcp/`; bridge `xai-grok-tools/src/bridge.rs` | **Mapped** — use progressive MCP ([patterns](./grok-build/patterns.md) § MCP) |
 | **tool-alias** | `native/tool-alias/` | Alias names → canonical tools | OpenCode/Codex namespaces + `ToolServerConfig` name overrides | **Partial** — multi-namespace IDs; no pi alias layer |
 | **unified-read** | `native/unified-read/` | Single read surface (file/dir limits) | `ReadFileTool`, `ListDirTool`, concise variants | **Mapped** — use GrokBuild read/list |
-| **hashline** | `native/hashline/` | Hash-anchored edit grammar | `GrokBuildHashline:*` (`hashline_read/edit/grep`); `FileToolset::Hashline`; product default via `do-harness/config.toolset.toml` + [hashline.md](./hashline.md) | **Mapped (product default)** — M3 F-M3-HASH / VAL-M3-HASH-001; stock Rust Default still Standard until TOML overlay; rollback `file_toolset = "standard"` |
+| **hashline** | `native/hashline/` | Hash-anchored edit grammar | `GrokBuildHashline:*` (`hashline_read/edit/grep`); `FileToolset::Hashline`; product default via `do-harness/config.toolset.toml` + [hashline.md](./hashline.md) | **Mapped (product default)** — M3 **sealed** F-M3-HASH / VAL-M3-HASH-001; stock Rust Default still Standard until TOML overlay; rollback `file_toolset = "standard"` |
 | **ask-user** | `native/ask-user/` | Structured user questions | `AskUserQuestionTool` (`ToolKind::AskUser`) | **Mapped** |
 | **lsp** | `native/lsp/` | Language server client | `LspTool` (`ToolKind::Lsp`) | **Mapped** |
 | **codegraph** (ext) | `packages/piness-ext-codegraph/` | Lean explore/impact tools | Crate `xai-codebase-graph/` + MCP server `do-harness/codegraph/` (`codegraph_explore` / `codegraph_impact`); [codegraph.md](./codegraph.md) | **Mapped (MCP)** (L7 / VAL-M3-CG-001) |
@@ -68,7 +68,7 @@ Source group table: `/home/datht/code/pi-ness/packages/piness-core/src/native/RE
 | pi-ness module | Path (pi-ness) | Idea | Grok / do surface | Status |
 |----------------|----------------|------|-------------------|--------|
 | **permission** | `native/permission/` | Rule engine + guided deny | `xai-grok-workspace/src/permission/` (policy, auto_mode, rules, shell_access) | **Mapped** — compose with hooks |
-| **guided-block** | `native/guided-block.ts` | `[GATE:…]` + Do this instead | PreToolUse hooks; product message shape **`"gap"`** until F-EXT-002 + M2 | **Partial** (L6) |
+| **guided-block** | `native/guided-block.ts` | `[GATE:…]` + Do this instead | PreToolUse hooks + product gate packs (`do-harness` path-policy / env-expose / dangerous-shell) | **Mapped (product)** (L6 / M2) |
 | **hooks/** (deny-shell-edit, path-policy, doom-loop, env-mask, read-policy, shell-strategy, deny-model-new) | `native/hooks/*` | Always-on safety filters | `xai-grok-hooks/` + `HookEvent::*`; do-harness hooks | **Mapped** as pattern — re-express per hook, not port TS |
 | **role-tools / subagent-guard** | `native/role-tools/` | Role tool floors | Agent profiles + `ToolServerConfig` / capability filters by `ToolKind` | **Partial** — subagent-strong; primary-session floors = L1 product |
 
@@ -79,7 +79,7 @@ Source group table: `/home/datht/code/pi-ness/packages/piness-core/src/native/RE
 | **workspace** | `native/workspace/` | Disk continuum under `.piness/` | Session dirs + plan files; native plan/goal/todo tools | **Map layout** (L9) — semantics differ |
 | **goal** | `native/goal/` | Goals, milestones, progress | `UpdateGoalTool` + classifier; config goal model pools | **Mapped** — use `update_goal` |
 | **continuum** | `native/continuum/` | Shared goal/todo status helpers | Compose goal + `TodoWriteTool` | **Compose** |
-| **continuation-coordinator** | `native/continuation-coordinator/` | Priority: interrupt→streak→goal→plan→workflow→todo | Separate tools only | **`"gap"`** unified coordinator (L5 / M2) |
+| **continuation-coordinator** | `native/continuation-coordinator/` | Priority: interrupt→streak→goal→plan→workflow→todo | Compose native tools + PostToolUse nudge ([continuation.md](./continuation.md)) | **Mapped (hooks)** (L5 / M2); full crate coordinator optional later |
 | **interrupt-tracker** | `native/interrupt-tracker/` | Interrupt streaks for continuation | Session/runtime signals; no dedicated product module | **`"gap"`** (feeds L5) |
 | **workflow** | `native/workflow/` | Workflow mode / phase tools | Plan mode enter/exit + product policy | **Partial** |
 | **method** | `native/method/` | Method / BMAD-style routing | Skills + agents | **Partial** — skill/agent, not first-class method engine |
@@ -137,7 +137,7 @@ pi-ness L0–L6 (from `/home/datht/code/pi-ness/docs/prompt-system.md` and do [p
 
 | Concept | pi-ness | Grok | do | Status |
 |---------|---------|------|-----|--------|
-| Role as primary session control | `getActiveMainRole` / `setActiveMainRole` | Subagent roles strong; primary weaker | Product Tab cycle + lock (M1) | **`"gap"`** primary machine |
+| Role as primary session control | `getActiveMainRole` / `setActiveMainRole` | Subagent roles strong; primary + Tab lock | Product Tab cycle + lock (M1 sealed) | **Mapped** primary machine (pre-message only) |
 | Role bodies | `prompts/roles/*` | Agent markdown / role TOML `prompt_file` | `do-harness/agents/`, prompts | **Mapped** path |
 | Tool/skill deny floors | Role routing + permission | Permissions + agent toolsets + hooks | do-harness + permission rules | **Partial** |
 | Subagent spawn | Role-aware spawn | `TaskTool` + `xai-grok-subagent-resolution` | Use stock; pin models via L13 | **Mapped** |
@@ -155,7 +155,7 @@ pi-ness L0–L6 (from `/home/datht/code/pi-ness/docs/prompt-system.md` and do [p
 | **Plan** | plans under workspace / continuum | `EnterPlanModeTool` / `ExitPlanModeTool`; plan files | Paired mode — do not reinvent | **Mapped** |
 | **Todo** | todos.json / continuum helpers | `TodoWriteTool` (`ToolKind::Plan`); OpenCode `todowrite` | | **Mapped** |
 | **Workflow** | `native/workflow/` | Plan mode + skills + product policy | No single workflow engine | **Partial** |
-| **Continuation priority** | continuation-coordinator | Compose goal/plan/todo/task | Unified coordinator | **`"gap"`** (L5) |
+| **Continuation priority** | continuation-coordinator | Compose goal/plan/todo/task + hooks | Priority policy shipped M2 | **Mapped (hooks)** (L5) |
 | **Interrupt / streak** | interrupt-tracker | Runtime interrupt; no product module | Feeds L5 | **`"gap"`** |
 | **Scheduler / monitor** | (less central in pi-ness native list) | Scheduler\* tools, `MonitorTool` | Adopt grok patterns | **Mapped** (gained from grok) |
 | **Task / subagent** | barrier + isolation | `TaskTool`, wait/kill/output | | **Mapped** |
@@ -174,9 +174,9 @@ Disk layout contract: [workspace.md](./workspace.md) (M1 non-stub) + L9.
 | Default model | Default provider model | `[models] default` | `models.default` | **Mapped** |
 | api_backend / base_url | Provider config | Per-model fields (user-guide §11) | YAML registry fields | **Mapped** |
 | Subagent model resolution | Agent model pins | **spawn > role > persona > parent** (`xai-grok-subagent-resolution`) | Must respect this chain | **Mapped** |
-| Role → model pin | `agent.model` / OpenCode table | `[subagents.roles.*.model]`, agent frontmatter `model` | `assignment.<role>` in YAML + `scripts/apply-models.sh` | **Partial** — apply script ships (M1); binary auto-apply later |
+| Role → model pin | `agent.model` / OpenCode table | `[subagents.roles.*.model]`, agent frontmatter `model` | `assignment.<role>` in YAML + `scripts/apply-models.py` | **Mapped (apply)** — M1 sealed; binary auto-apply optional later |
 | Reasoning effort | effort on agent | `reasoning_effort` on role/persona | `assignment.<role>.effort` (schema) | **Partial** |
-| Primary-session model from role | Tab role + model | Weak primary role machine | Apply assignment only while role switch allowed | **`"gap"`** wire + lock (M1) |
+| Primary-session model from role | Tab role + model | Role switch + model re-resolve gate | Apply assignment only while role switch allowed | **Mapped** wire + lock (M1 sealed) |
 | Competing second registry | — | — | **Forbidden** — YAML overlays; TOML remains runtime SoT | **Policy** |
 
 ### 6.1 Assignment flow (target)
@@ -231,21 +231,20 @@ Full namespace/kind tables: [native-tools.md](./grok-build/native-tools.md).
 
 ---
 
-## 9. Explicit `"gap"` register
+## 9. Explicit `"gap"` register (remaining after M3 seal)
 
-| Gap | L* | Milestone | Preferred path |
-|-----|----|-----------|----------------|
-| Primary-session Tab/Shift+Tab role cycle + post-first-message lock | L1 | M1 | agent + config; optional crate for keybind |
-| Named L0–L6 fragment registry + maxBytes | L2 | M1 | prompts + plugin; crate if needed |
-| TS `NATIVE_HARNESS_EXTENSION_FACTORIES` | L3 | — | **Cannot port** — re-express via plugin/hook/tool_pack |
-| `skill_search` / `skill_load` dynamic catalog | L4 | M1–M2 | config + skill; optional crate |
-| Unified continuation coordinator | L5 | M2 | hook first; crate if races |
-| Product-wide guided-block denial shape | L6 | M0 proof + M2 | hook (+ tools-api only if needed) |
-| Lean CodeGraph agent tools | L7 | M3 | MCP / tool_pack (crate graph exists) |
-| Side-ask dual stream UI | L8 | later | defer TUI; intake agent first |
-| `.piness/` layout parity | L9 | M0–M1 | document map onto `.grok` / thin `.do/` |
-| do YAML assignment auto-apply | L13 | M1 | config + agent frontmatter |
-| OpenTUI / Node harness port | L11 | never M0–M1 | defer |
+Shipped gaps removed from this register live under [backlog-m1-m3.md](./backlog-m1-m3.md) exit criteria and [CHANGELOGS.md](../CHANGELOGS.md).
+
+| Gap | L* | Status / milestone | Preferred path |
+|-----|----|--------------------|----------------|
+| Named L0–L6 fragment registry + maxBytes | L2 | Partial after M1 map | prompts + plugin; crate if needed |
+| TS `NATIVE_HARNESS_EXTENSION_FACTORIES` | L3 | Never | **Cannot port** — re-express via plugin/hook/tool_pack |
+| `skill_search` / `skill_load` BM25 catalog | L4 | Parking lot (M2 progressive done without BM25) | config + skill; optional crate |
+| Full crate continuation coordinator | L5 | Optional (hooks shipped M2) | crate only if multi-lane races reappear |
+| CodeGraph in-process `tool_pack` | L7 | Deferred (MCP shipped M3) | `register_tool_pack` if MCP insufficient |
+| Side-ask dual stream UI | L8 | Parking lot | defer TUI; intake agent first |
+| OpenCode-parity permission rules YAML | — | Parking lot | after M2 floors |
+| OpenTUI / Node harness port | L11 | Never M0–M3 | defer |
 
 ---
 

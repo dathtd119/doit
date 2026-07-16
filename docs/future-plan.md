@@ -24,9 +24,10 @@ Long-lived ideas for **do**. Root `AGENTS.md` **Future Plan** stays short; promo
 
 ## Native power tools
 
-- CodeGraph native tool pack or lean MCP (L7)
-- Hashline default policy as product default
-- LSP-driven refactors as first-class workflows
+- **Done (F-M3-CG / VAL-M3-CG-001):** CodeGraph MCP-first product surface wrapping `xai-codebase-graph` explore/impact — sealed F-M3-SHIP
+- **Done (F-M3-HASH / VAL-M3-HASH-001):** Hashline product default edit policy (`file_toolset = "hashline"` overlay + agent floors + rollback) — sealed F-M3-SHIP
+- Optional later: CodeGraph in-process `tool_pack` if MCP latency/install friction forces it
+- LSP-driven refactors as first-class workflows (still parking lot)
 
 ## Product / process
 

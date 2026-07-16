@@ -6,7 +6,7 @@ Compact status lives in root [AGENTS.md](../AGENTS.md) (may be gitignored); **th
 
 ## Where we are
 
-**do** is a private/local fork of Grok Build intended to absorb pi-ness harness-control ideas without porting OpenTUI. **M0, M1, PRIV, CFG, and M2 are sealed.** Next product track is **M3** per [backlog-m1-m3.md](./backlog-m1-m3.md).
+**do** is a private/local fork of Grok Build intended to absorb pi-ness harness-control ideas without porting OpenTUI. **M0, M1, PRIV, CFG, M2, and M3 are sealed.** Mission backlog [backlog-m1-m3.md](./backlog-m1-m3.md) exit criteria for M1–M3 are **checkable as done**.
 
 ### M0 sealed (summary)
 
@@ -67,12 +67,23 @@ Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-CFG-SHIP.
 
 M2 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-M2-SHIP.
 
+### M3 sealed (native power tools)
+
+| Surface | Evidence |
+|---------|----------|
+| CodeGraph MCP product surface | `7a55c75` — MCP-first `do-codegraph` wrapping `xai-codebase-graph`; explore/impact/stats; [codegraph.md](./codegraph.md); `verify-codegraph.sh` VAL-M3-CG-001 |
+| Hashline default edit policy | `ef06622` — product `file_toolset = "hashline"` overlay; worker floors/guidance; rollback to `"standard"`; [hashline.md](./hashline.md); `verify-hashline.sh` VAL-M3-HASH-001 |
+| Tool packs | None required M3 — no silent crate sprawl; MCP + config placement documented |
+| Docs / capability map | [capability-map.md](./capability-map.md) refreshed post-M3; backlog exit criteria all checked |
+
+M3 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-M3-SHIP.
+
 ### In progress / next
 
 | Item | Track | Notes |
 |------|-------|-------|
-| CodeGraph product surface | **M3** | MCP-first vs tool_pack wrapping `xai-codebase-graph` |
-| Hashline default edit policy | **M3** | Prefer hashline namespace where safe |
+| Parking-lot promotions only | post-mission | Goal-as-mission, side-ask, BM25 skill_search, multi-provider auth, permission-rules YAML |
+| Optional polish | UX / L7 | Proactive first-message lock toast; CodeGraph `tool_pack` if MCP friction forces it |
 
 ### True-now constraints
 
@@ -82,13 +93,16 @@ M2 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full
 - Role cycle remains **pre-message only** (no mid-session hop)
 - Guided denials for do-owned gates: **`[GATE: …]` + Do this instead**
 - Continuation nudges re-surface **one** highest open lane (no continuum dump thrash)
+- Power nav: prefer CodeGraph MCP explore/impact before full-repo grep thrash
+- Product edit default: hashline namespace when `file_toolset = "hashline"` (stock Default still Standard until TOML merge)
 - SpaceXAI telemetry fail-closed; external OTEL optional
 - BYOK / `preferred_method=api_key` does not force grok.com OAuth
 - Commit every milestone; handoff needs `commitId` + `repoPath`
 
 ## Near-term sequence
 
-1. **M3** CodeGraph + hashline default + final seal
+1. **Parking lot only** — promote from [future-plan.md](./future-plan.md) when product chooses next work
+2. Optional UX / tool_pack polish listed above
 
 ## Links
 
@@ -96,9 +110,12 @@ M2 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full
 - [models-and-config.md](./models-and-config.md)
 - [backlog-m1-m3.md](./backlog-m1-m3.md)
 - [patch-matrix.md](./patch-matrix.md)
+- [capability-map.md](./capability-map.md)
 - [prompt-system.md](./prompt-system.md)
 - [workspace.md](./workspace.md)
 - [progressive-skills.md](./progressive-skills.md)
+- [codegraph.md](./codegraph.md)
+- [hashline.md](./hashline.md)
 - [../FORK.md](../FORK.md)
 - [grok-build/README.md](./grok-build/README.md)
 - [future-plan.md](./future-plan.md)

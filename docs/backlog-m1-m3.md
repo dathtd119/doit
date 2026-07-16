@@ -1,6 +1,6 @@
 # Backlog: M1–M3
 
-**Status:** M0 **sealed**. **M1 sealed** (F-M1-SHIP / VAL-M1-*). **PRIV sealed** (F-PRIV-SHIP / VAL-PRIV-NOTEL|AUTH|SHIP-001). **CFG sealed** (F-CFG-SHIP / VAL-CFG-HOME|PROJECT|SHIP-001). **M2 sealed** (F-M2-SHIP / VAL-M2-CONT|GATE|SKILL|PERM|SHIP-001, 2026-07-16). Next: **M3**.  
+**Status:** M0 **sealed**. **M1 sealed** (F-M1-SHIP / VAL-M1-*). **PRIV sealed** (F-PRIV-SHIP / VAL-PRIV-NOTEL|AUTH|SHIP-001). **CFG sealed** (F-CFG-SHIP / VAL-CFG-HOME|PROJECT|SHIP-001). **M2 sealed** (F-M2-SHIP / VAL-M2-CONT|GATE|SKILL|PERM|SHIP-001). **M3 sealed** (F-M3-SHIP / VAL-M3-CG|HASH|SHIP-001, 2026-07-16). Mission backlog M1–M3 **complete**.  
 **Purpose:** Ordered product backlog after M0 (limitations, patch matrix, proof extension).  
 **Sources of truth for gaps:** [limitations.md](./limitations.md), [patch-matrix.md](./patch-matrix.md), [capability-map.md](./capability-map.md), [models-and-config.md](./models-and-config.md), [prompt-system.md](./prompt-system.md).
 
@@ -148,10 +148,10 @@ Canonical six-step seed (keep in sync with [prompt-system.md](./prompt-system.md
 
 ### M3 exit criteria
 
-- [x] CodeGraph (or MCP) usable as default power navigation path (`verify-codegraph.sh` / VAL-M3-CG-001)  
-- [x] Hashline is product default edit policy with override (`verify-hashline.sh` / VAL-M3-HASH-001)  
-- [ ] Any new tool packs documented; no silent crate sprawl  
-- [ ] Docs + CHANGELOGS + commit with `commitId` / `repoPath`
+- [x] CodeGraph (or MCP) usable as default power navigation path (`verify-codegraph.sh` / VAL-M3-CG-001 / `7a55c75`)  
+- [x] Hashline is product default edit policy with override (`verify-hashline.sh` / VAL-M3-HASH-001 / `ef06622`)  
+- [x] Any new tool packs documented; no silent crate sprawl (**none required** — MCP-first CodeGraph; hashline via config/agent overlay; no crate tool_pack this milestone)  
+- [x] Docs + CHANGELOGS + commit with `commitId` / `repoPath` (**F-M3-SHIP** / VAL-M3-SHIP-001)
 
 ---
 
