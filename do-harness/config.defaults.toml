@@ -1,0 +1,17 @@
+# Product recommended privacy / telemetry defaults.
+# Merge into ~/.config/doit/config.toml and/or project .doit/config.toml.
+#
+# Belt-and-suspenders with crate P-NOTEL (fail-closed SpaceXAI analytics /
+# Mixpanel / internal OTLP / trace upload). Runtime TOML alone cannot re-enable
+# product analytics when P-NOTEL is applied; these keys still document operator
+# intent and cover stock paths that read config before crate pins.
+#
+# External OTEL (GROK_EXTERNAL_OTEL + OTEL_*) remains optional and separate.
+# See docs/patch-matrix.md (P-NOTEL-01..06) and PRIV seal notes.
+
+[features]
+telemetry = false
+
+[telemetry]
+trace_upload = false
+mixpanel_enabled = false

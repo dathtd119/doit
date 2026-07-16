@@ -29,6 +29,7 @@ See root [`AGENTS.md`](../AGENTS.md) Customization Order and
 | `scripts/verify-codegraph.sh` | **F-M3-CG / VAL-M3-CG-001** design + fixture explore/impact |
 | `fixtures/codegraph/` | Small Rust sample for explore/impact contract |
 | `config.toolset.toml` | **F-M3-HASH / VAL-M3-HASH-001** product recommended `[toolset] file_toolset = "hashline"` fragment |
+| `config.defaults.toml` | Product recommended privacy defaults (`[features] telemetry = false`, `[telemetry]` off) |
 | `scripts/verify-hashline.sh` | **F-M3-HASH / VAL-M3-HASH-001** default policy + agent apply + rollback doc |
 
 ## Discovery paths (stock grok)
@@ -414,6 +415,27 @@ merge the fragment into `~/.config/doit/config.toml` or project `.doit/config.to
 bash do-harness/scripts/verify-hashline.sh
 # expect: exit 0 and "VAL-M3-HASH-001: PASS"
 ```
+
+## Privacy / telemetry defaults (PRIV belt-and-suspenders)
+
+Fragment: [`config.defaults.toml`](./config.defaults.toml)
+
+Product crate patches (**P-NOTEL**) already fail-close SpaceXAI analytics, Mixpanel,
+internal OTLP, and trace upload. Operators should still merge the TOML defaults so
+live `~/.config/doit/config.toml` matches product intent:
+
+```toml
+[features]
+telemetry = false
+
+[telemetry]
+trace_upload = false
+mixpanel_enabled = false
+```
+
+Merge into `~/.config/doit/config.toml` (or project `.doit/config.toml`). Do not
+duplicate tables if `[features]` / `[telemetry]` already exist — set the keys
+instead. External OTEL via `GROK_EXTERNAL_OTEL` + `OTEL_*` is unchanged.
 
 ## Non-goals
 
