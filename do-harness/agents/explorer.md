@@ -64,7 +64,7 @@ When done, return:
 - **DO** use `read_file`, `list_dir`, `grep`, `lsp`, light shell (status/ls).
 - **DO** use MCP `search_tool` / `use_tool` when available for external docs.
 - **DO** prefer **CodeGraph** MCP (`codegraph_explore` / `codegraph_impact` via
-  `search_tool` → `use_tool` when `do-codegraph` is registered) for “where is X /
+  `search_tool` → `use_tool` when `doit-codegraph` is registered) for “where is X /
   who calls X” before full-repo grep thrash. See `docs/codegraph.md`.
 - **DON'T** edit files or own plan/goal/todo.
 - **DON'T** spawn implementers; report back to the parent.

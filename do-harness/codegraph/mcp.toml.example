@@ -1,7 +1,7 @@
-# Example MCP registration for do CodeGraph (F-M3-CG / VAL-M3-CG-001).
+# Example MCP registration for doit CodeGraph (F-M3-CG / VAL-M3-CG-001 / VAL-CFG-006).
 #
-# Merge into user ~/.config/do/config.toml or project .doit/config.toml.
-# Replace /ABS/PATH/TO/do with the real do repo path (or a deployed checkout).
+# Merge into user ~/.config/doit/config.toml or project .doit/config.toml.
+# Replace /ABS/PATH/TO/doit with the real doit repo path (or a deployed checkout).
 #
 # Binary: cargo build -p xai-codebase-graph --bin code-graph
 # Docs: docs/codegraph.md
@@ -9,11 +9,11 @@
 # Agents discover tools via progressive MCP:
 #   search_tool → use_tool  (do-harness/config.skills.yaml)
 
-[mcp_servers.do-codegraph]
+[mcp_servers.doit-codegraph]
 command = "python3"
 args = [
-  "/ABS/PATH/TO/do/do-harness/codegraph/mcp_server.py",
+  "/ABS/PATH/TO/doit/do-harness/codegraph/mcp_server.py",
 ]
 enabled = true
 # Optional: pin binary + cache without relying on PATH / cwd
-# env = { DO_CODEGRAPH_BIN = "/ABS/PATH/TO/do/target/debug/code-graph", DO_CODEGRAPH_REPO = "/ABS/PATH/TO/do" }
+# env = { DO_CODEGRAPH_BIN = "/ABS/PATH/TO/doit/target/debug/code-graph", DO_CODEGRAPH_REPO = "/ABS/PATH/TO/doit" }

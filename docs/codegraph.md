@@ -20,13 +20,13 @@
 | `crates/codegen/xai-codebase-graph/src/bin/code_graph.rs` | CLI: `index`, `definition`, `references`, `stats` |
 | `crates/codegen/xai-grok-shell/src/extensions/code_nav.rs` | ACP extension methods (editor path; web/capability gated) |
 | `crates/codegen/xai-grok-workspace/src/file_system/codebase_index.rs` | Workspace FS integration for index manager |
-| Stock MCP | `search_tool` / `use_tool` + `[mcp_servers.*]` in `~/.config/do/config.toml` or project `.do/config.toml` |
+| Stock MCP | `search_tool` / `use_tool` + `[mcp_servers.*]` in `~/.config/doit/config.toml` or project `.doit/config.toml` |
 
 **Placement:** `plugin` / MCP wrapping local index first; optional `tool_pack` later if MCP latency or install friction forces it (patch-matrix L7). **No crate patch in this ship.**
 
 ## Product tools (MCP)
 
-Server: `do-harness/codegraph/mcp_server.py` (stdio). Registered name: **`do-codegraph`**.
+Server: `do-harness/codegraph/mcp_server.py` (stdio). Registered name: **`doit-codegraph`**.
 
 | MCP tool | Agent intent | Underlying `code-graph` |
 |----------|--------------|-------------------------|
@@ -47,7 +47,7 @@ Optional args: `repo` (default cwd), `symbol`, `file`+`row`+`col` for position l
 3. Add MCP server (example: `do-harness/codegraph/mcp.toml.example`) into user or project config:
 
 ```toml
-[mcp_servers.do-codegraph]
+[mcp_servers.doit-codegraph]
 command = "python3"
 args = ["{repo}/do-harness/codegraph/mcp_server.py"]
 enabled = true

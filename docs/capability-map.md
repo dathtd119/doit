@@ -36,7 +36,7 @@
 | L4 | Progressive skill/MCP catalog | Skill tool + `SkillDiscoveryReminder`; MCP search/use; [progressive-skills.md](./progressive-skills.md) | **Mapped (extension)** — M2 progressive/curated default on all five roles; firehose opt-in; MCP via `search_tool`/`use_tool` (no BM25 skill_search product tools) |
 | L5 | Continuation coordinator | `update_goal`, plan mode, `todo_write`, task + [continuation.md](./continuation.md) + PostToolUse nudge | **Mapped (hooks)** — priority policy + thrash-safe hooks (M2); optional crate coordinator only if races reappear |
 | L6 | Guided blocks `[GATE:…]` | Permissions + PreToolUse hooks + role prompts | **Mapped (product)** — M2 product default (`[GATE: …]` + **Do this instead**); path-policy + env-expose + dangerous-shell |
-| L7 | CodeGraph lean tools | `xai-codebase-graph` + MCP `do-codegraph` | **Mapped (MCP)** — M3 sealed (`docs/codegraph.md`, `verify-codegraph.sh` / VAL-M3-CG-001); `tool_pack` deferred |
+| L7 | CodeGraph lean tools | `xai-codebase-graph` + MCP `doit-codegraph` | **Mapped (MCP)** — M3 sealed (`docs/codegraph.md`, `verify-codegraph.sh` / VAL-M3-CG-001); `tool_pack` deferred |
 | L8 | Side-ask / intake default | `ask_user_question`, agent profiles | **Partial** — intake agent exists; dual-stream UI = **`"gap"`** (parking lot) |
 | L9 | `.piness/` workspace disk | Session dir + plan/goal tools under `.do/` + `~/.config/do` | **Mapped (contract)** — [workspace.md](./workspace.md) continuum under CFG roots |
 | L10 | Overlay-first / fork hygiene | Full fork under `do/` | **Process** — FORK policy (F-DOC-004) |
@@ -109,7 +109,7 @@ Source group table: `/home/datht/code/pi-ness/packages/piness-core/src/native/RE
 | **Roles (main session)** | `packages/piness-core/src/roles.ts`, `session-role.ts`, `prompts/roles/` | Agent discovery; subagent roles/personas; primary Tab cycle | **Partial** — L1; lock policy documented M0, implement M1 |
 | **Role routing** | `role-routing.ts` | Subagent type/role model pools; do `assignment:` | **Partial** — L13 wire M1 |
 | **Side-ask** | `docs/side-ask.md`, TUI | No dual-stream product | **`"gap"`** (L8) |
-| **CodeGraph package** | `piness-ext-codegraph` | `xai-codebase-graph` + MCP `do-codegraph` ([codegraph.md](./codegraph.md)) | **Mapped (MCP)** (L7) |
+| **CodeGraph package** | `piness-ext-codegraph` | `xai-codebase-graph` + MCP `doit-codegraph` ([codegraph.md](./codegraph.md)) | **Mapped (MCP)** (L7) |
 | **TUI / OpenTUI** | `piness-tui` | `xai-grok-pager` / ratatui | **Accept Rust** (L11); no port |
 
 ---

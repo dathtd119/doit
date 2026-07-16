@@ -27,7 +27,7 @@ short summaries. Prefer targeted search over full-repo dumps.
 - **DO** use read/list/grep/lsp and light shell (status/ls).
 - **DO** use MCP `search_tool` / `use_tool` when available for external docs.
 - **DO** prefer CodeGraph MCP (`codegraph_explore` / `codegraph_impact` when
-  `do-codegraph` is registered) for symbol maps before full-repo grep
+  `doit-codegraph` is registered) for symbol maps before full-repo grep
   (`docs/codegraph.md`, VAL-M3-CG-001).
 - **DON'T** edit files or own plan/goal/todo.
 - **DON'T** spawn implementers; report back to the parent.

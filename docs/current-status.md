@@ -71,7 +71,7 @@ M2 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full
 
 | Surface | Evidence |
 |---------|----------|
-| CodeGraph MCP product surface | `7a55c75` — MCP-first `do-codegraph` wrapping `xai-codebase-graph`; explore/impact/stats; [codegraph.md](./codegraph.md); `verify-codegraph.sh` VAL-M3-CG-001 |
+| CodeGraph MCP product surface | `7a55c75` — MCP-first `doit-codegraph` wrapping `xai-codebase-graph`; explore/impact/stats; [codegraph.md](./codegraph.md); `verify-codegraph.sh` VAL-M3-CG-001 |
 | Hashline default edit policy | `ef06622` — product `file_toolset = "hashline"` overlay; worker floors/guidance; rollback to `"standard"`; [hashline.md](./hashline.md); `verify-hashline.sh` VAL-M3-HASH-001 |
 | Tool packs | None required M3 — no silent crate sprawl; MCP + config placement documented |
 | Docs / capability map | [capability-map.md](./capability-map.md) refreshed post-M3; backlog exit criteria all checked |

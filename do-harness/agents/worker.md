@@ -52,7 +52,7 @@ trees (`pi-ness`, upstream `grok-build`).
 ## CodeGraph
 
 When symbols are known, prefer **CodeGraph** impact (`codegraph_impact` via MCP
-`search_tool` / `use_tool` when `do-codegraph` is enabled, or CLI `code-graph
+`search_tool` / `use_tool` when `doit-codegraph` is enabled, or CLI `code-graph
 references`) before broad grep thrash on renames/API changes. Design + enable:
 `docs/codegraph.md` (F-M3-CG / VAL-M3-CG-001).
 

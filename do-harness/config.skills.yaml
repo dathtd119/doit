@@ -55,7 +55,7 @@ role_mode:
   orchestrator: curated
   worker: curated
 
-# Recommended stock TOML fragments (merge into ~/.config/do/config.toml).
+# Recommended stock TOML fragments (merge into ~/.config/doit/config.toml).
 # Paths are examples — expand ~ and tune per machine. Empty ignore = no-op.
 recommended_toml:
   # Hide WIP / scratch skill trees entirely (not listed, not invocable).
@@ -75,12 +75,12 @@ mcp:
   policy: progressive_search_then_use
   # Do not inject every MCP schema every turn; search then use.
   dump_all_schemas: false
-  # M3 CodeGraph product MCP (F-M3-CG / VAL-M3-CG-001): register server
-  # [mcp_servers.do-codegraph] per do-harness/codegraph/mcp.toml.example;
+  # M3 CodeGraph product MCP (F-M3-CG / VAL-M3-CG-001 / VAL-CFG-006): register server
+  # [mcp_servers.doit-codegraph] per do-harness/codegraph/mcp.toml.example;
   # tools: codegraph_explore / codegraph_impact / codegraph_stats / codegraph_index.
   # Design: docs/codegraph.md — wraps xai-codebase-graph code-graph CLI (not tool_pack).
   codegraph:
-    server: do-codegraph
+    server: doit-codegraph
     tools:
       - codegraph_explore
       - codegraph_impact
@@ -101,7 +101,8 @@ mcp:
 firehose_opt_in:
   steps:
     - Set target agent frontmatter discoverSkills: true under do-harness/agents/
-    - Optionally expand [skills] paths / vendor trees in ~/.config/do/config.toml
-    - Reinstall agents to ~/.config/do/agents or project .doit/agents
+    - Optionally expand [skills] paths / vendor trees in ~/.config/doit/config.toml
+    - Reinstall agents to ~/.config/doit/agents or project .doit/agents
     - Revert before shared product demos
-  restore: Set discoverSkills: false (and empty skills: []) to return to progressive/curated
+  restore: >-
+    Set discoverSkills: false (and empty skills: []) to return to progressive/curated

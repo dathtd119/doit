@@ -26,7 +26,7 @@ Absolute paths below are preferred; crate paths without a prefix mean under `/ho
 | L4 | Progressive skill/MCP catalog (dynamic mode, not dump) | Skills listing + discovery reminders exist | May still firehose vs pi-ness `skill_search` / `skill_load` | Config/ignore + reminder tuning; patch skill prompt builder if needed |
 | L5 | Continuation coordinator (interrupt→streak→goal→plan→workflow→todo) | Goal classifier + plan mode + todos exist **separately** | No unified priority coordinator | SessionActor / hooks first; coordinator crate if multi-lane races |
 | L6 | Guided blocks `[GATE:…]` + “Do this instead” | Permissions + PreToolUse hooks | Denials less “teach the model” | Hooks + tool error shapes; small tools-api patch only if gate format needs it |
-| L7 | CodeGraph lean tools | `xai-codebase-graph` crate + MCP `do-codegraph` (M3 F-M3-CG) | Was: no lean agent surface; **shipped** MCP explore/impact | MCP productized; optional `tool_pack` later |
+| L7 | CodeGraph lean tools | `xai-codebase-graph` crate + MCP `doit-codegraph` (M3 F-M3-CG) | Was: no lean agent surface; **shipped** MCP explore/impact | MCP productized; optional `tool_pack` later |
 | L8 | Side-ask dual stream / intake default role | `ask_user_question`, modes, agent profiles | No side dual-stream product; intake profile pending proof | Intake agent first (F-EXT-001); dual-stream UI deferred |
 | L9 | Workspace disk state `.piness/` (L6 disk) | Session dir + plan.md + goals | Different layout/semantics | Product **`.do/`** + **`~/.config/do`** (CFG); document continuum contract |
 | L10 | Overlay-first without forking Pi | **This is a fork** of grok-build | Must own fork hygiene, rebases, branding | Fork policy + “do” identity; never modify sibling trees |
@@ -296,7 +296,7 @@ Lean semantic navigation package: `packages/piness-ext-codegraph/` (`explore`, `
 
 ### Gap
 
-~~Semantic nav not default agent path~~ **reduced** — MCP-first surface shipped; operators must register `[mcp_servers.do-codegraph]` and build `code-graph`. In-process `tool_pack` still deferred. Do not reinvent graph indexing from zero.
+~~Semantic nav not default agent path~~ **reduced** — MCP-first surface shipped; operators must register `[mcp_servers.doit-codegraph]` and build `code-graph`. In-process `tool_pack` still deferred. Do not reinvent graph indexing from zero.
 
 ### Preferred path
 

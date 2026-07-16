@@ -88,10 +88,10 @@ if [[ -f "$SERVER" ]]; then
   done
 fi
 
-if [[ -f "$EXAMPLE" ]] && grep -qF 'mcp_servers.do-codegraph' "$EXAMPLE"; then
-  ok "mcp.toml.example registers do-codegraph"
+if [[ -f "$EXAMPLE" ]] && grep -qF 'mcp_servers.doit-codegraph' "$EXAMPLE"; then
+  ok "mcp.toml.example registers doit-codegraph"
 else
-  fail "mcp.toml.example must register [mcp_servers.do-codegraph]"
+  fail "mcp.toml.example must register [mcp_servers.doit-codegraph]"
 fi
 
 # Syntax-check server (no stdio session)

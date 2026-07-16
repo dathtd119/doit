@@ -31,7 +31,7 @@ except ImportError:  # pragma: no cover - fail-open message for operators
     )
     raise
 
-mcp = FastMCP("do-codegraph")
+mcp = FastMCP("doit-codegraph")
 
 MISSING_BIN = (
     "CodeGraph: `code-graph` binary not found. "
