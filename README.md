@@ -17,9 +17,9 @@ This tree is a **private/local fork** of Grok Build (Rust: pager, shell, tools, 
 
 - **Harness control** on a native-rich base: roles, prompt layers, progressive catalogs, guided gates, workspace continuum, continuation
 - **Multi-model is required:** register N models; assign intake / orchestrator / explorer / worker / oracle like OpenCode agent model pins
-- Prefer **extension** (do-harness, `~/.config/do` + project `.do/`, plugins) before crate patches — then tool packs, then surgical patches, deep TUI last
+- Prefer **extension** (do-harness, `~/.config/doit` + project `.doit/`, plugins) before crate patches — then tool packs, then surgical patches, deep TUI last
 - **Dual config surface:**
-  - Stock **`~/.config/do/config.toml`** (`$GROK_HOME`) — native multi-model registry (runtime)
+  - Stock **`~/.config/doit/config.toml`** (`$GROK_HOME`) — native multi-model registry (runtime)
   - **`do-harness/config.models.yaml`** — product assignment overlay (apply → agent frontmatter)
 
 A small `SOURCE_REV` file at the root records the full monorepo commit SHA for the version of the upstream code last absorbed.
@@ -42,16 +42,16 @@ Fork policy, config root decision, and contribution rules: **[FORK.md](./FORK.md
 
 | Layer | Location | Role |
 |-------|----------|------|
-| User home + TOML | **`~/.config/do`** only when `GROK_HOME` unset | Multi-model `config.toml`, user agents/hooks/sessions |
-| Project discovery | **`.do/`** (agents, hooks, plan, config, skills, …) | Product install / discovery targets |
-| Product overlay | `do-harness/` in this repo | Source of truth for do identity; link/copy onto `.do/` and home |
+| User home + TOML | **`~/.config/doit`** only when `GROK_HOME` unset | Multi-model `config.toml`, user agents/hooks/sessions |
+| Project discovery | **`.doit/`** (agents, hooks, plan, config, skills, …) | Product install / discovery targets |
+| Product overlay | `do-harness/` in this repo | Source of truth for do identity; link/copy onto `.doit/` and home |
 | Override | **`GROK_HOME`** | Full user-home root replace (`DO_HOME` not wired) |
 
 Do **not** invent a second runtime registry the binary ignores. Map YAML → TOML + agent frontmatter. No silent default dual-read of `~/.grok`.
 
 ## Multi-model (accurate facts)
 
-Grok-build **already** supports multiple custom models in `~/.config/do/config.toml` (`[model.<name>]` × N, `[models] default`, api backends). Subagents resolve model as: **spawn override > role > persona > parent**.
+Grok-build **already** supports multiple custom models in `~/.config/doit/config.toml` (`[model.<name>]` × N, `[models] default`, api backends). Subagents resolve model as: **spawn override > role > persona > parent**.
 
 **do** adds product ergonomics: `do-harness/config.models.yaml` (registry + role assignment) mapping into stock TOML and agent frontmatter. See [docs/models-and-config.md](./docs/models-and-config.md). Gap vs OpenCode assignment UX is limitation **L13**.
 
@@ -86,7 +86,7 @@ cargo build -p doit --release                # release binary
 
 `bin/protoc` is a [dotslash](https://dotslash-cli.com/) wrapper that fetches protobuf `protoc` v29.3. Without `dotslash`, build scripts fail with `protoc command failed`.
 
-The product install package and binary are **`doit`** (mapped from upstream `xai-grok-pager-bin` / `xai-grok-pager`). Product default config home is **`~/.config/do`**; project discovery is **`.do/`** (see [FORK.md](./FORK.md) §4).
+The product install package and binary are **`doit`** (mapped from upstream `xai-grok-pager-bin` / `xai-grok-pager`). Product default config home is **`~/.config/doit`**; project discovery is **`.doit/`** (see [FORK.md](./FORK.md) §4).
 
 ## Quality / agent readiness
 
@@ -109,7 +109,7 @@ Dev container: [.devcontainer/](./.devcontainer/). Env template: [.env.example](
 - No external upstream PRs as the product path
 - English only; conventional commits; commit every milestone
 - Preserve Apache-2.0 + `THIRD-PARTY-NOTICES` / LICENSE from import
-- Local agent state (`AGENTS.md`, `plans/`, `.opencode/`, `.do/`, legacy `.grok/` if present) is **gitignored** — do not `git clean -fdx` or hard-reset without checking untracked work
+- Local agent state (`AGENTS.md`, `plans/`, `.opencode/`, `.doit/`, legacy `.grok/` if present) is **gitignored** — do not `git clean -fdx` or hard-reset without checking untracked work
 
 Full rules: [AGENTS.md](./AGENTS.md) (local). Fork policy: [FORK.md](./FORK.md).
 

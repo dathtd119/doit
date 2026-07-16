@@ -33,10 +33,10 @@ lane only. Lower lanes stay deferred until higher lanes clear.
 
 | Lane | Read / own with | Write with | Location (CFG) |
 |------|-----------------|------------|----------------|
-| Interrupt | Session/hook state | User cancel + hook recorder | Session-local `.do/continuation/` state file |
+| Interrupt | Session/hook state | User cancel + hook recorder | Session-local `.doit/continuation/` state file |
 | Streak | Hook counter `no_progress_streak` | PostToolUse progress detect | Same state file |
 | Goal | Goal UI / tool status | `update_goal` | Session goal handle (stock) |
-| Plan | Read plan file | `enter_plan_mode` / `exit_plan_mode` + edits | `<cwd>/.do/plan.md` |
+| Plan | Read plan file | `enter_plan_mode` / `exit_plan_mode` + edits | `<cwd>/.doit/plan.md` |
 | Workflow | Active skill/method pointer | Skills / plan phases | Project skills + plan phases (no dual DB) |
 | Todo | Todo tool / UI | `todo_write` | Session `TodoState` |
 | Specialist (support) | Task output | `task` / Agent(…) | Subagent session; parent owns continuum |
@@ -54,7 +54,7 @@ touch. Never paste full plan/goal/todo bodies into system/L0 each turn (L5 rule)
 | interrupt | `Continue lane: interrupt — resume after cancel; re-read goal then plan before new edits.` |
 | streak | `Continue lane: streak — no todo progress for N settles; re-plan or mark blocked; do not spin.` |
 | goal | `Continue lane: goal — re-read update_goal; next step must advance or complete the goal.` |
-| plan | `Continue lane: plan — re-read .do/plan.md; finish current phase before new scope.` |
+| plan | `Continue lane: plan — re-read .doit/plan.md; finish current phase before new scope.` |
 | workflow | `Continue lane: workflow — follow active method/skill phase; update todo when step done.` |
 | todo | `Continue lane: todo — focus in_progress item; mark completed with todo_write when done.` |
 
@@ -79,7 +79,7 @@ Prefixes used by the product hook engine (stable for fixtures):
 6. Else if open todos → **todo** (prefer the single `in_progress` item).
 7. Else idle: wait for user or close session cleanly.
 
-**Always:** re-read disk/session sources (`update_goal`, `.do/plan.md`, todos) —
+**Always:** re-read disk/session sources (`update_goal`, `.doit/plan.md`, todos) —
 do not trust chat memory alone after compact or long idle.
 
 ## Anti-thrash policy (binding)
@@ -116,7 +116,7 @@ do not trust chat memory alone after compact or long idle.
 3. If thrash rules suppress → exit 0 with no new nudge fingerprint.
 4. Else write compact `last_nudge` (lane + text) for operators / next resume; stdout JSON for scripted fixtures (runner may treat PostToolUse as passive — verify uses the engine directly).
 
-**Enablement:** install onto project `.do/hooks/` (see [do-harness/README.md](../do-harness/README.md)). Requires project hooks trust (`/hooks-trust`) like other project hooks.
+**Enablement:** install onto project `.doit/hooks/` (see [do-harness/README.md](../do-harness/README.md)). Requires project hooks trust (`/hooks-trust`) like other project hooks.
 
 **Disable:** remove the JSON from discovery, or set `DO_CONTINUATION_NUDGE=0`.
 
@@ -128,7 +128,7 @@ User cancels mid-turn while goal + todos open.
 
 1. Hook state marks interrupt.
 2. Priority → **interrupt**.
-3. Nudge: resume, re-read `update_goal` + `.do/plan.md`, then continue one todo.
+3. Nudge: resume, re-read `update_goal` + `.doit/plan.md`, then continue one todo.
 4. After resume clears interrupt flag → re-eval (likely **goal** or **todo**).
 
 ### 2. Goal owns plan and todos
@@ -139,7 +139,7 @@ Active goal "Ship F-M2-CONT", plan file has phases, todos open.
 
 ### 3. Plan after goal sealed
 
-Goal completed; `.do/plan.md` still has open phases.
+Goal completed; `.doit/plan.md` still has open phases.
 
 → **plan**. Finish or exit plan mode before raw todo thrash.
 

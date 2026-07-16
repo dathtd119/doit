@@ -16,8 +16,8 @@
 | Token | Meaning |
 |-------|---------|
 | Tool FQ / kind | Registered in `ToolRegistryBuilder::new()` — see [native-tools.md](./grok-build/native-tools.md) |
-| Config | `~/.config/do/config.toml` or project `.do/config.toml` |
-| Agent / persona | Discovery under `.do/agents/`, roles, personas |
+| Config | `~/.config/doit/config.toml` or project `.doit/config.toml` |
+| Agent / persona | Discovery under `.doit/agents/`, roles, personas |
 | Hook | PreToolUse / session hooks via `xai-grok-hooks` |
 | Plugin / skill | Plugin marketplace or skill discovery |
 | MCP | `search_tool` / `use_tool` + `xai-grok-mcp` |
@@ -38,7 +38,7 @@
 | L6 | Guided blocks `[GATE:…]` | Permissions + PreToolUse hooks + role prompts | **Mapped (product)** — M2 product default (`[GATE: …]` + **Do this instead**); path-policy + env-expose + dangerous-shell |
 | L7 | CodeGraph lean tools | `xai-codebase-graph` + MCP `doit-codegraph` | **Mapped (MCP)** — M3 sealed (`docs/codegraph.md`, `verify-codegraph.sh` / VAL-M3-CG-001); `tool_pack` deferred |
 | L8 | Side-ask / intake default | `ask_user_question`, agent profiles | **Partial** — intake agent exists; dual-stream UI = **`"gap"`** (parking lot) |
-| L9 | `.piness/` workspace disk | Session dir + plan/goal tools under `.do/` + `~/.config/do` | **Mapped (contract)** — [workspace.md](./workspace.md) continuum under CFG roots |
+| L9 | `.piness/` workspace disk | Session dir + plan/goal tools under `.doit/` + `~/.config/doit` | **Mapped (contract)** — [workspace.md](./workspace.md) continuum under CFG roots |
 | L10 | Overlay-first / fork hygiene | Full fork under `do/` | **Process** — FORK policy (F-DOC-004) |
 | L11 | Node/OpenTUI | Rust/ratatui pager | **Accept** — no OpenTUI port M0–M3 |
 | L12 | Patch mergeability | Surgical crate patches | **Process** — patch-matrix crate log |
@@ -141,7 +141,7 @@ pi-ness L0–L6 (from `/home/datht/code/pi-ness/docs/prompt-system.md` and do [p
 | Role bodies | `prompts/roles/*` | Agent markdown / role TOML `prompt_file` | `do-harness/agents/`, prompts | **Mapped** path |
 | Tool/skill deny floors | Role routing + permission | Permissions + agent toolsets + hooks | do-harness + permission rules | **Partial** |
 | Subagent spawn | Role-aware spawn | `TaskTool` + `xai-grok-subagent-resolution` | Use stock; pin models via L13 | **Mapped** |
-| Personas | pi session personas | `.do/personas/`, `[subagents.personas.*]` | Optional product personas | **Mapped** |
+| Personas | pi session personas | `.doit/personas/`, `[subagents.personas.*]` | Optional product personas | **Mapped** |
 | Intake default | intake role + intent packs | Agent profile proof (F-EXT-001) | do-harness intake | **Pending proof** |
 | Orchestrator / explorer / worker / oracle | Role roster + OpenCode pins | Agent defs + subagent types | `assignment:` in YAML | **Design sealed**; wire M1 |
 
@@ -183,7 +183,7 @@ Disk layout contract: [workspace.md](./workspace.md) (M1 non-stub) + L9.
 
 ```
 do-harness/config.models.yaml
-  models.registry.*  ──map──►  ~/.config/do/config.toml  [model.*]
+  models.registry.*  ──map──►  ~/.config/doit/config.toml  [model.*]
   models.default     ──map──►  [models] default
   assignment.*       ──map──►  agent frontmatter / [subagents.roles.*] model
                                       │

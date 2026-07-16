@@ -18,7 +18,7 @@
 
 | Layer | Source | Effect |
 |-------|--------|--------|
-| Session file toolset | `[toolset] file_toolset` in `~/.config/do/config.toml` or project `.do/config.toml` | `"hashline"` swaps read/edit/search to hashline triple; `"standard"` keeps `read_file` / `search_replace` / `grep` |
+| Session file toolset | `[toolset] file_toolset` in `~/.config/doit/config.toml` or project `.doit/config.toml` | `"hashline"` swaps read/edit/search to hashline triple; `"standard"` keeps `read_file` / `search_replace` / `grep` |
 | Scheme knobs | `[toolset.hashline]` | `scheme`, `hash_len`, `chunk_size` (validated by stock) |
 | Mutual exclusivity | Shell finalization | Hashline and Standard file triples do not ship side-by-side in the active tool server config when override applies |
 | Role floors | Agent `tools` / `disallowedTools` | Still filter the finalized set — non-workers never gain `hashline_edit` |
@@ -35,7 +35,7 @@ Evidence: `ShellToolsetConfig::resolve_file_toolset`, `FileToolset::tool_configs
 
 ```toml
 # Prefer product fragment: do-harness/config.toolset.toml
-# (copy/link keys into ~/.config/do/config.toml or .do/config.toml)
+# (copy/link keys into ~/.config/doit/config.toml or .doit/config.toml)
 
 [toolset]
 file_toolset = "hashline"

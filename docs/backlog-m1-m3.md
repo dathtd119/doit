@@ -21,7 +21,7 @@
 
 1. **Role switch lock (L1):** Tab / Shift+Tab role cycle **only pre-message**; **disabled** after first user message or any conversation content.  
 2. **Role→model (L13):** Re-assign model from role **only while switch is still allowed**.  
-3. **Dual config:** stock `~/.config/do/config.toml` (`$GROK_HOME`) = runtime multi-model; project discovery **`.do/`**; `do-harness/config.models.yaml` = product assignment overlay — do **not** invent a second runtime registry.  
+3. **Dual config:** stock `~/.config/doit/config.toml` (`$GROK_HOME`) = runtime multi-model; project discovery **`.doit/`**; `do-harness/config.models.yaml` = product assignment overlay — do **not** invent a second runtime registry.  
 4. **Guided denials (L6):** incomplete until gate is named in prompts **and** result uses `[GATE: …]` + **Do this instead**.  
 5. **No OpenTUI** in M1 (L11 deferred).
 
@@ -41,13 +41,13 @@
 | 1 | **M1-R01** | **Session flag `role_switch_allowed`** — true only while transcript has no user messages / no conversation content | L1 | session/shell seam; `crate_patch` only if needed | M0 policy docs | Flag flips false on first user message (or equivalent conversation content); unit/integration test or scripted session fixture |
 | 2 | **M1-R02** | **Keybind gate** — Tab / Shift+Tab cycles primary-session roles **only** when flag true; ignore/no-op after lock | L1 | shell keybind + session state | M1-R01 | Pre-message: cycle works across product roster; post-message: cycle does not change active role |
 | 3 | **M1-R03** | **Prompt stack freeze** — on lock, freeze L1 role layer for the session; no mid-session system/role rebuild from hop | L1, L2 | agent/prompt assembly | M1-R01 | After lock, role prompt content stable for remainder of session; new role requires new session |
-| 4 | **M1-R04** | **Role roster as product agents** — `intake`, `orchestrator`, `explorer`, `worker`, `oracle` under `do-harness/agents/` (intake proof already exists; expand roster) | L1, L8 | `agent` | F-EXT-001 pattern | All five discoverable on `.do/agents/` (or documented install); tool/skill floors documented per role |
+| 4 | **M1-R04** | **Role roster as product agents** — `intake`, `orchestrator`, `explorer`, `worker`, `oracle` under `do-harness/agents/` (intake proof already exists; expand roster) | L1, L8 | `agent` | F-EXT-001 pattern | All five discoverable on `.doit/agents/` (or documented install); tool/skill floors documented per role |
 | 5 | **M1-M01** | **Wire `do-harness/config.models.yaml` → agent/role model pins** — apply `assignment.<role>` into agent frontmatter and/or `[subagents.roles.*]` / role files | **L13** | `config` + `agent` | M0 template; M1-R04 | Changing assignment + apply step updates model pins; registry names resolve to existing `[model.*]` or documented stock models; **no second runtime registry** |
 | 6 | **M1-M02** | **Role→model re-resolve only while switch allowed** — on pre-message role cycle, apply assignment for new role; after lock, keep active model stack | L13 + L1 | model resolution + session | M1-R01, M1-M01 | Pre-message cycle re-pins model; post-message cycle (if attempted) does **not** re-pin; subagent spawn overrides unchanged |
 | 7 | **M1-M03** | **Optional apply/validate tooling** — script or `do models validate|apply` that diffs YAML vs `config.toml` + agent frontmatter (may be shell-first) | L13 | `config` / harness script | M1-M01 | Exit non-zero on missing registry name or broken assignment; dry-run prints map |
 | 8 | **M1-P01** | **L0–L6 → grok injection map (implementable contract)** — expand [prompt-system.md](./prompt-system.md) from stub to mapping table with byte-budget targets | L2 | docs + `do-harness/prompts/` | capability-map | Each layer names grok surface(s); fragments live under `do-harness/prompts/`; no full L6 disk dump into system |
 | 9 | **M1-P02** | **Role-as-system (L1 layer) fragments** — per-role prompt bodies co-located with agents; co-evolve with tool floors | L1, L2 | `agent` + prompts | M1-R04, M1-P01 | Switching role (pre-message) swaps L1 fragment; gates named in role prompts where product denials apply |
-| 10 | **M1-W01** | **Workspace continuum contract** — document map of goal / plan / todo onto grok session layout; decide thin `.do/` vs reuse `.grok` only | L9 | `config` + docs | M0 workspace stub | [workspace.md](./workspace.md) is non-stub contract; operators know where state lives; no dual-write without explicit decision |
+| 10 | **M1-W01** | **Workspace continuum contract** — document map of goal / plan / todo onto grok session layout; decide thin `.doit/` vs reuse `.grok` only | L9 | `config` + docs | M0 workspace stub | [workspace.md](./workspace.md) is non-stub contract; operators know where state lives; no dual-write without explicit decision |
 | 11 | **M1-S01** | **Progressive skill presentation policy (start)** — config/ignore lists + reminder tuning so skill surface is not a firehose | L4 | `config` + `skill` | M1-P01 | Documented policy + at least one do-harness skill discovery setting that reduces dump vs stock default |
 | 12 | **M1-U01** | **UX feedback for lock** — status/hint that role is locked after first message; point user to new session | L1 | shell/TUI light touch | M1-R02 | User-visible lock affordance without mid-session hop; polish may lag full TUI work |
 
@@ -189,7 +189,7 @@ Parked in [future-plan.md](./future-plan.md) — promote into a milestone only w
 |------|----------------|
 | Goal-as-mission full runner (validators + structured handoffs) | Needs M1–M2 continuum solid |
 | Side-ask dual stream UI (L8) | High TUI cost; intake agent first |
-| Config home/project rebrand (`~/.config/do` + `.do/`) | **Done (CFG sealed)** — P-CFG-HOME/PROJECT/FIXTURES + F-CFG-SHIP |
+| Config home/project rebrand (`~/.config/doit` + `.doit/`) | **Done (CFG sealed)** — P-CFG-HOME/PROJECT/FIXTURES + F-CFG-SHIP |
 | Multi-provider auth beyond stock | Out of M0–M3 core harness (BYOK skip-OAuth shipped PRIV) |
 | OpenCode-parity permission rules in do YAML | After L6 hooks + M2 floors |
 | Full OpenTUI / Node port | Non-goal |

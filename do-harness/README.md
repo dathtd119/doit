@@ -2,7 +2,7 @@
 
 Product identity layer for **do** (forked grok-build): agents, hooks, skills,
 prompts, and model-assignment YAML. Source of truth lives **here**; install onto
-product discovery paths (`~/.config/do` user home, project `.doit/`).
+product discovery paths (`~/.config/doit` user home, project `.doit/`).
 
 See root [`AGENTS.md`](../AGENTS.md) Customization Order and
 [`docs/grok-build/extension-seams.md`](../docs/grok-build/extension-seams.md).
@@ -38,8 +38,8 @@ paths the forked binary already walks:
 
 | Asset | Runtime discovery path | Evidence in fork |
 |-------|------------------------|------------------|
-| Agents | `<project>/.doit/agents/*.md` (cwd → git root), then `~/.config/do/agents/` | `crates/codegen/xai-grok-agent/src/discovery.rs` (`PROJECT_AGENT_SUBDIRS`) |
-| Hooks | `<git-root>/.doit/hooks/*.json`, then `~/.config/do/hooks/` | `crates/codegen/xai-grok-shell/src/util/hooks.rs` (`discover_hook_source_paths`); load via `xai-grok-hooks` `HookSource::Directory` |
+| Agents | `<project>/.doit/agents/*.md` (cwd → git root), then `~/.config/doit/agents/` | `crates/codegen/xai-grok-agent/src/discovery.rs` (`PROJECT_AGENT_SUBDIRS`) |
+| Hooks | `<git-root>/.doit/hooks/*.json`, then `~/.config/doit/hooks/` | `crates/codegen/xai-grok-shell/src/util/hooks.rs` (`discover_hook_source_paths`); load via `xai-grok-hooks` `HookSource::Directory` |
 
 **Install pattern:** symlink from project `.doit/` into `do-harness/` so the
 repo is the single source of truth.
@@ -62,7 +62,7 @@ Policy: [`docs/role-permissions.md`](../docs/role-permissions.md) +
 
 Model pins: `config.models.yaml` `assignment.<role>` applied into agent
 frontmatter via `scripts/apply-models.sh` (**F-M1-MODEL-APPLY** / VAL-M1-MODEL-001).
-Stock `~/.config/do/config.toml` remains the runtime multi-model registry — this
+Stock `~/.config/doit/config.toml` remains the runtime multi-model registry — this
 script does **not** invent a second runtime.
 
 Role switch lock (product policy): Tab/Shift+Tab **only pre-message**; locked
@@ -173,23 +173,23 @@ Project hooks may require `/hooks-trust` in a live session (stock grok).
 ### Enable (user-global)
 
 ```sh
-mkdir -p ~/.config/do/agents ~/.config/do/hooks/bin
+mkdir -p ~/.config/doit/agents ~/.config/doit/hooks/bin
 for role in intake orchestrator explorer worker oracle; do
-  cp do-harness/agents/${role}.md ~/.config/do/agents/
+  cp do-harness/agents/${role}.md ~/.config/doit/agents/
 done
-cp do-harness/hooks/guided-dangerous-shell.json ~/.config/do/hooks/
-cp do-harness/hooks/bin/guided-dangerous-shell.py ~/.config/do/hooks/bin/
-cp do-harness/hooks/continuation-nudge.json ~/.config/do/hooks/
-cp do-harness/hooks/bin/continuation-nudge.py ~/.config/do/hooks/bin/
-cp do-harness/hooks/guided-path-policy.json ~/.config/do/hooks/
-cp do-harness/hooks/bin/guided-path-policy.py ~/.config/do/hooks/bin/
-cp do-harness/hooks/guided-env-expose.json ~/.config/do/hooks/
-cp do-harness/hooks/bin/guided-env-expose.py ~/.config/do/hooks/bin/
-cp do-harness/hooks/bin/guided_block.py ~/.config/do/hooks/bin/
-chmod +x ~/.config/do/hooks/bin/guided-dangerous-shell.py
-chmod +x ~/.config/do/hooks/bin/continuation-nudge.py
-chmod +x ~/.config/do/hooks/bin/guided-path-policy.py
-chmod +x ~/.config/do/hooks/bin/guided-env-expose.py
+cp do-harness/hooks/guided-dangerous-shell.json ~/.config/doit/hooks/
+cp do-harness/hooks/bin/guided-dangerous-shell.py ~/.config/doit/hooks/bin/
+cp do-harness/hooks/continuation-nudge.json ~/.config/doit/hooks/
+cp do-harness/hooks/bin/continuation-nudge.py ~/.config/doit/hooks/bin/
+cp do-harness/hooks/guided-path-policy.json ~/.config/doit/hooks/
+cp do-harness/hooks/bin/guided-path-policy.py ~/.config/doit/hooks/bin/
+cp do-harness/hooks/guided-env-expose.json ~/.config/doit/hooks/
+cp do-harness/hooks/bin/guided-env-expose.py ~/.config/doit/hooks/bin/
+cp do-harness/hooks/bin/guided_block.py ~/.config/doit/hooks/bin/
+chmod +x ~/.config/doit/hooks/bin/guided-dangerous-shell.py
+chmod +x ~/.config/doit/hooks/bin/continuation-nudge.py
+chmod +x ~/.config/doit/hooks/bin/guided-path-policy.py
+chmod +x ~/.config/doit/hooks/bin/guided-env-expose.py
 ```
 
 ## Verify discovery (F-EXT-003 / VAL-EXT-003)
@@ -247,7 +247,7 @@ python3 do-harness/hooks/bin/guided-dangerous-shell.py --self-test
 
 Policy file: [`config.models.yaml`](./config.models.yaml) — registry ergonomics
 + role→model table. Runtime multi-model still lives in stock
-`~/.config/do/config.toml` (`[model.*]` + default). The apply script maps
+`~/.config/doit/config.toml` (`[model.*]` + default). The apply script maps
 `assignment.<role>` into `agents/<role>.md` frontmatter `model:` (and optional
 `effort:` for structured pins). See
 [`docs/models-and-config.md`](../docs/models-and-config.md).
@@ -282,7 +282,7 @@ Optional flags (Python script):
 - Product roster roles are missing from `assignment` (unless partial allowed)
 - Assigned role has no agent file under `agents/`
 
-**Does not:** rewrite `~/.config/do/config.toml`, invent a second runtime registry,
+**Does not:** rewrite `~/.config/doit/config.toml`, invent a second runtime registry,
 or re-pin mid-session (role lock is F-M1-LOCK / F-M1-MODEL-RESOLVE).
 
 ### After editing assignment
@@ -362,7 +362,7 @@ heavily curated for **all five** roles. Firehose is **opt-in only**.
 | orchestrator | **false** | curated | empty `skills: []` until operators name workflows |
 | worker | **false** | curated | empty `skills: []` until operators name project skills |
 
-Operator ignore/disabled lists still merge into stock `~/.config/do/config.toml`
+Operator ignore/disabled lists still merge into stock `~/.config/doit/config.toml`
 `[skills]` (see config overlay `recommended_toml`).
 
 **MCP:** keep stock progressive discovery — **`search_tool`** then **`use_tool`**.
@@ -386,7 +386,7 @@ Overlay fragment: [`config.toolset.toml`](./config.toolset.toml)
 
 Product **default** prefers native **GrokBuildHashline** (`file_toolset = "hashline"`)
 over Standard. Stock Rust `FileToolset` Default remains Standard until operators
-merge the fragment into `~/.config/do/config.toml` or project `.doit/config.toml`.
+merge the fragment into `~/.config/doit/config.toml` or project `.doit/config.toml`.
 **Does not reinvent** hashline grammar — only stock scheme knobs.
 
 | Surface | Product choice |
@@ -400,7 +400,7 @@ merge the fragment into `~/.config/do/config.toml` or project `.doit/config.toml
 
 ```sh
 # Merge [toolset] from do-harness/config.toolset.toml into your config.toml, e.g.:
-#   ~/.config/do/config.toml
+#   ~/.config/doit/config.toml
 #   or <project>/.doit/config.toml
 #
 # Minimal:

@@ -6,7 +6,7 @@
 
 ## Intent
 
-A durable **session continuum** so long work survives interrupts. Operators and agents must know **where state lives** and **which tools own it**. **do** maps product semantics onto **product project `.do/` + user home `~/.config/do` session layout** (CFG sealed) — not a parallel `.piness/` tree.
+A durable **session continuum** so long work survives interrupts. Operators and agents must know **where state lives** and **which tools own it**. **doit** maps product semantics onto **product project `.doit/` + user home `~/.config/doit` session layout** (CFG-DOIT sealed) — not a parallel `.piness/` tree.
 
 | Concept | Operator meaning | Stock grok surface | Tool(s) |
 |---------|------------------|--------------------|---------|
@@ -19,16 +19,16 @@ A durable **session continuum** so long work survives interrupts. Operators and 
 
 ---
 
-## Binding decision (CFG): product `.do/` + `~/.config/do`
+## Binding decision (CFG-DOIT): product `.doit/` + `~/.config/doit`
 
 | Option | Decision |
 |--------|----------|
-| **Project discovery root** | **`.do/`** (agents, hooks, plan, config, skills, …) — **P-CFG-PROJECT** |
-| **User home** | **`~/.config/do` only** when `GROK_HOME` unset — **P-CFG-HOME** (no silent `~/.grok` fallback) |
+| **Project discovery root** | **`.doit/`** (agents, hooks, plan, config, skills, …) — **P-CFG-PROJECT-DOIT** |
+| **User home** | **`~/.config/doit` only** when `GROK_HOME` unset — **P-CFG-HOME-DOIT** (no silent `~/.grok` or `~/.config/do` fallback) |
 | **M1 historical note** | M1 documented reuse of stock `.grok` until CFG rebrand; that default is **superseded** |
-| **Dual-write** (`.do/` **and** `.grok/` same continuum) | **Forbidden** without an explicit product decision and docs update |
+| **Dual-write** (`.doit/` **and** `.grok/` same continuum) | **Forbidden** without an explicit product decision and docs update |
 
-**Rationale:** CFG rebranded discovery roots to product brand paths while keeping **single-writer** native tools (plan file, sessions, goal/todo). Vendor compat dirs (e.g. `.claude/`) still walk where already coded. Env override: **`GROK_HOME`** replaces the full user home root.
+**Rationale:** CFG-DOIT rebranded discovery roots to product brand paths while keeping **single-writer** native tools (plan file, sessions, goal/todo). Vendor compat dirs (e.g. `.claude/`) still walk where already coded. Env override: **`GROK_HOME`** replaces the full user home root.
 
 pi-ness comparison (ideas only; do **not** port layout): `.piness/session/<id>/{todos,active-plan,active-goal}.json` + project `plans/` / `goals/`. See limitations L9.
 
@@ -40,19 +40,19 @@ pi-ness comparison (ideas only; do **not** port layout): `.piness/session/<id>/{
 
 | State | Path | Owner tool | Notes |
 |-------|------|------------|-------|
-| **Active plan file** | `<cwd>/.do/plan.md` | `enter_plan_mode` / `exit_plan_mode` | Constant `PLAN_FILE_RELATIVE_PATH` in fork (`xai-grok-tools` resources). Default when no override. |
-| **Project agents** | `<cwd>/.do/agents/*.md` | Agent discovery | do roster via symlink to `do-harness/agents/` |
-| **Project hooks** | `<cwd>/.do/hooks/*.json` | Hook discovery | e.g. guided dangerous-shell |
-| **Project config** | `<cwd>/.do/config.toml` (optional) | Config load | Merges with user `~/.config/do` per product rules |
+| **Active plan file** | `<cwd>/.doit/plan.md` | `enter_plan_mode` / `exit_plan_mode` | Constant `PLAN_FILE_RELATIVE_PATH` in fork (`xai-grok-tools` resources). Default when no override. |
+| **Project agents** | `<cwd>/.doit/agents/*.md` | Agent discovery | do roster via symlink to `do-harness/agents/` |
+| **Project hooks** | `<cwd>/.doit/hooks/*.json` | Hook discovery | e.g. guided dangerous-shell |
+| **Project config** | `<cwd>/.doit/config.toml` (optional) | Config load | Merges with user `~/.config/doit` per product rules |
 
 ### User home (product default)
 
 | State | Path | Owner | Notes |
 |-------|------|-------|-------|
-| **User home** | `$GROK_HOME` or `~/.config/do` | Config / runtime | Multi-model TOML, user agents/hooks; **no** default `~/.grok` |
-| **Sessions by CWD** | `~/.config/do/sessions/<encoded-cwd>/` | Session runtime | `sessions_cwd_dir` — URL-encoded or hash slug for long paths |
+| **User home** | `$GROK_HOME` or `~/.config/doit` | Config / runtime | Multi-model TOML, user agents/hooks; **no** default `~/.grok` |
+| **Sessions by CWD** | `~/.config/doit/sessions/<encoded-cwd>/` | Session runtime | `sessions_cwd_dir` — URL-encoded or hash slug for long paths |
 | **Session instance** | `…/sessions/<encoded-cwd>/<session-id>/` | Session runtime | `session_dir(info)` — transcript, images, session-local artifacts |
-| **User agents / hooks** | `~/.config/do/agents/`, `~/.config/do/hooks/` | Discovery | Lower precedence than project for agents (project shadows) |
+| **User agents / hooks** | `~/.config/doit/agents/`, `~/.config/doit/hooks/` | Discovery | Lower precedence than project for agents (project shadows) |
 
 ### In-memory / session-bound (not a second disk continuum)
 
@@ -61,7 +61,7 @@ pi-ness comparison (ideas only; do **not** port layout): `.piness/session/<id>/{
 | **Todos** | Session tool state (`TodoState` on tool resources) | `todo_write` | Not a separate do-owned `todos.json` outside session lifecycle. Persist/resume via stock session APIs. |
 | **Active goal** | Goal update handle + classifier path | `update_goal` | “No active goal” if handle not registered — use the tool, don’t invent a parallel goal DB. |
 
-**Operator rule:** To inspect continuum, open **`<project>/.do/plan.md`**, use the product UI/session for goal/todo, and look under **`~/.config/do/sessions/<encoded-cwd>/<session-id>/`** for session files — not a project `.piness/` tree and not a dual-written `.grok/` continuum.
+**Operator rule:** To inspect continuum, open **`<project>/.doit/plan.md`**, use the product UI/session for goal/todo, and look under **`~/.config/doit/sessions/<encoded-cwd>/<session-id>/`** for session files — not a project `.piness/` tree and not a dual-written `.grok/` continuum.
 
 ---
 
@@ -71,7 +71,7 @@ pi-ness comparison (ideas only; do **not** port layout): `.piness/session/<id>/{
 User intent
   → Role (L1 agent profile) — pre-message Tab only
   → Goal          update_goal          → session goal handle (not dual-written)
-  → Plan          enter/exit plan mode → <cwd>/.do/plan.md
+  → Plan          enter/exit plan mode → <cwd>/.doit/plan.md
   → Todo          todo_write           → session TodoState
   → Specialist    task / Agent(…)      → subagent session; spawn model overrides
 ```
@@ -79,9 +79,9 @@ User intent
 | Lane | Read with | Write with | Disk / session |
 |------|-----------|------------|----------------|
 | Goal | `update_goal` status / UI | `update_goal` | Session goal system (stock) |
-| Plan | read `.do/plan.md` | plan mode tools + file edit | `<cwd>/.do/plan.md` |
+| Plan | read `.doit/plan.md` | plan mode tools + file edit | `<cwd>/.doit/plan.md` |
 | Todo | todo tool / UI | `todo_write` | Session state |
-| Role | active agent | Tab pre-message / new session | Agent files under `.do/agents` |
+| Role | active agent | Tab pre-message / new session | Agent files under `.doit/agents` |
 | Model | assignment + TOML | apply script + config | YAML overlay → frontmatter; TOML runtime |
 
 ---
@@ -108,9 +108,9 @@ interrupt → streak → goal → plan → workflow → todo
 
 | Lane | Surface |
 |------|---------|
-| Interrupt / streak | Session hook state under `.do/continuation/` (nudge engine; not a dual continuum DB) |
+| Interrupt / streak | Session hook state under `.doit/continuation/` (nudge engine; not a dual continuum DB) |
 | Goal | `update_goal` + PostToolUse continuation hook |
-| Plan | `.do/plan.md` + plan mode + hooks |
+| Plan | `.doit/plan.md` + plan mode + hooks |
 | Workflow | Skill/method pointer (optional) |
 | Todo | `todo_write` + hooks |
 
@@ -137,8 +137,8 @@ Subagents use stock resolution (spawn > role > persona > parent) for models. Con
 
 | Don’t | Do instead |
 |-------|------------|
-| Dual-write continuum to `.do/` **and** `.grok/` / `.piness/` | Single writer: native tools + `.do/` + `~/.config/do` session layout |
-| Paste entire plan into system prompt every turn | Point at `.do/plan.md`; re-read |
+| Dual-write continuum to `.doit/` **and** `.grok/` / `.piness/` | Single writer: native tools + `.doit/` + `~/.config/doit` session layout |
+| Paste entire plan into system prompt every turn | Point at `.doit/plan.md`; re-read |
 | Mid-session Tab role hop to “switch continuum owner” | New session for new role (L1 freeze) |
 | Second multi-model registry for continuum | TOML runtime + YAML assignment only |
 | Bare “Permission denied” thrash on continuum tools | Guided `[GATE: …]` + **Do this instead** for do-owned denials |
@@ -151,7 +151,7 @@ Subagents use stock resolution (spawn > role > persona > parent) for models. Con
 |------|------|
 | Session dir | `crates/codegen/xai-grok-shared/src/session/mod.rs` → `sessions_cwd_dir(cwd)/{id}` |
 | Sessions CWD encoding | `crates/codegen/xai-grok-config/src/paths.rs` (`sessions_cwd_dir`, `encode_cwd_dirname`) |
-| Plan file default | `crates/codegen/xai-grok-tools/src/types/resources.rs` — `PLAN_FILE_RELATIVE_PATH = ".do/plan.md"` |
+| Plan file default | `crates/codegen/xai-grok-tools/src/types/resources.rs` — `PLAN_FILE_RELATIVE_PATH = ".doit/plan.md"` |
 | Continuum tools | `implementations/grok_build/{update_goal,enter_plan_mode,exit_plan_mode,todo}/` |
 | Patterns | [grok-build/patterns.md](./grok-build/patterns.md) § Plan / update_goal |
 | Capability map | [capability-map.md](./capability-map.md) §5 |

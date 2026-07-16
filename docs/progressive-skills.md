@@ -8,7 +8,7 @@
 
 ## Intent
 
-Stock grok discovers skills from many roots (product `.do/`, `.agents/`, `.claude/`, `.cursor/`, user home, custom `paths`) and can inject a **large skill listing** into the system / user-message surface. That is a **firehose** relative to pi-ness progressive retrieval (`skill_search` / `skill_load` + compact intents).
+Stock grok discovers skills from many roots (product `.doit/`, `.agents/`, `.claude/`, `.cursor/`, user home, custom `paths`) and can inject a **large skill listing** into the system / user-message surface. That is a **firehose** relative to pi-ness progressive retrieval (`skill_search` / `skill_load` + compact intents).
 
 **do** does **not** invent a second skill runtime or a parallel MCP client. Product policy:
 
@@ -25,7 +25,7 @@ BM25 `skill_search` / `skill_load` product parity with pi-ness remains a **futur
 |---------|------------------|--------|
 | Agent `discoverSkills` | `AgentDefinition.discover_skills` (`xai-grok-agent` config) | Default **true**: list + seed discovery. **false**: empty skill list, no CWD discovery seed |
 | Agent `skills` | Frontmatter `skills: [name, …]` | Explicit preload / inject **only** those skills (curated allowlist) |
-| `[skills] ignore` | `~/.config/do/config.toml` (and SkillsConfig) | Path prefixes **hidden** entirely from discovery |
+| `[skills] ignore` | `~/.config/doit/config.toml` (and SkillsConfig) | Path prefixes **hidden** entirely from discovery |
 | `[skills] disabled` | same | Named skills stay listed but **out of prompt + invocation** |
 | `[skills] paths` | same | Extra scan roots (increases firehose — use sparingly) |
 | Compat vendor skills | `[compat.claude]` / `[compat.cursor]` `skills` | Turn off vendor trees when not needed |
@@ -62,7 +62,7 @@ Product overlay (policy, not a second runtime registry):
 
 - [`do-harness/config.skills.yaml`](../do-harness/config.skills.yaml) — presentation mode, role table, allowlists, recommended TOML ignore/disabled fragments, MCP policy.
 
-Merge recommended `[skills]` / compat cells into stock `~/.config/do/config.toml` (or project `.do/config.toml` when used). **Do not** invent a competing skills engine.
+Merge recommended `[skills]` / compat cells into stock `~/.config/doit/config.toml` (or project `.doit/config.toml` when used). **Do not** invent a competing skills engine.
 
 Recommended ignore themes (tune per machine):
 
@@ -98,8 +98,8 @@ Parallel to skills: treat MCP as progressive discovery, not firehose catalog inj
 When an operator **explicitly** needs stock-like dump:
 
 1. Set the target agent frontmatter `discoverSkills: true` under `do-harness/agents/<role>.md` (or a local override agent).  
-2. Optionally expand `[skills] paths` and re-enable vendor skill trees in `~/.config/do/config.toml`.  
-3. Re-install / symlink agents into `~/.config/do/agents` or project `.do/agents` per [do-harness/README.md](../do-harness/README.md).  
+2. Optionally expand `[skills] paths` and re-enable vendor skill trees in `~/.config/doit/config.toml`.  
+3. Re-install / symlink agents into `~/.config/doit/agents` or project `.doit/agents` per [do-harness/README.md](../do-harness/README.md).  
 4. Revert before product demos or shared machines — firehose is **not** the M2 product default.
 
 Record in `config.skills.yaml`: `presentation.firehose_mode: opt_in`.

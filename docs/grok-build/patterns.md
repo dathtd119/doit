@@ -28,7 +28,7 @@ Reusable behaviors **do should build on**, not reimplement. Evidence from the fo
 | Pure resolution crate | No session/transport deps — reusable | Keep policy in resolution + agent defs; avoid shell-only forks |
 | Persona fail-closed / role soft-fail | File-read errors vs missing prompt_file | Document spawn failure modes for workers |
 | Resume identity | Type/persona checks; model soft-ignored on resume (`resume.rs`) | Document resume semantics for workers |
-| Agent discovery merge | Project can shadow built-ins; user/bundled cannot (`discovery.rs`) | Place do proof agents under project `.do/agents` or linked path |
+| Agent discovery merge | Project can shadow built-ins; user/bundled cannot (`discovery.rs`) | Place do proof agents under project `.doit/agents` or linked path |
 
 Spawn surface: `TaskTool` (`implementations/grok_build/task/`).
 
@@ -56,7 +56,7 @@ Spawn surface: `TaskTool` (`implementations/grok_build/task/`).
 | Pattern | Evidence | Adopt how |
 |---------|----------|-----------|
 | PreToolUse gate | `HookEvent::PreToolUse`; hooks runner (command/http) | Guided blocks: name gate + **Do this instead** |
-| Hook file discovery | `HookSource::Directory` of `*.json` under `~/.config/do/hooks/` or project `.do/hooks/` | Ship do guided hook as JSON on discovery path |
+| Hook file discovery | `HookSource::Directory` of `*.json` under `~/.config/doit/hooks/` or project `.doit/hooks/` | Ship do guided hook as JSON on discovery path |
 | Permission subsystem | `xai-grok-workspace/src/permission/` (policy, auto_mode, rules, shell_access) | Layer hooks **with** permission rules, not instead of |
 | Plan-mode auto allowlist | `auto_mode.rs` references plan-mode tools | Align dangerous-tool policy with plan mode |
 

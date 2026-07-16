@@ -1,6 +1,6 @@
 # Fork policy: doit
 
-**Status:** M0 sealed (F-DOC-004 / VAL-DOC-004). **CFG sealed** (F-CFG-SHIP) — user home `~/.config/do` + project `.do/` (CFG-DOIT rebrand later). **ORIGIN** — GitHub `dathtd119/doit`; implementation root `/home/datht/code/doit`.  
+**Status:** M0 sealed (F-DOC-004 / VAL-DOC-004). **CFG-DOIT sealed** (F-CFG-SHIP) — user home `~/.config/doit` + project `.doit/`. **ORIGIN** — GitHub `dathtd119/doit`; implementation root `/home/datht/code/doit`.  
 **Product:** **doit** (historical brand **do**) — private/local fork of Grok Build with pi-ness harness-control ideas and OpenCode-style model assignment UX.
 
 This file is the **fork hygiene and identity** contract. Operating rules for agents live in [AGENTS.md](./AGENTS.md) (includes **Upstream sync checklist**). Multi-model design: [docs/models-and-config.md](./docs/models-and-config.md). Hard limits: [docs/grok-build/hard-limits.md](./docs/grok-build/hard-limits.md).
@@ -54,7 +54,7 @@ When changing behavior, prefer this order (same as root AGENTS Customization Ord
 | Order | Placement | When |
 |-------|-----------|------|
 | 1 | **do-harness** | Product identity: agents, hooks, skills, prompts, YAML overlays |
-| 2 | **`.do` / `~/.config/do` config & plugins** | Product discovery root after CFG; multi-model TOML |
+| 2 | **`.doit` / `~/.config/doit` config & plugins** | Product discovery root (CFG-DOIT); multi-model TOML |
 | 3 | **`register_tool_pack`** | New in-process native tools |
 | 4 | **Surgical crate patches** | Only when extension seams fail — log in patch-matrix |
 | 5 | **Deep pager / TUI fork** | Last resort (M2+ with explicit decision) |
@@ -65,18 +65,20 @@ Do **not** reinvent native tools grok already has (`plan` / plan mode, `update_g
 
 ---
 
-## 4. Config root (CFG): `~/.config/do` + project `.do/`
+## 4. Config root (CFG-DOIT): `~/.config/doit` + project `.doit/`
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| User config home | **`~/.config/do` only** when `GROK_HOME` unset | P-CFG-HOME; no silent `~/.grok` fallback |
-| Project discovery | **`.do/`** (agents, hooks, config, skills, plan, …) | P-CFG-PROJECT; product install targets |
-| Product brand | **do** in docs, README, do-harness | Matches runtime paths |
+| User config home | **`~/.config/doit` only** when `GROK_HOME` unset | P-CFG-HOME-DOIT; no silent `~/.grok` or `~/.config/doit` fallback |
+| Project discovery | **`.doit/`** (agents, hooks, config, skills, plan, …) | P-CFG-PROJECT-DOIT; product install targets |
+| Share cache | **`~/.local/share/doit`** | Install scripts / bin cache |
+| MCP server id | **`doit-codegraph`** | CodeGraph MCP surface |
+| Product brand | **doit** in runtime paths; harness folder remains `do-harness/` | Repo layout vs discovery roots |
 | Compat dirs | Keep **`.claude/`** (and other vendor) project walks | Out of scope to remove |
 
-Link or copy `do-harness/` assets onto discovery paths (`~/.config/do/...` or project `.do/...`) as needed for proof agents/hooks.
+Link or copy `do-harness/` assets onto discovery paths (`~/.config/doit/...` or project `.doit/...`) as needed for proof agents/hooks.
 
-Environment override: **`GROK_HOME`** replaces the full user home root (document this one; `DO_HOME` not wired).
+Environment override: **`GROK_HOME`** replaces the full user home root (document this one; `DO_HOME` not wired). Host operators may keep temporary deprecation symlinks `~/.config/doit` → `doit` and `~/.local/share/do` → `doit`.
 
 ---
 
@@ -86,15 +88,15 @@ Multi-model is **required product behavior**. Accurate facts (do not mis-documen
 
 | Layer | Format | Owns | Runtime? |
 |-------|--------|------|----------|
-| **Stock runtime** | TOML `~/.config/do/config.toml` (via `$GROK_HOME`) | Many `[model.<name>]`, `[models] default`, `api_backend`, agent/role/persona model fields | **Yes** — binary reads this |
+| **Stock runtime** | TOML `~/.config/doit/config.toml` (via `$GROK_HOME`) | Many `[model.<name>]`, `[models] default`, `api_backend`, agent/role/persona model fields | **Yes** — binary reads this |
 | **do product overlay** | YAML `do-harness/config.models.yaml` | Registry ergonomics + **role → model + effort** assignment table | **Wired** via apply-models → agent frontmatter |
 
 ```
 do-harness/config.models.yaml     (product UX: registry + assignment)
         │ maps / generates / documents
         ▼
-~/.config/do/config.toml          (native multi-model runtime; GROK_HOME override)
-  + agent / role frontmatter model pins under project .do/agents/
+~/.config/doit/config.toml        (native multi-model runtime; GROK_HOME override)
+  + agent / role frontmatter model pins under project .doit/agents/
 ```
 
 - Grok **already** supports N custom models via `[model.*]` — gap is **assignment UX** (limitation **L13**), not “add multi-model”
@@ -135,7 +137,7 @@ Upstream grok-build is treated as a **private/local** lineage for this product. 
 | Upstream sync + patch-matrix review every absorb | §2 + AGENTS **Upstream sync checklist** |
 | Never edit pi-ness / grok-build in place | §2 + VAL-CROSS-001 |
 | Extension-before-deep-fork | §3 + AGENTS Customization Order |
-| Config root `~/.config/do` + project `.do/` (until CFG-DOIT) | §4 |
+| Config root `~/.config/doit` + project `.doit/` (CFG-DOIT sealed) | §4 |
 | Dual TOML + do YAML model surface | §5 + [docs/models-and-config.md](./docs/models-and-config.md) |
 | No external upstream PRs as product path | §6 + Non-Goals in AGENTS |
 
@@ -159,7 +161,7 @@ Upstream grok-build is treated as a **private/local** lineage for this product. 
 ## 10. Non-goals (fork scope)
 
 - Full OpenTUI / Node port of pi-ness TUI  
-- Competing multi-model runtime that bypasses `~/.config/do/config.toml` (or `$GROK_HOME/config.toml`)
+- Competing multi-model runtime that bypasses `~/.config/doit/config.toml` (or `$GROK_HOME/config.toml`)
 - Speculative abstractions before M0 baseline seals  
 - Deep pager fork before extension seams are exhausted  
 - Public upstream PR workflow as the definition of “done” for do features

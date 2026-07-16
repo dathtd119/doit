@@ -4,6 +4,46 @@ Append-only ship log for **doit** (historical brand **do**). Not a status essay 
 
 ---
 
+## 2026-07-16 — F-CFG-SHIP CFG-DOIT seal (VAL-CFG-007, VAL-CFG-008)
+
+**Scope:** seal CFG-DOIT living docs + build smoke after path rebrand implement commits  
+**Feature:** F-CFG-SHIP · **VALs:** VAL-CFG-007, VAL-CFG-008  
+**Mission:** `mis_89367de7` M1 CFG-DOIT
+
+### Sealed product surface (prior implement commits)
+
+| Track | Commit | Surface |
+|-------|--------|---------|
+| **F-CFG-HOME** | `12ed80c` `feat(config): default user home ~/.config/doit` | P-CFG-HOME-DOIT — `DEFAULT_USER_HOME_REL` → `.config/doit`; synced resolvers |
+| **F-CFG-PROJECT** | `43bb3b2` `feat(config): project discovery under .doit/` | P-CFG-PROJECT-DOIT — agents/hooks/plan/skills under `.doit/` |
+| **F-CFG-MIGRATE** | `de07cc1` `feat(config): migrate host paths and MCP id to doit` | Host `~/.config/doit` + share `~/.local/share/doit`; MCP `doit-codegraph` |
+
+### Evidence (this ship)
+
+| Command | Result |
+|---------|--------|
+| `cargo check -p doit` | PASS — VAL-CFG-007 (exit 0) |
+| Living docs path truth | PASS — VAL-CFG-008: `~/.config/doit`, `.doit/`, worktree `/home/datht/code/doit` in AGENTS / current-status / architecture |
+
+### Docs this ship
+
+- Root [AGENTS.md](./AGENTS.md): CFG-DOIT **sealed**; true-now config/share/MCP; next = M3 packaging
+- [docs/current-status.md](./docs/current-status.md): CFG-DOIT section + brand mission status
+- [docs/architecture.md](./docs/architecture.md): dual-surface + boundaries use `~/.config/doit` / `.doit/`
+- [FORK.md](./FORK.md) §4, [docs/models-and-config.md](./docs/models-and-config.md), [docs/workspace.md](./docs/workspace.md) + related living docs path rebrand
+- This CHANGELOGS entry
+
+### Not in this entry
+
+- M3 packaging leftovers (CI/release/binstall → `dathtd119/doit`)
+- Removal of host deprecation symlinks `~/.config/do` → `doit` (optional ops)
+
+### Key commits (implement lineage)
+
+- `12ed80c` HOME · `43bb3b2` PROJECT · `de07cc1` MIGRATE
+
+---
+
 ## 2026-07-16 — F-ORIGIN-AGENTS worktree + upstream sync rule
 
 **Scope:** docs / operating contract only  

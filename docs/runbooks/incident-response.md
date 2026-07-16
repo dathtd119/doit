@@ -17,7 +17,7 @@
 
 ## Immediate steps
 
-1. Capture commit (`git rev-parse HEAD`) and session config (`~/.config/do/config.toml` model names only — no secrets).
+1. Capture commit (`git rev-parse HEAD`) and session config (`~/.config/doit/config.toml` model names only — no secrets).
 2. Reproduce with `cargo run -p xai-grok-pager-bin` on a clean workspace if possible.
 3. If a release is bad: tag a fix or point users to prior tag (see [deploy-impact](./deploy-impact.md)).
 4. Open/update a GitHub issue with `type:bug` + `priority:P*`. The `error-to-issue` workflow can open issues from Sentry `repository_dispatch` events.

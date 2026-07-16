@@ -59,11 +59,11 @@ Stock base system
 
 | Surface | Fork path (representative) |
 |---------|----------------------------|
-| Agent discovery | `crates/codegen/xai-grok-agent/src/discovery.rs` — project `.do/agents/`, `~/.config/do/agents/` |
+| Agent discovery | `crates/codegen/xai-grok-agent/src/discovery.rs` — project `.doit/agents/`, `~/.config/doit/agents/` |
 | Agent def + `promptMode` / `agentsMd` | `crates/codegen/xai-grok-agent/src/config.rs` (`AgentDefinition`) |
 | Prompt context assembly | `crates/codegen/xai-grok-agent/src/prompt/context.rs` |
 | Skills listing | `crates/codegen/xai-grok-agent/src/prompt/skills.rs`; `SkillDiscoveryReminder` in tools registry |
-| Hooks (L6 denials) | `xai-grok-hooks` + project `.do/hooks/` |
+| Hooks (L6 denials) | `xai-grok-hooks` + project `.doit/hooks/` |
 | Continuum tools | `implementations/grok_build/{update_goal,enter_plan_mode,exit_plan_mode,todo}/` |
 
 ---
@@ -111,7 +111,7 @@ Related gaps: **L1** (primary-session role machine), **L13** (role→model assig
 
 ## Product roster (L1 roles)
 
-Five primary-session roles. Discovery: `do-harness/agents/` → project `.do/agents/` (see `do-harness/README.md`).  
+Five primary-session roles. Discovery: `do-harness/agents/` → project `.doit/agents/` (see `do-harness/README.md`).  
 Canonical **L1 fragments** (swap targets): `do-harness/prompts/roles/`.
 
 | Role | Agent profile | L1 fragment | Mission (one line) |

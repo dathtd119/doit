@@ -1,7 +1,7 @@
 # do-harness hooks
 
 Product hooks for **do**. Source of truth lives here; install onto product
-discovery paths (`~/.config/do/hooks/` or `<project>/.doit/hooks/`) so
+discovery paths (`~/.config/doit/hooks/` or `<project>/.doit/hooks/`) so
 `xai-grok-hooks` loads them.
 
 Evidence: hook discovery loads `*.json` from those directories
@@ -145,10 +145,10 @@ Project hooks may require `/hooks-trust` in the session (stock grok behavior).
 ### Enable (user-global)
 
 ```sh
-mkdir -p ~/.config/do/hooks/bin
-cp do-harness/hooks/guided-dangerous-shell.json ~/.config/do/hooks/
-cp do-harness/hooks/bin/guided-dangerous-shell.py ~/.config/do/hooks/bin/
-chmod +x ~/.config/do/hooks/bin/guided-dangerous-shell.py
+mkdir -p ~/.config/doit/hooks/bin
+cp do-harness/hooks/guided-dangerous-shell.json ~/.config/doit/hooks/
+cp do-harness/hooks/bin/guided-dangerous-shell.py ~/.config/doit/hooks/bin/
+chmod +x ~/.config/doit/hooks/bin/guided-dangerous-shell.py
 ```
 
 ### Verify script contract (no binary required)
@@ -165,7 +165,7 @@ echo $?
 
 ### Disable
 
-Remove the JSON from the discovery directory (project or `~/.config/do/hooks/`).
+Remove the JSON from the discovery directory (project or `~/.config/doit/hooks/`).
 The hook stops on the next session.
 
 ### Notes

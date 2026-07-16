@@ -7,9 +7,9 @@ role cycle re-pins model from agent `model:` **only while** `role_switch_allowed
 post-lock keeps the model stack; subagent spawn overrides unchanged.
 **PRIV F-PRIV-AUTH:** BYOK / `preferred_method=api_key` does not force grok.com
 OAuth (see Auth section; crate **P-AUTH-01**).  
-**CFG sealed:** user home **`~/.config/do` only** (P-CFG-HOME); project discovery
-**`.do/`** (P-CFG-PROJECT); env override **`GROK_HOME`** (full root replace;
-`DO_HOME` not wired). No silent default dual-read of `~/.grok`.  
+**CFG-DOIT sealed:** user home **`~/.config/doit` only** (P-CFG-HOME-DOIT); project discovery
+**`.doit/`** (P-CFG-PROJECT-DOIT); env override **`GROK_HOME`** (full root replace;
+`DO_HOME` not wired). No silent default dual-read of `~/.grok` or `~/.config/do`.  
 **Limitation ID:** **L13**
 
 ## Summary
@@ -43,7 +43,7 @@ Do **not** claim single-model-only. Do **not** invent a second runtime registry 
 
 ## What grok already has
 
-### Registry (`~/.config/do/config.toml`)
+### Registry (`~/.config/doit/config.toml`)
 
 - **Many** `[model.<name>]` sections (not limited to one custom model)
 - `[models] default = "..."` selects the default model name
@@ -78,8 +78,8 @@ context_window = 128000
 From `xai-grok-subagent-resolution` (crate docs + `EffectiveRuntimeConfig`):
 
 1. **Spawn override** — explicit model on the spawn / `task` call  
-2. **Role** default model (`[subagents.roles.<name>] model = "..."`, or `.do/roles/*.toml`)  
-3. **Persona** model (`[subagents.personas.<name>]` or `.do/personas/*.toml`)  
+2. **Role** default model (`[subagents.roles.<name>] model = "..."`, or `.doit/roles/*.toml`)  
+3. **Persona** model (`[subagents.personas.<name>]` or `.doit/personas/*.toml`)  
 4. **Parent** session model / default (when resolved model is `None` → inherit)
 
 Also available at type level: `[subagents.models] explore = "…"` (per-type model override; see user-guide §16).
@@ -101,7 +101,7 @@ Spawn overrides for subagents are unchanged and independent of primary-session r
 
 ### What this means for do
 
-- Keep **reading and writing** stock `~/.config/do/config.toml` (or `$GROK_HOME/config.toml`) for native multi-model — do not invent a second runtime registry that the binary ignores
+- Keep **reading and writing** stock `~/.config/doit/config.toml` (or `$GROK_HOME/config.toml`) for native multi-model — do not invent a second runtime registry that the binary ignores
 - Product work focuses on **ergonomics**, **role assignment policy**, and optional **YAML → TOML / agent frontmatter** mapping
 
 ## What OpenCode does better (learn, don’t clone wholesale)
@@ -113,7 +113,7 @@ Reference: user `~/.config/opencode/` (e.g. `opencode.jsonc` agent `model` pins,
 | Provider catalog + model list | Discover and pin models without tribal knowledge | Document registry templates; optional YAML registry that maps to `[model.*]` |
 | **Agent definitions with `model`** | Orchestrator vs explorer vs worker each cost/latency appropriate | `assignment:` table in do YAML + agent frontmatter / role model fields |
 | Permissions in config | Same file family as agents | Later; guided hooks first (L6); permission YAML optional later |
-| Plugins as installable bundles | Optional power without core fork | do-harness + `.do/plugins` |
+| Plugins as installable bundles | Optional power without core fork | do-harness + `.doit/plugins` |
 
 User need (product requirements):
 
@@ -128,7 +128,7 @@ User need (product requirements):
 
 | Surface | Format | Authority | Milestone |
 |---------|--------|-----------|-----------|
-| Stock runtime | `~/.config/do/config.toml` (`$GROK_HOME`) | **Runtime** multi-model + default + subagent roles | CFG home |
+| Stock runtime | `~/.config/doit/config.toml` (`$GROK_HOME`) | **Runtime** multi-model + default + subagent roles | CFG home |
 | do product | `do-harness/config.models.yaml` | **Policy** registry ergonomics + role assignment | M1 wire |
 
 ### Registry schema (YAML)
@@ -173,7 +173,7 @@ assignment:
 
 ```yaml
 # do product model overlay — M0 template (not yet auto-applied by binary)
-# Maps to ~/.config/do/config.toml [model.*] + agent/role model fields.
+# Maps to ~/.config/doit/config.toml [model.*] + agent/role model fields.
 # See docs/models-and-config.md  |  Limitation: L13
 
 models:
@@ -241,7 +241,7 @@ Also listed in [architecture.md](./architecture.md) L1–L13 table. Full invento
 |------|------|
 | `do-harness/config.models.yaml` | Product template (registry + assignment) |
 | `do-harness/scripts/apply-models.sh` | Validate + apply assignment → agent frontmatter |
-| `~/.config/do/config.toml` | Native multi-model runtime |
+| `~/.config/doit/config.toml` | Native multi-model runtime |
 | `do-harness/agents/*` | Role profiles; receive `model` pins via apply |
 | [architecture.md](./architecture.md) | L1–L13 table |
 | [limitations.md](./limitations.md) | Evidence inventory including L13 |
@@ -257,7 +257,7 @@ Stock grok pushes interactive **grok.com OAuth** when there is no session token 
 
 ### Config-first (preferred; no secrets in repo)
 
-In `~/.config/do/config.toml`:
+In `~/.config/doit/config.toml`:
 
 ```toml
 [models]
@@ -283,7 +283,7 @@ preferred_method = "api_key"
 | `[auth] preferred_method = "oidc"` | Session only; API-key path hidden (enterprise IdP) |
 | unset `preferred_method` | Multi-method fallthrough; BYOK still puts `xai.api_key` first so the login screen is skipped |
 
-**Product assignment (do YAML):** keep secrets out of `do-harness/config.models.yaml` registry template; map registry names via apply-models into agent frontmatter, but put keys only in local `~/.config/do/config.toml` / env.
+**Product assignment (do YAML):** keep secrets out of `do-harness/config.models.yaml` registry template; map registry names via apply-models into agent frontmatter, but put keys only in local `~/.config/doit/config.toml` / env.
 
 ### Runtime paths (fork)
 

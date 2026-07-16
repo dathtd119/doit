@@ -2,7 +2,7 @@
 """PostToolUse continuation priority engine + anti-thrash nudges.
 
 F-M2-CONT / VAL-M2-CONT-001. Product identity under do-harness/; install onto
-project .doit/hooks or ~/.config/do/hooks for discovery.
+project .doit/hooks or ~/.config/doit/hooks for discovery.
 
 Protocol (xai-grok-hooks command runner):
   - stdin: hook envelope JSON (PostToolUse continuum tools)

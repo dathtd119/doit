@@ -107,7 +107,7 @@ Workspace members live under:
 
 ## Multi-model (stock)
 
-Grok already supports multiple models via TOML (`~/.config/do/config.toml`, `$GROK_HOME`): many `[model.<name>]`, `[models] default`, api backends. Subagent resolution precedence is documented in crate docs and implemented in `resolve_effective_overrides`:
+Grok already supports multiple models via TOML (`~/.config/doit/config.toml`, `$GROK_HOME`): many `[model.<name>]`, `[models] default`, api backends. Subagent resolution precedence is documented in crate docs and implemented in `resolve_effective_overrides`:
 
 **explicit spawn override > role > persona > parent**
 

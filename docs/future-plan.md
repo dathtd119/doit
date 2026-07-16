@@ -16,7 +16,7 @@ Long-lived ideas for **do**. Root `AGENTS.md` **Future Plan** stays short; promo
 ## Models & config
 
 - **M1 YAML apply (done):** `apply-models.py` maps assignment → agent frontmatter; validate mode; re-pin only while unlocked
-- Optional richer `do models validate|apply` CLI that diffs against `~/.config/do/config.toml`
+- Optional richer `do models validate|apply` CLI that diffs against `~/.config/doit/config.toml`
 - Effort / reasoning level pins per role when backends support them
 - OpenCode-parity permission rules surface in do YAML (beyond model assignment)
 - Multi-provider auth beyond stock grok paths (deeper redesign; BYOK skip-OAuth shipped PRIV)
@@ -56,6 +56,6 @@ Long-lived ideas for **do**. Root `AGENTS.md` **Future Plan** stays short; promo
 
 ## Config rebrand (CFG)
 
-- **Done (F-CFG-HOME / P-CFG-HOME):** default user home **`~/.config/do` only** (no `~/.grok` fallback); override `GROK_HOME`
-- **Done (F-CFG-PROJECT / P-CFG-PROJECT + P-CFG-FIXTURES):** project discovery **`.do/`**; test fixtures aligned
+- **Done (F-CFG-HOME / P-CFG-HOME):** default user home **`~/.config/doit` only** (no `~/.grok` fallback); override `GROK_HOME`
+- **Done (F-CFG-PROJECT / P-CFG-PROJECT + P-CFG-FIXTURES):** project discovery **`.doit/`**; test fixtures aligned
 - **Done (F-CFG-SHIP / VAL-CFG-SHIP-001):** docs + CHANGELOGS + living next → M2

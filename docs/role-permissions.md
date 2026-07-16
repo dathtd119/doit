@@ -38,7 +38,7 @@ or write is allowed, dangerous patterns still get `[GATE: …]` + **Do this inst
 | `tools: […]` | Allowlist. Omit = inherit all. `[]` = none | `xai-grok-agent` AgentDefinition |
 | `disallowedTools: […]` | Denylist; **takes priority** over allowlist | same |
 | `permissionMode` | `default` \| `plan` \| `acceptEdits` \| `dontAsk` | same |
-| PreToolUse hooks | Pattern denials / guided blocks | `.do/hooks` + `xai-grok-hooks` |
+| PreToolUse hooks | Pattern denials / guided blocks | `.doit/hooks` + `xai-grok-hooks` |
 
 Schema: `crates/codegen/xai-grok-agent/README.md` frontmatter table.
 
@@ -46,7 +46,7 @@ Schema: `crates/codegen/xai-grok-agent/README.md` frontmatter table.
 
 Canonical machine-readable copy:
 [`do-harness/config.permissions.yaml`](../do-harness/config.permissions.yaml).  
-Applied frontmatter: `do-harness/agents/<role>.md` (install to `.do/agents/`).
+Applied frontmatter: `do-harness/agents/<role>.md` (install to `.doit/agents/`).
 
 | Role | Mode | Intent | Allow (summary) | Deny floor (summary) |
 |------|------|--------|-----------------|----------------------|
@@ -85,7 +85,7 @@ Verify gates pack: `bash do-harness/scripts/verify-gates.sh`.
 
 1. Edit floors in **`do-harness/agents/<role>.md`** frontmatter (source of truth).  
 2. Keep **`do-harness/config.permissions.yaml`** in sync (policy table + verify).  
-3. Re-link/install agents to `.do/agents/` if not already symlinked.  
+3. Re-link/install agents to `.doit/agents/` if not already symlinked.  
 4. Run:
 
 ```sh

@@ -16,7 +16,7 @@ Agent and human entry point for the **do** product (forked Grok Build + pi-ness 
 | [related-projects.md](./related-projects.md) | pi-ness, grok-build, OpenCode learnings |
 | [../CHANGELOGS.md](../CHANGELOGS.md) | What shipped |
 | [../README.md](../README.md) | Human product overview + identity |
-| [../FORK.md](../FORK.md) | Fork policy, `~/.config/do` + project `.do/`, dual TOML+YAML, no external upstream PRs |
+| [../FORK.md](../FORK.md) | Fork policy, `~/.config/doit` + project `.doit/`, dual TOML+YAML, no external upstream PRs |
 
 ## Grok-build inventory (base understanding)
 
@@ -45,7 +45,7 @@ Read **before crate work**. Evidence-backed map of the forked Grok Build base: p
 | Doc | Purpose |
 |-----|---------|
 | [prompt-system.md](./prompt-system.md) | L0–L6 → grok inject map + role lifecycle + fragments under `do-harness/prompts/` (**M1**) |
-| [workspace.md](./workspace.md) | Continuum contract: goal / plan / todo → `.do/` + `~/.config/do` sessions; no dual-write (**CFG**) |
+| [workspace.md](./workspace.md) | Continuum contract: goal / plan / todo → `.doit/` + `~/.config/doit` sessions; no dual-write (**CFG**) |
 | [continuation.md](./continuation.md) | L5 continuation priority (interrupt→streak→goal→plan→workflow→todo) + thrash-safe hooks (**M2**) |
 | [progressive-skills.md](./progressive-skills.md) | L4 progressive skill / MCP catalog: progressive/curated default; firehose opt-in (**M2**) |
 | [role-permissions.md](./role-permissions.md) | L1/L3 role tool allow/deny floors + guided-gate alignment (**M2** F-M2-PERM) |
@@ -71,7 +71,7 @@ Quality scripts live under `scripts/`; CI: `.github/workflows/ci.yml`. Pre-commi
 | Path | Role |
 |------|------|
 | `do-harness/` | Agents, hooks, skills, prompts, `config.models.yaml` |
-| `~/.config/do/config.toml` | Stock multi-model + defaults (native; CFG home) |
+| `~/.config/doit/config.toml` | Stock multi-model + defaults (native; CFG home) |
 | `crates/` | Forked grok-build workspace |
 
 ## Mission

@@ -1,12 +1,12 @@
 # Current status (expanded)
 
 Date: **2026-07-16**  
-Mission: Factory **M1 → PRIV → CFG → M2 → M3** (`mis_e0bdf86b`; prior history `mis_413072d4` / OpenCode `mis_3ce18e2a`)  
+Missions: Factory **M1 → PRIV → CFG → M2 → M3** (`mis_e0bdf86b`, backlog complete); brand **ORIGIN → UPSTREAM → CFG-DOIT → PKG** (`mis_89367de7`, CFG-DOIT sealed)  
 Compact status lives in root [AGENTS.md](../AGENTS.md) (may be gitignored); **this file is the committed living-status mirror**.
 
 ## Where we are
 
-**do** is a private/local fork of Grok Build intended to absorb pi-ness harness-control ideas without porting OpenTUI. **M0, M1, PRIV, CFG, M2, and M3 are sealed.** Mission backlog [backlog-m1-m3.md](./backlog-m1-m3.md) exit criteria for M1–M3 are **checkable as done**.
+**doit** is a private/local fork of Grok Build intended to absorb pi-ness harness-control ideas without porting OpenTUI. **M0, M1, PRIV, CFG, M2, and M3 are sealed** on the factory track. Brand mission **CFG-DOIT is sealed**: user home `~/.config/doit`, project `.doit/`, worktree `/home/datht/code/doit`.
 
 ### M0 sealed (summary)
 
@@ -43,17 +43,27 @@ M1 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full
 
 Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-PRIV-SHIP.
 
-### CFG sealed (config home + project discovery)
+### CFG sealed (historical — `~/.config/do` + `.do/`)
 
 | Surface | Evidence |
 |---------|----------|
-| User home `~/.config/do` only | `12a5c20` — P-CFG-HOME (`default_grok_home` / `DEFAULT_USER_HOME_REL`); no silent `~/.grok` fallback; override `GROK_HOME` |
-| Project discovery `.do/` | `9039f68` — P-CFG-PROJECT (agents/hooks/plan/config/skills/plugins product paths); do-harness verify/install → `.do/` |
-| Fixture alignment | `53bf77b` — P-CFG-FIXTURES rewrite project fixtures to `.do/` |
-| Harness verify | `verify-discovery.sh` + `verify-roster.sh` exit 0 against `.do/` |
-| Docs | [FORK.md](../FORK.md) §4; [models-and-config.md](./models-and-config.md); [workspace.md](./workspace.md); patch-matrix **applied** P-CFG-* |
+| User home `~/.config/do` only | `12a5c20` — P-CFG-HOME; no silent `~/.grok` fallback; override `GROK_HOME` |
+| Project discovery `.do/` | `9039f68` — P-CFG-PROJECT; fixtures `53bf77b` |
+| Docs | Prior F-CFG-SHIP under factory mission |
 
-Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-CFG-SHIP.
+**Superseded by CFG-DOIT** (paths below). Historical seal entry still in [CHANGELOGS.md](../CHANGELOGS.md).
+
+### CFG-DOIT sealed (true-now config paths)
+
+| Surface | Evidence |
+|---------|----------|
+| User home `~/.config/doit` | `12ed80c` — P-CFG-HOME-DOIT (`DEFAULT_USER_HOME_REL` → `.config/doit`); no silent `~/.config/do` / `~/.grok` fallback; override `GROK_HOME` |
+| Project discovery `.doit/` | `43bb3b2` — P-CFG-PROJECT-DOIT (agents/hooks/plan/config/skills/plugins); verify scripts → `.doit/` |
+| Host + share + MCP migrate | `de07cc1` — `~/.config/doit`, `~/.local/share/doit`, MCP `doit-codegraph`; deprecation symlinks `do` → `doit` optional |
+| Build smoke | `cargo check -p doit` exit 0 (VAL-CFG-007) |
+| Living docs | This file + root AGENTS + [architecture.md](./architecture.md) true-now paths (VAL-CFG-008) |
+
+Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-CFG-SHIP (CFG-DOIT).
 
 ### M2 sealed (continuity & safety)
 
@@ -78,24 +88,24 @@ M2 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full
 
 M3 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-M3-SHIP.
 
-### ORIGIN in progress (`mis_89367de7`)
+### Brand mission (`mis_89367de7`) — ORIGIN + UPSTREAM + CFG-DOIT sealed
 
 | Surface | Notes |
 |---------|--------|
-| GitHub / origin | `dathtd119/doit` — local origin `https://github.com/dathtd119/doit.git` |
+| GitHub / origin | `dathtd119/doit` — origin `https://github.com/dathtd119/doit.git` |
 | Implementation root | **`/home/datht/code/doit` only** |
 | Sibling clone | `/home/datht/code/do` **deprecated** as writable product root (docs only; no `rm -rf` without user OK) |
-| Upstream absorb rule | [AGENTS.md](../AGENTS.md) **Upstream sync checklist** — patch-matrix review of forked/patched files every merge; never edit pi-ness/grok-build in place |
+| Upstream absorb | `6cdf160` merge absorb `8adf901`; [AGENTS.md](../AGENTS.md) **Upstream sync checklist** mandatory every merge |
+| CFG-DOIT | `~/.config/doit` + `.doit/` + `~/.local/share/doit` + MCP `doit-codegraph` — **sealed** |
 | Fork hygiene | [FORK.md](../FORK.md) §2 trees + checklist |
 
 ### In progress / next
 
 | Item | Track | Notes |
 |------|-------|-------|
-| Upstream merge `8adf901` | `mis_89367de7` M2 | After ORIGIN seal; merge not full-rebase; map pager-bin → `doit` |
-| CFG-DOIT rebrand | `mis_89367de7` M1 | `~/.config/doit` + project `.doit/` (after upstream merge per locked order) |
-| Packaging leftovers | `mis_89367de7` M3 | CI/release/binstall → `dathtd119/doit` |
+| Packaging leftovers | `mis_89367de7` M3 | CI/release/binstall → `dathtd119/doit`; verify-install seal |
 | Parking-lot promotions | later | Goal-as-mission, side-ask, BM25 skill_search, multi-provider auth, permission-rules YAML |
+| Deprecation symlink cleanup | ops optional | Host `~/.config/do` → `doit` and share `do` → `doit` may be removed when operators ready |
 
 ### True-now constraints
 
@@ -103,7 +113,8 @@ M3 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full
 - **Never modify** `/home/datht/code/pi-ness` or `/home/datht/code/grok-build` in place (VAL-CROSS-001)
 - Every upstream sync: follow AGENTS **Upstream sync checklist** (patch-matrix inventory mandatory)
 - Extension-before-deep-fork
-- Config root: **`~/.config/do`** + project **`.do/`** (CFG sealed until CFG-DOIT); `GROK_HOME` overrides user home
+- Config root: **`~/.config/doit`** + project **`.doit/`** (CFG-DOIT sealed); `GROK_HOME` overrides user home
+- Share: **`~/.local/share/doit`**; MCP id **`doit-codegraph`**
 - Role cycle remains **pre-message only** (no mid-session hop)
 - Guided denials for do-owned gates: **`[GATE: …]` + Do this instead**
 - Continuation nudges re-surface **one** highest open lane (no continuum dump thrash)
@@ -115,7 +126,7 @@ M3 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full
 
 ## Near-term sequence
 
-1. **`mis_89367de7`:** ORIGIN seal → upstream merge → CFG-DOIT → packaging (order locked)
+1. **`mis_89367de7` M3 packaging** leftovers (CI/release/binstall/verify-install)
 2. Parking lot — promote from [future-plan.md](./future-plan.md) when product chooses next work
 
 ## Links
