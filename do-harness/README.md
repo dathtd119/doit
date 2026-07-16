@@ -25,6 +25,9 @@ See root [`AGENTS.md`](../AGENTS.md) Customization Order and
 | `scripts/verify-roster.sh` | **F-M1-ROSTER / VAL-M1-ROSTER-001** five-agent roster discovery |
 | `scripts/verify-progressive-skills.sh` | **F-M2-SKILL / VAL-M2-SKILL-001** progressive/curated default + MCP search/use |
 | `scripts/verify-role-permissions.sh` | **F-M2-PERM / VAL-M2-PERM-001** role floors applied + gate alignment |
+| `codegraph/` | **F-M3-CG / VAL-M3-CG-001** MCP server wrapping `xai-codebase-graph` (`mcp_server.py` + example TOML) |
+| `scripts/verify-codegraph.sh` | **F-M3-CG / VAL-M3-CG-001** design + fixture explore/impact |
+| `fixtures/codegraph/` | Small Rust sample for explore/impact contract |
 
 ## Discovery paths (stock grok)
 

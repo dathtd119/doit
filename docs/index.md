@@ -49,6 +49,7 @@ Read **before crate work**. Evidence-backed map of the forked Grok Build base: p
 | [continuation.md](./continuation.md) | L5 continuation priority (interrupt→streak→goal→plan→workflow→todo) + thrash-safe hooks (**M2**) |
 | [progressive-skills.md](./progressive-skills.md) | L4 progressive skill / MCP catalog: progressive/curated default; firehose opt-in (**M2**) |
 | [role-permissions.md](./role-permissions.md) | L1/L3 role tool allow/deny floors + guided-gate alignment (**M2** F-M2-PERM) |
+| [codegraph.md](./codegraph.md) | L7 CodeGraph product surface: MCP-first wrapping `xai-codebase-graph` explore/impact (**M3** F-M3-CG / VAL-M3-CG-001) |
 
 ## Agent readiness / quality
 

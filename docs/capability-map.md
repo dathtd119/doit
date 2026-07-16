@@ -36,7 +36,7 @@
 | L4 | Progressive skill/MCP catalog | Skill tool + `SkillDiscoveryReminder`; MCP search/use; [progressive-skills.md](./progressive-skills.md) | **Mapped (extension)** — M2 progressive/curated default on all five roles; firehose opt-in; MCP via `search_tool`/`use_tool` (no BM25 skill_search product tools) |
 | L5 | Continuation coordinator | `update_goal`, plan mode, `todo_write`, task + [continuation.md](./continuation.md) + PostToolUse nudge | **Partial** — priority policy + thrash-safe hooks (M2 F-M2-CONT); full settle inject = optional later |
 | L6 | Guided blocks `[GATE:…]` | Permissions + PreToolUse hooks | **Partial** — hooks exist; guided shape product-wide = **`"gap"`** (M0 proof / M2) |
-| L7 | CodeGraph lean tools | `xai-codebase-graph` crate; MCP path | **Partial** — graph code exists; lean agent tools = **`"gap"`** (M3) |
+| L7 | CodeGraph lean tools | `xai-codebase-graph` + MCP `do-codegraph` | **Mapped (extension)** — M3 MCP-first explore/impact (`docs/codegraph.md`, `verify-codegraph.sh` / VAL-M3-CG-001); `tool_pack` deferred |
 | L8 | Side-ask / intake default | `ask_user_question`, agent profiles | **Partial** — intake profile pending; dual-stream UI = **`"gap"`** |
 | L9 | `.piness/` workspace disk | Session dir + plan/goal tools | **Map** — different layout; document contract |
 | L10 | Overlay-first / fork hygiene | Full fork under `do/` | **Process** — FORK policy (F-DOC-004) |
@@ -61,7 +61,7 @@ Source group table: `/home/datht/code/pi-ness/packages/piness-core/src/native/RE
 | **hashline** | `native/hashline/` | Hash-anchored edit grammar | `GrokBuildHashline:*` (`hashline_read/edit/grep`); `FileToolset::Hashline` | **Mapped** — default still Standard; product default = M3 policy |
 | **ask-user** | `native/ask-user/` | Structured user questions | `AskUserQuestionTool` (`ToolKind::AskUser`) | **Mapped** |
 | **lsp** | `native/lsp/` | Language server client | `LspTool` (`ToolKind::Lsp`) | **Mapped** |
-| **codegraph** (ext) | `packages/piness-ext-codegraph/` | Lean explore/impact tools | Crate `xai-codebase-graph/`; agent lean tools **`"gap"`** → MCP/`tool_pack` M3 | **Partial** (L7) |
+| **codegraph** (ext) | `packages/piness-ext-codegraph/` | Lean explore/impact tools | Crate `xai-codebase-graph/` + MCP server `do-harness/codegraph/` (`codegraph_explore` / `codegraph_impact`); [codegraph.md](./codegraph.md) | **Mapped (MCP)** (L7 / VAL-M3-CG-001) |
 
 ### 2.2 Safety
 
@@ -109,7 +109,7 @@ Source group table: `/home/datht/code/pi-ness/packages/piness-core/src/native/RE
 | **Roles (main session)** | `packages/piness-core/src/roles.ts`, `session-role.ts`, `prompts/roles/` | Agent discovery; subagent roles/personas; primary Tab cycle | **Partial** — L1; lock policy documented M0, implement M1 |
 | **Role routing** | `role-routing.ts` | Subagent type/role model pools; do `assignment:` | **Partial** — L13 wire M1 |
 | **Side-ask** | `docs/side-ask.md`, TUI | No dual-stream product | **`"gap"`** (L8) |
-| **CodeGraph package** | `piness-ext-codegraph` | `xai-codebase-graph` + MCP/tool_pack | **Partial** (L7) |
+| **CodeGraph package** | `piness-ext-codegraph` | `xai-codebase-graph` + MCP `do-codegraph` ([codegraph.md](./codegraph.md)) | **Mapped (MCP)** (L7) |
 | **TUI / OpenTUI** | `piness-tui` | `xai-grok-pager` / ratatui | **Accept Rust** (L11); no port |
 
 ---

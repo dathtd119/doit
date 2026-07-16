@@ -26,7 +26,7 @@ Absolute paths below are preferred; crate paths without a prefix mean under `/ho
 | L4 | Progressive skill/MCP catalog (dynamic mode, not dump) | Skills listing + discovery reminders exist | May still firehose vs pi-ness `skill_search` / `skill_load` | Config/ignore + reminder tuning; patch skill prompt builder if needed |
 | L5 | Continuation coordinator (interrupt→streak→goal→plan→workflow→todo) | Goal classifier + plan mode + todos exist **separately** | No unified priority coordinator | SessionActor / hooks first; coordinator crate if multi-lane races |
 | L6 | Guided blocks `[GATE:…]` + “Do this instead” | Permissions + PreToolUse hooks | Denials less “teach the model” | Hooks + tool error shapes; small tools-api patch only if gate format needs it |
-| L7 | CodeGraph lean tools | `xai-codebase-graph` crate exists; no first-party lean agent tool surface observed | Semantic nav not productized for agents | MCP or plugin first; optional native tool later |
+| L7 | CodeGraph lean tools | `xai-codebase-graph` crate + MCP `do-codegraph` (M3 F-M3-CG) | Was: no lean agent surface; **shipped** MCP explore/impact | MCP productized; optional `tool_pack` later |
 | L8 | Side-ask dual stream / intake default role | `ask_user_question`, modes, agent profiles | No side dual-stream product; intake profile pending proof | Intake agent first (F-EXT-001); dual-stream UI deferred |
 | L9 | Workspace disk state `.piness/` (L6 disk) | Session dir + plan.md + goals | Different layout/semantics | Product **`.do/`** + **`~/.config/do`** (CFG); document continuum contract |
 | L10 | Overlay-first without forking Pi | **This is a fork** of grok-build | Must own fork hygiene, rebases, branding | Fork policy + “do” identity; never modify sibling trees |
@@ -292,15 +292,15 @@ Lean semantic navigation package: `packages/piness-ext-codegraph/` (`explore`, `
 ### Stock grok-build
 
 - **Exists:** `crates/codegen/xai-codebase-graph/` (`index_manager.rs`, `navigation.rs`, `scope_graph/`)  
-- **Missing as product:** first-party lean agent tools / default MCP exposure for “go-to / blast radius” UX
+- **Product (M3 F-M3-CG):** MCP server `do-harness/codegraph/mcp_server.py` (`codegraph_explore` / `codegraph_impact` / `stats` / `index`) wrapping `code-graph` CLI; design [codegraph.md](./codegraph.md); verify `do-harness/scripts/verify-codegraph.sh` (VAL-M3-CG-001)
 
 ### Gap
 
-Semantic nav not default agent path; do not reinvent graph indexing from zero.
+~~Semantic nav not default agent path~~ **reduced** — MCP-first surface shipped; operators must register `[mcp_servers.do-codegraph]` and build `code-graph`. In-process `tool_pack` still deferred. Do not reinvent graph indexing from zero.
 
 ### Preferred path
 
-MCP or plugin wrapping local/index APIs first; optional `tool_pack` later (M3 backlog).
+MCP wrapping local index (**done**); optional `tool_pack` later if spawn cost or install friction requires it.
 
 ### Evidence
 
@@ -311,6 +311,7 @@ MCP or plugin wrapping local/index APIs first; optional `tool_pack` later (M3 ba
 | grok graph crate | `crates/codegen/xai-codebase-graph/src/` |
 | hard-limits note | `docs/grok-build/hard-limits.md` (What not to reinvent / L7) |
 | MCP path | `docs/grok-build/extension-seams.md` § MCP |
+| do product | `docs/codegraph.md`, `do-harness/codegraph/`, `verify-codegraph.sh` |
 
 ---
 

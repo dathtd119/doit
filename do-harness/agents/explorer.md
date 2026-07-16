@@ -63,6 +63,9 @@ When done, return:
 
 - **DO** use `read_file`, `list_dir`, `grep`, `lsp`, light shell (status/ls).
 - **DO** use MCP `search_tool` / `use_tool` when available for external docs.
+- **DO** prefer **CodeGraph** MCP (`codegraph_explore` / `codegraph_impact` via
+  `search_tool` → `use_tool` when `do-codegraph` is registered) for “where is X /
+  who calls X” before full-repo grep thrash. See `docs/codegraph.md`.
 - **DON'T** edit files or own plan/goal/todo.
 - **DON'T** spawn implementers; report back to the parent.
 
@@ -76,7 +79,7 @@ case is enumerated. Prefer precision over volume.
 - **DO** quote paths and symbols exactly.
 - **DO** flag uncertainty instead of guessing architecture.
 - **DON'T** “while I'm here” refactor or fix.
-- **DON'T** thrash broad greps when a single symbol search would do.
+- **DON'T** thrash broad greps when CodeGraph explore/impact or a single symbol search would do.
 
 ## Guided gates
 

@@ -1,0 +1,9 @@
+[package]
+name = "sample_fixture"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "sample_fixture"
+path = "src/main.rs"

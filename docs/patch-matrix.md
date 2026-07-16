@@ -136,14 +136,15 @@ Each row: gap → path → risk → order → seams → avoid → links.
 
 | Field | Value |
 |-------|--------|
-| **Gap** | `xai-codebase-graph` exists; lean agent tool / default MCP product surface missing |
+| **Gap** | ~~lean agent tool / default MCP product surface missing~~ **shipped** M3 F-M3-CG: MCP `do-codegraph` wraps `code-graph` CLI |
 | **Preferred path** | `plugin` / MCP wrapping local index first; optional `tool_pack` later |
 | **Risk** | **Medium** — reinventing index vs productizing existing crate |
 | **Order** | **11** |
 | **Milestone** | **M3** |
-| **Seams** | `crates/codegen/xai-codebase-graph/`; MCP extension seams |
+| **Seams** | `crates/codegen/xai-codebase-graph/`; `do-harness/codegraph/mcp_server.py`; `[mcp_servers.do-codegraph]`; stock `search_tool`/`use_tool` |
 | **Avoid** | Greenfield graph from zero; ignoring existing crate ([hard-limits.md](./grok-build/hard-limits.md) What not to reinvent) |
-| **Evidence / design** | [limitations.md § L7](./limitations.md#l7--codegraph-lean-tools) |
+| **Evidence / design** | [limitations.md § L7](./limitations.md#l7--codegraph-lean-tools); [codegraph.md](./codegraph.md); `bash do-harness/scripts/verify-codegraph.sh` → VAL-M3-CG-001 |
+| **M3 status** | **Extension seal (no crate patch)** — MCP-first; `tool_pack` deferred; no P-* crate log row for this feature |
 
 ### L8 — Side-ask dual stream / intake default role
 

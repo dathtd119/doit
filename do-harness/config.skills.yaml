@@ -75,6 +75,19 @@ mcp:
   policy: progressive_search_then_use
   # Do not inject every MCP schema every turn; search then use.
   dump_all_schemas: false
+  # M3 CodeGraph product MCP (F-M3-CG / VAL-M3-CG-001): register server
+  # [mcp_servers.do-codegraph] per do-harness/codegraph/mcp.toml.example;
+  # tools: codegraph_explore / codegraph_impact / codegraph_stats / codegraph_index.
+  # Design: docs/codegraph.md — wraps xai-codebase-graph code-graph CLI (not tool_pack).
+  codegraph:
+    server: do-codegraph
+    tools:
+      - codegraph_explore
+      - codegraph_impact
+      - codegraph_stats
+      - codegraph_index
+    placement: mcp_first
+    crate: xai-codebase-graph
   # Roster floors that expose progressive MCP tools (others via spawn / later floors).
   role_tools:
     explorer:
