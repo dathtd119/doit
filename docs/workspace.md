@@ -96,23 +96,25 @@ Aligned with [prompt-system.md](./prompt-system.md) L5/L6:
 
 ---
 
-## Continuation priority (preview — M2)
+## Continuation priority (M2 — shipped policy)
 
-Product target lanes (pi-ness-shaped, grok-native tools):
+Product lanes (pi-ness-shaped, grok-native tools):
 
 ```
 interrupt → streak → goal → plan → workflow → todo
 ```
 
-| Lane | M1 (now) | M2 |
-|------|----------|-----|
-| Interrupt / streak | Manual re-read; no coordinator | Hooks / policy |
-| Goal | `update_goal` | Highest open lane re-surface |
-| Plan | `.do/plan.md` + plan mode | Same tools + nudges |
-| Workflow | Plan mode + skills (partial) | Policy |
-| Todo | `todo_write` | Same |
+**Canonical policy + thrash rules + verify:** [continuation.md](./continuation.md) (**F-M2-CONT** / VAL-M2-CONT-001).
 
-**M1 operators:** on resume, re-read goal → plan file → todos before new work. Do not invent a second coordinator process in M1.
+| Lane | Surface |
+|------|---------|
+| Interrupt / streak | Session hook state under `.do/continuation/` (nudge engine; not a dual continuum DB) |
+| Goal | `update_goal` + PostToolUse continuation hook |
+| Plan | `.do/plan.md` + plan mode + hooks |
+| Workflow | Skill/method pointer (optional) |
+| Todo | `todo_write` + hooks |
+
+**Operators:** on resume, re-read highest open lane only (policy order). Hooks re-surface a **short** pointer — never full plan/goal/todo dump every turn.
 
 ---
 

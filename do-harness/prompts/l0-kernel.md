@@ -54,4 +54,7 @@ fires: follow **Do this instead**; do not thrash the same blocked command.
 | L5 | Goal / plan / todo pointers — re-read tools/session, do not paste full bodies |
 | L6 | Turn injects (gate results, user message) |
 
+**Continuation priority (L5):** interrupt → streak → goal → plan → workflow → todo.
+Re-surface only the highest open lane; full policy in `docs/continuation.md`.
+
 Full map: project `docs/prompt-system.md`. Continuum disk layout: `docs/workspace.md`.

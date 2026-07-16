@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "^(update_goal|todo_write|TodoWrite|enter_plan_mode|exit_plan_mode|task|spawn_subagent|Agent|agent)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bin/continuation-nudge.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

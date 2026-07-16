@@ -13,7 +13,9 @@ See root [`AGENTS.md`](../AGENTS.md) Customization Order and
 |------|------|
 | `agents/` | Product roster agent profiles (`.md` with YAML frontmatter) |
 | `prompts/` | **L0/L1 fragments** + named gates (`docs/prompt-system.md` map; F-M1-PROMPT) |
-| `hooks/` | PreToolUse / other hook JSON + command scripts |
+| `hooks/` | PreToolUse guided gates + PostToolUse continuation nudge + scripts |
+| `fixtures/continuation/` | Multi-step thrash fixture for VAL-M2-CONT-001 |
+| `scripts/verify-continuation.sh` | **F-M2-CONT / VAL-M2-CONT-001** policy + hooks + no-thrash fixture |
 | `config.models.yaml` | Multi-model registry + role→model assignment (policy overlay) |
 | `config.skills.yaml` | **F-M1-SKILL / VAL-M1-SKILL-001** progressive skill presentation policy overlay |
 | `scripts/apply-models.sh` | **F-M1-MODEL-APPLY / VAL-M1-MODEL-001** YAML assignment → agent frontmatter |
@@ -91,6 +93,17 @@ bash do-harness/scripts/verify-roster.sh
   `[GATE: …]` + **Do this instead** (never bare “Permission denied”)
 - Enablement detail: [`hooks/README.md`](./hooks/README.md)
 
+### Continuation priority nudge (F-M2-CONT / VAL-M2-CONT-001)
+
+- Policy: [`docs/continuation.md`](../docs/continuation.md)
+- Source: [`hooks/continuation-nudge.json`](./hooks/continuation-nudge.json)
+  + [`hooks/bin/continuation-nudge.py`](./hooks/bin/continuation-nudge.py)
+- Behavior: PostToolUse on `update_goal` / plan mode / `todo_write` / `task`;
+  re-surfaces highest open lane (interrupt→streak→goal→plan→workflow→todo)
+  with cooldown anti-thrash (no full continuum dump)
+- Verify: `bash do-harness/scripts/verify-continuation.sh`
+- Enablement: [`hooks/README.md`](./hooks/README.md)
+
 ## Enable (project-scoped — recommended)
 
 From the **do** repo root:
@@ -102,13 +115,18 @@ for role in intake orchestrator explorer worker oracle; do
   ln -sfn ../../do-harness/agents/${role}.md .do/agents/${role}.md
 done
 
-# Hook (M0 proof; still recommended)
+# Hooks (M0 guided shell + M2 continuation)
 mkdir -p .do/hooks/bin
 ln -sfn ../../do-harness/hooks/guided-dangerous-shell.json \
   .do/hooks/guided-dangerous-shell.json
 ln -sfn ../../../do-harness/hooks/bin/guided-dangerous-shell.py \
   .do/hooks/bin/guided-dangerous-shell.py
+ln -sfn ../../do-harness/hooks/continuation-nudge.json \
+  .do/hooks/continuation-nudge.json
+ln -sfn ../../../do-harness/hooks/bin/continuation-nudge.py \
+  .do/hooks/bin/continuation-nudge.py
 chmod +x do-harness/hooks/bin/guided-dangerous-shell.py
+chmod +x do-harness/hooks/bin/continuation-nudge.py
 ```
 
 Project hooks may require `/hooks-trust` in a live session (stock grok).
@@ -122,7 +140,10 @@ for role in intake orchestrator explorer worker oracle; do
 done
 cp do-harness/hooks/guided-dangerous-shell.json ~/.config/do/hooks/
 cp do-harness/hooks/bin/guided-dangerous-shell.py ~/.config/do/hooks/bin/
+cp do-harness/hooks/continuation-nudge.json ~/.config/do/hooks/
+cp do-harness/hooks/bin/continuation-nudge.py ~/.config/do/hooks/bin/
 chmod +x ~/.config/do/hooks/bin/guided-dangerous-shell.py
+chmod +x ~/.config/do/hooks/bin/continuation-nudge.py
 ```
 
 ## Verify discovery (F-EXT-003 / VAL-EXT-003)
@@ -225,6 +246,21 @@ or re-pin mid-session (role lock is F-M1-LOCK / F-M1-MODEL-RESOLVE).
 3. `bash do-harness/scripts/apply-models.sh --apply`
 4. Agents under `.do/agents/` already symlink to `do-harness/agents/` — no
    re-link required for project install.
+
+## Continuation priority (F-M2-CONT / VAL-M2-CONT-001)
+
+```sh
+bash do-harness/scripts/verify-continuation.sh
+# expect: exit 0 and "VAL-M2-CONT-001: PASS"
+```
+
+Also:
+
+```sh
+python3 do-harness/hooks/bin/continuation-nudge.py --self-test
+python3 do-harness/hooks/bin/continuation-nudge.py \
+  --fixture do-harness/fixtures/continuation/multi-step-thrash.json
+```
 
 ## Progressive skills (F-M1-SKILL / VAL-M1-SKILL-001)
 

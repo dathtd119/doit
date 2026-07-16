@@ -59,7 +59,8 @@ criteria pass.
 | **Specialist** | `task` / Agent(…) | explorer (map), worker (implement), oracle (hard call) |
 
 Priority when resuming: interrupt → streak → goal → plan → workflow → todo
-(see M2 continuation policy; until then, re-read goal/plan/todo first).
+([docs/continuation.md](../../docs/continuation.md); PostToolUse
+`continuation-nudge` re-surfaces the highest open lane without thrash).
 
 ## Tools floor
 

@@ -1,10 +1,52 @@
 # do-harness hooks
 
-Product hooks for **do**. Source of truth lives here; install onto grok discovery
-paths (`~/.grok/hooks/` or `<project>/.grok/hooks/`) so `xai-grok-hooks` loads them.
+Product hooks for **do**. Source of truth lives here; install onto product
+discovery paths (`~/.config/do/hooks/` or `<project>/.do/hooks/`) so
+`xai-grok-hooks` loads them.
 
 Evidence: hook discovery loads `*.json` from those directories
 (`crates/codegen/xai-grok-hooks/src/discovery.rs`, `HookSource::Directory`).
+
+## F-M2-CONT: Continuation priority PostToolUse
+
+| File | Role |
+|------|------|
+| `continuation-nudge.json` | PostToolUse matcher on continuum tools |
+| `bin/continuation-nudge.py` | Priority select (interrupt→streak→goal→plan→workflow→todo) + anti-thrash |
+
+Policy: [`docs/continuation.md`](../../docs/continuation.md).  
+Verify: `bash do-harness/scripts/verify-continuation.sh` (VAL-M2-CONT-001).
+
+### Behavior
+
+On `PostToolUse` for `update_goal`, plan enter/exit, `todo_write`, and task/spawn
+tools, the engine:
+
+1. Updates session state under `<cwd>/.do/continuation/<session>/state.json`
+2. Selects the **highest-priority open lane** only
+3. Emits a short `Continue lane: <lane> …` nudge unless cooldown / quiet / max-nudges suppress (no thrash loop)
+
+Never dumps full goal/plan/todo bodies. `DO_CONTINUATION_NUDGE=0` disables.
+
+### Enable (project-scoped)
+
+```sh
+mkdir -p .do/hooks/bin
+ln -sfn ../../do-harness/hooks/continuation-nudge.json .do/hooks/continuation-nudge.json
+ln -sfn ../../../do-harness/hooks/bin/continuation-nudge.py .do/hooks/bin/continuation-nudge.py
+chmod +x do-harness/hooks/bin/continuation-nudge.py
+```
+
+Project hooks may require `/hooks-trust`.
+
+### Verify (no live session)
+
+```sh
+python3 do-harness/hooks/bin/continuation-nudge.py --self-test
+python3 do-harness/hooks/bin/continuation-nudge.py \
+  --fixture do-harness/fixtures/continuation/multi-step-thrash.json
+bash do-harness/scripts/verify-continuation.sh
+```
 
 ## F-EXT-002: Guided dangerous-shell PreToolUse
 
@@ -40,9 +82,9 @@ Never a bare “Permission denied”. Matches pi-ness `formatGuidedBlock` shape 
 From the **do** repo root:
 
 ```sh
-mkdir -p .grok/hooks/bin
-ln -sfn ../../do-harness/hooks/guided-dangerous-shell.json .grok/hooks/guided-dangerous-shell.json
-ln -sfn ../../../do-harness/hooks/bin/guided-dangerous-shell.py .grok/hooks/bin/guided-dangerous-shell.py
+mkdir -p .do/hooks/bin
+ln -sfn ../../do-harness/hooks/guided-dangerous-shell.json .do/hooks/guided-dangerous-shell.json
+ln -sfn ../../../do-harness/hooks/bin/guided-dangerous-shell.py .do/hooks/bin/guided-dangerous-shell.py
 chmod +x do-harness/hooks/bin/guided-dangerous-shell.py
 ```
 
@@ -51,10 +93,10 @@ Project hooks may require `/hooks-trust` in the session (stock grok behavior).
 ### Enable (user-global)
 
 ```sh
-mkdir -p ~/.grok/hooks/bin
-cp do-harness/hooks/guided-dangerous-shell.json ~/.grok/hooks/
-cp do-harness/hooks/bin/guided-dangerous-shell.py ~/.grok/hooks/bin/
-chmod +x ~/.grok/hooks/bin/guided-dangerous-shell.py
+mkdir -p ~/.config/do/hooks/bin
+cp do-harness/hooks/guided-dangerous-shell.json ~/.config/do/hooks/
+cp do-harness/hooks/bin/guided-dangerous-shell.py ~/.config/do/hooks/bin/
+chmod +x ~/.config/do/hooks/bin/guided-dangerous-shell.py
 ```
 
 ### Verify script contract (no binary required)
@@ -71,8 +113,8 @@ echo $?
 
 ### Disable
 
-Remove the JSON from the discovery directory (project or `~/.grok/hooks/`). The
-hook stops on the next session.
+Remove the JSON from the discovery directory (project or `~/.config/do/hooks/`).
+The hook stops on the next session.
 
 ### Notes
 

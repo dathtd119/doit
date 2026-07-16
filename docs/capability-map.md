@@ -34,7 +34,7 @@
 | L2 | L0–L6 layered prompts + fragment budgets | System + agent prompts, skills, reminders | **Partial** — no named L0–L6 registry |
 | L3 | Always-on TS harness factories | Rust tool registry + plugins/hooks + `register_tool_pack` | **Re-express** — no TS factories ([hard-limits](./grok-build/hard-limits.md)) |
 | L4 | Progressive skill/MCP catalog | Skill tool + `SkillDiscoveryReminder`; MCP search/use; [progressive-skills.md](./progressive-skills.md) | **Partial** — M1 policy + role `discoverSkills` reduce; no `skill_search`/`skill_load` product mode yet (M2) |
-| L5 | Continuation coordinator | `update_goal`, plan mode, `todo_write`, task/scheduler | **Compose** — pieces exist; unified coordinator = **`"gap"`** (M2) |
+| L5 | Continuation coordinator | `update_goal`, plan mode, `todo_write`, task + [continuation.md](./continuation.md) + PostToolUse nudge | **Partial** — priority policy + thrash-safe hooks (M2 F-M2-CONT); full settle inject = optional later |
 | L6 | Guided blocks `[GATE:…]` | Permissions + PreToolUse hooks | **Partial** — hooks exist; guided shape product-wide = **`"gap"`** (M0 proof / M2) |
 | L7 | CodeGraph lean tools | `xai-codebase-graph` crate; MCP path | **Partial** — graph code exists; lean agent tools = **`"gap"`** (M3) |
 | L8 | Side-ask / intake default | `ask_user_question`, agent profiles | **Partial** — intake profile pending; dual-stream UI = **`"gap"`** |

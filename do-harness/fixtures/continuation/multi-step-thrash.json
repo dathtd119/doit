@@ -1,0 +1,273 @@
+{
+  "name": "multi-step thrash + priority ladder",
+  "description": "VAL-M2-CONT-001 scripted fixture: priority order and no thrash loop",
+  "steps": [
+    {
+      "t": 0,
+      "reset_state": true,
+      "cooldown": 45,
+      "max_streak": 3,
+      "envelope": {
+        "toolName": "update_goal",
+        "toolInput": {
+          "objective": "Ship continuation priority",
+          "status": "active"
+        },
+        "sessionId": "fixture-m2-cont",
+        "cwd": "/tmp/do-cont-fixture"
+      },
+      "expect": {
+        "lane": "goal",
+        "has_nudge": true,
+        "nudge_contains": "Continue lane: goal",
+        "nudge_max_len": 320
+      }
+    },
+    {
+      "t": 5,
+      "envelope": {
+        "toolName": "todo_write",
+        "toolInput": {
+          "todos": [
+            { "content": "Write policy doc", "status": "in_progress" },
+            { "content": "Add thrash fixture", "status": "pending" }
+          ]
+        },
+        "sessionId": "fixture-m2-cont",
+        "cwd": "/tmp/do-cont-fixture"
+      },
+      "expect": {
+        "lane": "goal",
+        "suppressed": "cooldown",
+        "has_nudge": false
+      }
+    },
+    {
+      "t": 10,
+      "envelope": {
+        "toolName": "todo_write",
+        "toolInput": {
+          "todos": [
+            { "content": "Write policy doc", "status": "in_progress" },
+            { "content": "Add thrash fixture", "status": "pending" }
+          ]
+        },
+        "sessionId": "fixture-m2-cont",
+        "cwd": "/tmp/do-cont-fixture"
+      },
+      "expect": {
+        "lane": "goal",
+        "suppressed": "cooldown",
+        "has_nudge": false
+      }
+    },
+    {
+      "t": 50,
+      "envelope": {
+        "toolName": "todo_write",
+        "toolInput": {
+          "todos": [
+            { "content": "Write policy doc", "status": "in_progress" },
+            { "content": "Add thrash fixture", "status": "pending" }
+          ]
+        },
+        "sessionId": "fixture-m2-cont",
+        "cwd": "/tmp/do-cont-fixture"
+      },
+      "expect": {
+        "lane": "goal",
+        "has_nudge": true,
+        "nudge_contains": "Continue lane: goal"
+      }
+    },
+    {
+      "t": 100,
+      "envelope": {
+        "toolName": "update_goal",
+        "toolInput": {
+          "objective": "Ship continuation priority",
+          "status": "completed"
+        },
+        "todo_open": true,
+        "todo_focus": "Write policy doc",
+        "plan_open": true,
+        "plan_focus": "M2 plan",
+        "sessionId": "fixture-m2-cont",
+        "cwd": "/tmp/do-cont-fixture"
+      },
+      "expect": {
+        "lane": "plan",
+        "has_nudge": true,
+        "nudge_contains": "Continue lane: plan"
+      }
+    },
+    {
+      "t": 160,
+      "envelope": {
+        "toolName": "exit_plan_mode",
+        "toolInput": {},
+        "todo_open": true,
+        "todo_focus": "Write policy doc",
+        "sessionId": "fixture-m2-cont",
+        "cwd": "/tmp/do-cont-fixture"
+      },
+      "expect": {
+        "lane": "todo",
+        "has_nudge": true,
+        "nudge_contains": "Continue lane: todo"
+      }
+    },
+    {
+      "t": 170,
+      "envelope": {
+        "toolName": "todo_write",
+        "toolInput": {
+          "todos": [
+            { "content": "Write policy doc", "status": "in_progress" }
+          ]
+        },
+        "sessionId": "fixture-m2-cont",
+        "cwd": "/tmp/do-cont-fixture"
+      },
+      "expect": {
+        "lane": "todo",
+        "suppressed": "cooldown",
+        "has_nudge": false
+      }
+    },
+    {
+      "t": 200,
+      "reset_state": true,
+      "max_streak": 3,
+      "cooldown": 45,
+      "envelope": {
+        "toolName": "todo_write",
+        "toolInput": {
+          "todos": [
+            { "content": "Stuck item", "status": "in_progress" }
+          ]
+        },
+        "no_progress_streak": 0,
+        "sessionId": "fixture-m2-cont",
+        "cwd": "/tmp/do-cont-fixture"
+      },
+      "expect": {
+        "lane": "todo",
+        "has_nudge": true,
+        "nudge_contains": "Continue lane: todo",
+        "streak": 1
+      }
+    },
+    {
+      "t": 210,
+      "envelope": {
+        "toolName": "todo_write",
+        "toolInput": {
+          "todos": [
+            { "content": "Stuck item", "status": "in_progress" }
+          ]
+        },
+        "sessionId": "fixture-m2-cont",
+        "cwd": "/tmp/do-cont-fixture"
+      },
+      "expect": {
+        "lane": "todo",
+        "has_nudge": false,
+        "suppressed": "cooldown",
+        "streak": 1
+      }
+    },
+    {
+      "t": 260,
+      "envelope": {
+        "toolName": "todo_write",
+        "toolInput": {
+          "todos": [
+            { "content": "Stuck item", "status": "in_progress" }
+          ]
+        },
+        "sessionId": "fixture-m2-cont",
+        "cwd": "/tmp/do-cont-fixture"
+      },
+      "expect": {
+        "lane": "todo",
+        "has_nudge": true,
+        "streak": 2
+      }
+    },
+    {
+      "t": 320,
+      "envelope": {
+        "toolName": "todo_write",
+        "toolInput": {
+          "todos": [
+            { "content": "Stuck item", "status": "in_progress" }
+          ]
+        },
+        "sessionId": "fixture-m2-cont",
+        "cwd": "/tmp/do-cont-fixture"
+      },
+      "expect": {
+        "lane": "todo",
+        "has_nudge": true,
+        "streak": 3
+      }
+    },
+    {
+      "t": 380,
+      "envelope": {
+        "toolName": "todo_write",
+        "toolInput": {
+          "todos": [
+            { "content": "Stuck item", "status": "in_progress" }
+          ]
+        },
+        "sessionId": "fixture-m2-cont",
+        "cwd": "/tmp/do-cont-fixture"
+      },
+      "expect": {
+        "lane": "streak",
+        "has_nudge": true,
+        "nudge_contains": "Continue lane: streak"
+      }
+    },
+    {
+      "t": 400,
+      "reset_state": true,
+      "envelope": {
+        "toolName": "update_goal",
+        "toolInput": {
+          "objective": "Resume work",
+          "status": "active"
+        },
+        "interrupted": true,
+        "todo_open": true,
+        "sessionId": "fixture-m2-cont",
+        "cwd": "/tmp/do-cont-fixture"
+      },
+      "expect": {
+        "lane": "interrupt",
+        "has_nudge": true,
+        "nudge_contains": "Continue lane: interrupt",
+        "nudge_max_len": 320
+      }
+    },
+    {
+      "t": 460,
+      "envelope": {
+        "toolName": "update_goal",
+        "toolInput": {
+          "objective": "Resume work",
+          "status": "active"
+        },
+        "sessionId": "fixture-m2-cont",
+        "cwd": "/tmp/do-cont-fixture"
+      },
+      "expect": {
+        "lane": "goal",
+        "has_nudge": true,
+        "nudge_contains": "Continue lane: goal"
+      }
+    }
+  ]
+}
