@@ -1,5 +1,5 @@
 //! Project config-file discovery: locating repo-local `.mcp.json` and
-//! `.do/config.toml` files by walking from `cwd` up to the git root.
+//! `.doit/config.toml` files by walking from `cwd` up to the git root.
 //!
 //! These pure `git2` + filesystem walks are shared by the shell's config
 //! loaders and the folder-trust gate's `repo_configs_present`.
@@ -57,11 +57,11 @@ fn is_user_grok_config_file(config_path: &Path) -> bool {
     canonical_config == canonical_user
 }
 
-/// Find all `.do/config.toml` files from `cwd` upward to the git repo root.
+/// Find all `.doit/config.toml` files from `cwd` upward to the git repo root.
 /// Returns paths ordered from repo root (lowest priority) to cwd (highest priority),
 /// matching the convention used by skills and AGENTS.md discovery.
 ///
-/// If no git repo is found, only checks `cwd/.do/config.toml`. Excludes the
+/// If no git repo is found, only checks `cwd/.doit/config.toml`. Excludes the
 /// user-global config so `cwd == $HOME` does not treat user `config.toml` as
 /// a project overlay.
 pub fn find_project_configs(cwd: &Path) -> Vec<PathBuf> {
@@ -75,11 +75,11 @@ pub fn find_project_configs(cwd: &Path) -> Vec<PathBuf> {
 pub(crate) fn find_project_configs_in(chain_dirs: &[PathBuf]) -> Vec<PathBuf> {
     // `dirs` is cwd-first; reverse so repo root comes first (lowest priority)
     // and cwd last (highest), matching skills/AGENTS.md discovery order.
-    // CFG P-CFG-PROJECT: product project config is `.do/config.toml`.
+    // CFG P-CFG-PROJECT: product project config is `.doit/config.toml`.
     chain_dirs
         .iter()
         .rev()
-        .map(|dir| dir.join(".do").join("config.toml"))
+        .map(|dir| dir.join(".doit").join("config.toml"))
         .filter(|config_path| config_path.is_file() && !is_user_grok_config_file(config_path))
         .collect()
 }
@@ -107,8 +107,8 @@ mod tests {
 
         let tmp = tempfile::tempdir().unwrap();
         let project = tmp.path().join("repo");
-        std::fs::create_dir_all(project.join(".do")).unwrap();
-        std::fs::write(project.join(".do/config.toml"), "# project\n").unwrap();
+        std::fs::create_dir_all(project.join(".doit")).unwrap();
+        std::fs::write(project.join(".doit/config.toml"), "# project\n").unwrap();
         let found = find_project_configs(&project);
         assert_eq!(found.len(), 1);
         assert!(!is_user_grok_config_file(&found[0]));

@@ -7,7 +7,7 @@
 #   2. Hook JSON + engine exist under do-harness/hooks/
 #   3. Engine self-test (priority + cooldown)
 #   4. Multi-step thrash fixture (scripted envelopes)
-#   5. Optional project .do/hooks install path present or documented enablement
+#   5. Optional project .doit/hooks install path present or documented enablement
 #   6. workspace.md points at continuation policy
 #
 # Exit 0 only when all checks pass.
@@ -159,12 +159,12 @@ fi
 section "5. Project discovery install (optional but preferred)"
 # ---------------------------------------------------------------------------
 
-PROJ_HOOK="$REPO_ROOT/.do/hooks/continuation-nudge.json"
-PROJ_BIN="$REPO_ROOT/.do/hooks/bin/continuation-nudge.py"
+PROJ_HOOK="$REPO_ROOT/.doit/hooks/continuation-nudge.json"
+PROJ_BIN="$REPO_ROOT/.doit/hooks/bin/continuation-nudge.py"
 if [[ -e "$PROJ_HOOK" ]]; then
-  ok "project .do/hooks/continuation-nudge.json installed"
+  ok "project .doit/hooks/continuation-nudge.json installed"
   if [[ -e "$PROJ_BIN" || -L "$PROJ_BIN" ]]; then
-    ok "project .do/hooks/bin/continuation-nudge.py installed"
+    ok "project .doit/hooks/bin/continuation-nudge.py installed"
   else
     fail "project hook JSON present but bin missing"
   fi

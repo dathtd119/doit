@@ -1,4 +1,4 @@
-//! LSP server configuration from `.do/lsp.json`.
+//! LSP server configuration from `.doit/lsp.json`.
 
 use std::collections::{BTreeMap, HashMap};
 use std::path::{Path, PathBuf};
@@ -31,8 +31,8 @@ pub fn load_servers_with_plugins_sourced(
     );
 
     let user_path = crate::util::grok_home::grok_home().join("lsp.json");
-    // CFG P-CFG-PROJECT: project LSP config under `.do/lsp.json`.
-    let project_path = cwd.join(".do").join("lsp.json");
+    // CFG P-CFG-PROJECT: project LSP config under `.doit/lsp.json`.
+    let project_path = cwd.join(".doit").join("lsp.json");
 
     // User-level servers
     let mut servers: BTreeMap<String, (LspServerConfig, ConfigSource)> = load_file(&user_path)
@@ -132,12 +132,12 @@ pub fn filter_project_lsp_when_untrusted(
         .collect()
 }
 
-/// Load LSP server configs from user `$GROK_HOME/lsp.json` and `<cwd>/.do/lsp.json`.
+/// Load LSP server configs from user `$GROK_HOME/lsp.json` and `<cwd>/.doit/lsp.json`.
 /// Project config overrides user config for the same server name.
 pub fn load_servers(cwd: &Path) -> BTreeMap<String, LspServerConfig> {
     let user_path = crate::util::grok_home::grok_home().join("lsp.json");
-    // CFG P-CFG-PROJECT: project LSP config under `.do/lsp.json`.
-    let project_path = cwd.join(".do").join("lsp.json");
+    // CFG P-CFG-PROJECT: project LSP config under `.doit/lsp.json`.
+    let project_path = cwd.join(".doit").join("lsp.json");
 
     let mut merged = load_file(&user_path);
     let project = load_file(&project_path);
@@ -293,7 +293,7 @@ mod tests {
             (
                 LspServerConfig::default(),
                 ConfigSource::Project {
-                    path: PathBuf::from("/repo/.do/lsp.json"),
+                    path: PathBuf::from("/repo/.doit/lsp.json"),
                 },
             ),
         );

@@ -357,7 +357,7 @@ fn watch_cwd_dirs(debouncer: &mut Debouncer<AccessFilteredWatcher>, cwd: &Path) 
     if let Err(e) = debouncer.watcher().watch(cwd, RecursiveMode::NonRecursive) {
         log_watch_error(&e, "failed to watch project cwd (non-recursive)");
     }
-    let grok_dir = cwd.join(".do");
+    let grok_dir = cwd.join(".doit");
     if let Err(e) = debouncer
         .watcher()
         .watch(&grok_dir, RecursiveMode::NonRecursive)
@@ -376,7 +376,7 @@ fn unwatch_cwd_dirs(debouncer: &mut Debouncer<AccessFilteredWatcher>, cwd: &Path
     if let Err(e) = debouncer.watcher().unwatch(cwd) {
         tracing::debug!(error = %e, "failed to unwatch project cwd");
     }
-    let grok_dir = cwd.join(".do");
+    let grok_dir = cwd.join(".doit");
     if let Err(e) = debouncer.watcher().unwatch(&grok_dir) {
         tracing::debug!(error = %e, "failed to unwatch project .grok directory");
     }
@@ -586,7 +586,7 @@ mod tests {
         assert!(!g(&home.join("my-skills")));
         assert!(!g(&home.join(".config")));
         // A project/repo config dir (parent isn't $HOME): NOT global.
-        assert!(!g(&home.join("repo").join(".do")));
+        assert!(!g(&home.join("repo").join(".doit")));
     }
 
     /// Regression for the ~/.grok inotify-exhaustion / worktree-noise bug: a
@@ -845,7 +845,7 @@ mod tests {
     fn project_cwd_toml_triggers_reload() {
         let grok_home = TempDir::new().unwrap();
         let cwd = TempDir::new().unwrap();
-        let project_grok = cwd.path().join(".do");
+        let project_grok = cwd.path().join(".doit");
         fs::create_dir_all(&project_grok).unwrap();
         // Seed the file before the watcher starts so we observe the
         // modification rather than the creation event.
@@ -983,7 +983,7 @@ mod tests {
     fn watch_path_dynamic_registration() {
         let grok_home = TempDir::new().unwrap();
         let new_cwd = TempDir::new().unwrap();
-        let project_grok = new_cwd.path().join(".do");
+        let project_grok = new_cwd.path().join(".doit");
         fs::create_dir_all(&project_grok).unwrap();
         fs::write(project_grok.join("config.toml"), "").unwrap();
 

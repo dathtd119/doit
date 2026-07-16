@@ -102,6 +102,6 @@ firehose_opt_in:
   steps:
     - Set target agent frontmatter discoverSkills: true under do-harness/agents/
     - Optionally expand [skills] paths / vendor trees in ~/.config/do/config.toml
-    - Reinstall agents to ~/.config/do/agents or project .do/agents
+    - Reinstall agents to ~/.config/do/agents or project .doit/agents
     - Revert before shared product demos
   restore: Set discoverSkills: false (and empty skills: []) to return to progressive/curated

@@ -358,13 +358,13 @@ impl CompatConfig {
     }
 
     /// Config directories that may contain `skills/` subdirectories, in
-    /// priority order. `.do` and `.agents` are always included; `.claude`
+    /// priority order. `.doit` and `.agents` are always included; `.claude`
     /// and `.cursor` are gated on their respective `skills` cell.
     ///
-    /// CFG P-CFG-PROJECT: product skill root is `.do` (not `.grok`). When
-    /// all cells are on, order is `.do`, `.agents`, `.claude`, `.cursor`.
+    /// CFG P-CFG-PROJECT: product skill root is `.doit` (not `.grok`). When
+    /// all cells are on, order is `.doit`, `.agents`, `.claude`, `.cursor`.
     pub fn skill_config_dirs(&self) -> Vec<&'static str> {
-        let mut dirs = vec![".do", ".agents"];
+        let mut dirs = vec![".doit", ".agents"];
         if self.claude.skills {
             dirs.push(".claude");
         }
@@ -374,13 +374,13 @@ impl CompatConfig {
         dirs
     }
 
-    /// Subdirectories scanned for `*.md` rules files. `.do/rules` is always
+    /// Subdirectories scanned for `*.md` rules files. `.doit/rules` is always
     /// included; `.claude/rules` and `.cursor/rules` are gated on their
     /// respective `rules` cell.
     ///
-    /// CFG P-CFG-PROJECT: product rules root is `.do/rules`.
+    /// CFG P-CFG-PROJECT: product rules root is `.doit/rules`.
     pub fn rules_dirs(&self) -> Vec<&'static str> {
-        let mut dirs = vec![".do/rules"];
+        let mut dirs = vec![".doit/rules"];
         if self.claude.rules {
             dirs.push(".claude/rules");
         }
@@ -509,10 +509,10 @@ mod tests {
 
     #[test]
     fn skill_config_dirs_all_on_matches_legacy_constant() {
-        // CFG product root `.do` + historical vendor append order.
+        // CFG product root `.doit` + historical vendor append order.
         assert_eq!(
             CompatConfig::default().skill_config_dirs(),
-            vec![".do", ".agents", ".claude", ".cursor"]
+            vec![".doit", ".agents", ".claude", ".cursor"]
         );
     }
 
@@ -520,22 +520,22 @@ mod tests {
     fn skill_config_dirs_gates_each_vendor() {
         let mut c = CompatConfig::default();
         c.cursor.skills = false;
-        assert_eq!(c.skill_config_dirs(), vec![".do", ".agents", ".claude"]);
+        assert_eq!(c.skill_config_dirs(), vec![".doit", ".agents", ".claude"]);
 
         c.claude.skills = false;
-        assert_eq!(c.skill_config_dirs(), vec![".do", ".agents"]);
+        assert_eq!(c.skill_config_dirs(), vec![".doit", ".agents"]);
 
         // Only the `cursor` cell on (`claude` off): `cursor` still appended last.
         let mut c2 = CompatConfig::default();
         c2.claude.skills = false;
-        assert_eq!(c2.skill_config_dirs(), vec![".do", ".agents", ".cursor"]);
+        assert_eq!(c2.skill_config_dirs(), vec![".doit", ".agents", ".cursor"]);
     }
 
     #[test]
     fn rules_dirs_all_on_matches_legacy_constant() {
         assert_eq!(
             CompatConfig::default().rules_dirs(),
-            vec![".do/rules", ".claude/rules", ".cursor/rules"]
+            vec![".doit/rules", ".claude/rules", ".cursor/rules"]
         );
     }
 
@@ -543,9 +543,9 @@ mod tests {
     fn rules_dirs_gates_each_vendor() {
         let mut c = CompatConfig::default();
         c.cursor.rules = false;
-        assert_eq!(c.rules_dirs(), vec![".do/rules", ".claude/rules"]);
+        assert_eq!(c.rules_dirs(), vec![".doit/rules", ".claude/rules"]);
         c.claude.rules = false;
-        assert_eq!(c.rules_dirs(), vec![".do/rules"]);
+        assert_eq!(c.rules_dirs(), vec![".doit/rules"]);
     }
 
     #[test]

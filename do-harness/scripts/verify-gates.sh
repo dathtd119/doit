@@ -8,7 +8,7 @@
 #   4. Self-tests for new packs
 #   5. Gate ids named in L0 + all five role prompts
 #   6. No bare "Permission denied" in do-owned guided deny reasons
-#   7. Optional project .do/hooks install or enablement docs
+#   7. Optional project .doit/hooks install or enablement docs
 #
 # Exit 0 only when all checks pass.
 
@@ -239,12 +239,12 @@ section "6. Project discovery install (optional but preferred)"
 
 need_doc=0
 for name in guided-path-policy guided-env-expose; do
-  pj="$REPO_ROOT/.do/hooks/${name}.json"
-  pb="$REPO_ROOT/.do/hooks/bin/${name}.py"
+  pj="$REPO_ROOT/.doit/hooks/${name}.json"
+  pb="$REPO_ROOT/.doit/hooks/bin/${name}.py"
   if [[ -e "$pj" ]]; then
-    ok "project .do/hooks/${name}.json installed"
+    ok "project .doit/hooks/${name}.json installed"
     if [[ -e "$pb" || -L "$pb" ]]; then
-      ok "project .do/hooks/bin/${name}.py installed"
+      ok "project .doit/hooks/bin/${name}.py installed"
     else
       fail "project hook JSON for $name present but bin missing"
     fi
@@ -262,9 +262,9 @@ if [[ "$need_doc" -eq 1 ]]; then
 fi
 
 # Shared helper on discovery bin path when project install exists
-if [[ -e "$REPO_ROOT/.do/hooks/bin/guided-path-policy.py" ]]; then
-  if [[ -e "$REPO_ROOT/.do/hooks/bin/guided_block.py" || -L "$REPO_ROOT/.do/hooks/bin/guided_block.py" ]]; then
-    ok "project .do/hooks/bin/guided_block.py available for imports"
+if [[ -e "$REPO_ROOT/.doit/hooks/bin/guided-path-policy.py" ]]; then
+  if [[ -e "$REPO_ROOT/.doit/hooks/bin/guided_block.py" || -L "$REPO_ROOT/.doit/hooks/bin/guided_block.py" ]]; then
+    ok "project .doit/hooks/bin/guided_block.py available for imports"
   else
     fail "project install missing guided_block.py next to gate scripts"
   fi

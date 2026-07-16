@@ -79,7 +79,7 @@ pub async fn discover_agents_md(root_cwd: &Path) -> Vec<Value> {
         .into_iter()
         .map(|mut file| {
             // Strip rules-file YAML frontmatter so it does not leak as raw YAML (matches grok-build render).
-            if file.file_path.contains("/.do/rules/")
+            if file.file_path.contains("/.doit/rules/")
                 || file.file_path.contains("/.claude/rules/")
                 || file.file_path.contains("/.cursor/rules/")
             {
@@ -159,12 +159,12 @@ pub fn discover_plugins(
 // Project config
 // ---------------------------------------------------------------------------
 
-/// Load the project config from `<root_cwd>/.do/config.toml`.
+/// Load the project config from `<root_cwd>/.doit/config.toml`.
 ///
 /// Returns `Value::Null` if the file does not exist or cannot be
 /// parsed. Non-fatal errors are logged.
 pub fn load_project_config(root_cwd: &Path) -> Value {
-    let config_path = root_cwd.join(".do").join("config.toml");
+    let config_path = root_cwd.join(".doit").join("config.toml");
     match xai_grok_config::load_config_file(&config_path) {
         Ok(toml::Value::Table(ref t)) if t.is_empty() => {
             // The config loader returns an empty table when the file
@@ -266,7 +266,7 @@ mod tests {
     #[tokio::test]
     async fn discover_skills_finds_skill_md() {
         let tmp = tempfile::tempdir().unwrap();
-        let skills_dir = tmp.path().join(".do").join("skills").join("my-skill");
+        let skills_dir = tmp.path().join(".doit").join("skills").join("my-skill");
         fs::create_dir_all(&skills_dir).unwrap();
         fs::write(
             skills_dir.join("SKILL.md"),
@@ -286,7 +286,7 @@ mod tests {
     #[tokio::test]
     async fn discover_skills_respects_ignore_config() {
         let tmp = tempfile::tempdir().unwrap();
-        let skills_dir = tmp.path().join(".do").join("skills").join("ignored");
+        let skills_dir = tmp.path().join(".doit").join("skills").join("ignored");
         fs::create_dir_all(&skills_dir).unwrap();
         fs::write(
             skills_dir.join("SKILL.md"),
@@ -314,7 +314,7 @@ mod tests {
         let tmp = tempfile::tempdir().unwrap();
         let skills_dir = tmp
             .path()
-            .join(".do")
+            .join(".doit")
             .join("skills")
             .join("serialized-check");
         fs::create_dir_all(&skills_dir).unwrap();
@@ -365,7 +365,7 @@ mod tests {
     #[tokio::test]
     async fn discover_agents_md_strips_rules_frontmatter() {
         let tmp = tempfile::tempdir().unwrap();
-        let rules_dir = tmp.path().join(".do").join("rules");
+        let rules_dir = tmp.path().join(".doit").join("rules");
         fs::create_dir_all(&rules_dir).unwrap();
         fs::write(
             rules_dir.join("xyzzy-discover-agents-md-test.md"),
@@ -379,7 +379,7 @@ mod tests {
             .find(|f| {
                 f["file_path"]
                     .as_str()
-                    .is_some_and(|p| p.ends_with("/.do/rules/xyzzy-discover-agents-md-test.md"))
+                    .is_some_and(|p| p.ends_with("/.doit/rules/xyzzy-discover-agents-md-test.md"))
             })
             .expect("should discover the rules file");
         let content = rule["content"].as_str().unwrap();
@@ -426,7 +426,7 @@ mod tests {
     #[test]
     fn discover_plugins_finds_manifest_plugin() {
         let tmp = tempfile::tempdir().unwrap();
-        let plugins_dir = tmp.path().join(".do").join("plugins").join("test-plugin");
+        let plugins_dir = tmp.path().join(".doit").join("plugins").join("test-plugin");
         fs::create_dir_all(&plugins_dir).unwrap();
         fs::write(
             plugins_dir.join("plugin.json"),
@@ -451,7 +451,7 @@ mod tests {
     #[test]
     fn discover_plugins_json_has_expected_fields() {
         let tmp = tempfile::tempdir().unwrap();
-        let plugins_dir = tmp.path().join(".do").join("plugins").join("field-test");
+        let plugins_dir = tmp.path().join(".doit").join("plugins").join("field-test");
         fs::create_dir_all(plugins_dir.join("skills")).unwrap();
         fs::write(
             plugins_dir.join("plugin.json"),
@@ -490,7 +490,7 @@ mod tests {
     #[test]
     fn load_project_config_reads_toml_as_json() {
         let tmp = tempfile::tempdir().unwrap();
-        let grok_dir = tmp.path().join(".do");
+        let grok_dir = tmp.path().join(".doit");
         fs::create_dir_all(&grok_dir).unwrap();
         fs::write(
             grok_dir.join("config.toml"),

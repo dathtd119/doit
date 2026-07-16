@@ -132,7 +132,7 @@ pub fn load_sandbox_config(workspace: &Path) -> SandboxConfig {
     }
 
     // Project config: <workspace>/.grok/sandbox.toml (additive only)
-    let project_path = workspace.join(".do").join("sandbox.toml");
+    let project_path = workspace.join(".doit").join("sandbox.toml");
     if let Some(project) = load_config_file(&project_path) {
         merge_project_profiles(&mut config, project);
     }
@@ -142,7 +142,7 @@ pub fn load_sandbox_config(workspace: &Path) -> SandboxConfig {
 
 pub fn sandbox_profile_conflicts(workspace: &Path) -> Vec<String> {
     let global = load_config_file(&grok_home().join("sandbox.toml")).unwrap_or_default();
-    let project = load_config_file(&workspace.join(".do").join("sandbox.toml")).unwrap_or_default();
+    let project = load_config_file(&workspace.join(".doit").join("sandbox.toml")).unwrap_or_default();
     mismatched_profile_names(&global, &project)
 }
 

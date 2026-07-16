@@ -2,7 +2,7 @@
 
 Product identity layer for **do** (forked grok-build): agents, hooks, skills,
 prompts, and model-assignment YAML. Source of truth lives **here**; install onto
-product discovery paths (`~/.config/do` user home, project `.do/`).
+product discovery paths (`~/.config/do` user home, project `.doit/`).
 
 See root [`AGENTS.md`](../AGENTS.md) Customization Order and
 [`docs/grok-build/extension-seams.md`](../docs/grok-build/extension-seams.md).
@@ -38,16 +38,16 @@ paths the forked binary already walks:
 
 | Asset | Runtime discovery path | Evidence in fork |
 |-------|------------------------|------------------|
-| Agents | `<project>/.do/agents/*.md` (cwd → git root), then `~/.config/do/agents/` | `crates/codegen/xai-grok-agent/src/discovery.rs` (`PROJECT_AGENT_SUBDIRS`) |
-| Hooks | `<git-root>/.do/hooks/*.json`, then `~/.config/do/hooks/` | `crates/codegen/xai-grok-shell/src/util/hooks.rs` (`discover_hook_source_paths`); load via `xai-grok-hooks` `HookSource::Directory` |
+| Agents | `<project>/.doit/agents/*.md` (cwd → git root), then `~/.config/do/agents/` | `crates/codegen/xai-grok-agent/src/discovery.rs` (`PROJECT_AGENT_SUBDIRS`) |
+| Hooks | `<git-root>/.doit/hooks/*.json`, then `~/.config/do/hooks/` | `crates/codegen/xai-grok-shell/src/util/hooks.rs` (`discover_hook_source_paths`); load via `xai-grok-hooks` `HookSource::Directory` |
 
-**Install pattern:** symlink from project `.do/` into `do-harness/` so the
+**Install pattern:** symlink from project `.doit/` into `do-harness/` so the
 repo is the single source of truth.
 
 ## Product roster (M1 — F-M1-ROSTER / VAL-M1-ROSTER-001)
 
 Five primary-session roles under [`agents/`](./agents/). Source of truth is
-`do-harness/agents/`; install onto project `.do/agents/` (symlinks preferred).
+`do-harness/agents/`; install onto project `.doit/agents/` (symlinks preferred).
 
 | Role | Source | Typical use | Tool floor (F-M2-PERM) |
 |------|--------|-------------|------------------------|
@@ -91,7 +91,7 @@ bash do-harness/scripts/verify-roster.sh
 ### Intake agent (F-EXT-001 / VAL-EXT-001)
 
 - Source: [`agents/intake.md`](./agents/intake.md)
-- Discovery: `.do/agents/intake.md` → symlink to source
+- Discovery: `.doit/agents/intake.md` → symlink to source
 - Role: clarify-only intake; `permissionMode: plan`; no file edits
 - **M1:** intake remains part of the five-role product roster (above)
 
@@ -99,7 +99,7 @@ bash do-harness/scripts/verify-roster.sh
 
 - Source: [`hooks/guided-dangerous-shell.json`](./hooks/guided-dangerous-shell.json)
   + [`hooks/bin/guided-dangerous-shell.py`](./hooks/bin/guided-dangerous-shell.py)
-- Discovery: `.do/hooks/*` → symlinks to source
+- Discovery: `.doit/hooks/*` → symlinks to source
 - Behavior: PreToolUse on shell tools; deny dangerous patterns with
   `[GATE: …]` + **Do this instead** (never bare “Permission denied”)
 - Enablement detail: [`hooks/README.md`](./hooks/README.md)
@@ -137,31 +137,31 @@ From the **do** repo root:
 
 ```sh
 # Full product roster (M1)
-mkdir -p .do/agents
+mkdir -p .doit/agents
 for role in intake orchestrator explorer worker oracle; do
-  ln -sfn ../../do-harness/agents/${role}.md .do/agents/${role}.md
+  ln -sfn ../../do-harness/agents/${role}.md .doit/agents/${role}.md
 done
 
 # Hooks (M0 guided shell + M2 continuation + M2 path-policy + env-expose)
-mkdir -p .do/hooks/bin
+mkdir -p .doit/hooks/bin
 ln -sfn ../../do-harness/hooks/guided-dangerous-shell.json \
-  .do/hooks/guided-dangerous-shell.json
+  .doit/hooks/guided-dangerous-shell.json
 ln -sfn ../../../do-harness/hooks/bin/guided-dangerous-shell.py \
-  .do/hooks/bin/guided-dangerous-shell.py
+  .doit/hooks/bin/guided-dangerous-shell.py
 ln -sfn ../../do-harness/hooks/continuation-nudge.json \
-  .do/hooks/continuation-nudge.json
+  .doit/hooks/continuation-nudge.json
 ln -sfn ../../../do-harness/hooks/bin/continuation-nudge.py \
-  .do/hooks/bin/continuation-nudge.py
+  .doit/hooks/bin/continuation-nudge.py
 ln -sfn ../../do-harness/hooks/guided-path-policy.json \
-  .do/hooks/guided-path-policy.json
+  .doit/hooks/guided-path-policy.json
 ln -sfn ../../../do-harness/hooks/bin/guided-path-policy.py \
-  .do/hooks/bin/guided-path-policy.py
+  .doit/hooks/bin/guided-path-policy.py
 ln -sfn ../../do-harness/hooks/guided-env-expose.json \
-  .do/hooks/guided-env-expose.json
+  .doit/hooks/guided-env-expose.json
 ln -sfn ../../../do-harness/hooks/bin/guided-env-expose.py \
-  .do/hooks/bin/guided-env-expose.py
+  .doit/hooks/bin/guided-env-expose.py
 ln -sfn ../../../do-harness/hooks/bin/guided_block.py \
-  .do/hooks/bin/guided_block.py
+  .doit/hooks/bin/guided_block.py
 chmod +x do-harness/hooks/bin/guided-dangerous-shell.py
 chmod +x do-harness/hooks/bin/continuation-nudge.py
 chmod +x do-harness/hooks/bin/guided-path-policy.py
@@ -209,12 +209,12 @@ bash do-harness/scripts/verify-discovery.sh
 What the script proves:
 
 1. Source files exist under `do-harness/`
-2. Project `.do/agents/intake.md` and `.do/hooks/…` exist and resolve to source
+2. Project `.doit/agents/intake.md` and `.doit/hooks/…` exist and resolve to source
 3. Agent frontmatter matches grok agent conventions (`name: intake`, …)
 4. Hook JSON has `PreToolUse` + shell matcher + `type: command` handler
 5. Hook command target exists under the hook `source_dir`
 6. Guided deny/allow self-test passes (`[GATE: …]` shape)
-7. Forked source still documents `.do/agents` and `.do/hooks` as discovery paths
+7. Forked source still documents `.doit/agents` and `.doit/hooks` as discovery paths
 
 Optional override:
 
@@ -290,7 +290,7 @@ or re-pin mid-session (role lock is F-M1-LOCK / F-M1-MODEL-RESOLVE).
 1. Ensure registry names exist in both YAML and stock TOML (hand-sync TOML).
 2. `bash do-harness/scripts/apply-models.sh --validate`
 3. `bash do-harness/scripts/apply-models.sh --apply`
-4. Agents under `.do/agents/` already symlink to `do-harness/agents/` — no
+4. Agents under `.doit/agents/` already symlink to `do-harness/agents/` — no
    re-link required for project install.
 
 ## Continuation priority (F-M2-CONT / VAL-M2-CONT-001)
@@ -386,7 +386,7 @@ Overlay fragment: [`config.toolset.toml`](./config.toolset.toml)
 
 Product **default** prefers native **GrokBuildHashline** (`file_toolset = "hashline"`)
 over Standard. Stock Rust `FileToolset` Default remains Standard until operators
-merge the fragment into `~/.config/do/config.toml` or project `.do/config.toml`.
+merge the fragment into `~/.config/do/config.toml` or project `.doit/config.toml`.
 **Does not reinvent** hashline grammar — only stock scheme knobs.
 
 | Surface | Product choice |
@@ -401,7 +401,7 @@ merge the fragment into `~/.config/do/config.toml` or project `.do/config.toml`.
 ```sh
 # Merge [toolset] from do-harness/config.toolset.toml into your config.toml, e.g.:
 #   ~/.config/do/config.toml
-#   or <project>/.do/config.toml
+#   or <project>/.doit/config.toml
 #
 # Minimal:
 # [toolset]

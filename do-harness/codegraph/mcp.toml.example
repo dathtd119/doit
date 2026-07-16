@@ -1,6 +1,6 @@
 # Example MCP registration for do CodeGraph (F-M3-CG / VAL-M3-CG-001).
 #
-# Merge into user ~/.config/do/config.toml or project .do/config.toml.
+# Merge into user ~/.config/do/config.toml or project .doit/config.toml.
 # Replace /ABS/PATH/TO/do with the real do repo path (or a deployed checkout).
 #
 # Binary: cargo build -p xai-codebase-graph --bin code-graph

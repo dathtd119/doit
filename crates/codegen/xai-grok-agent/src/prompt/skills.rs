@@ -168,8 +168,8 @@ pub fn collect_skill_config_dirs(
     };
 
     // Vendor dirs (`.claude`/`.cursor`) are gated by the resolved compat
-    // config; `.grok` and `.agents` are always present. When all cells are on
-    // this list equals the product `[".do", ".agents", ".claude", ".cursor"]`.
+    // config; `.doit` and `.agents` are always present. When all cells are on
+    // this list equals the product `[".doit", ".agents", ".claude", ".cursor"]`.
     let config_dir_names = compat.skill_config_dirs();
 
     // Priority 1 & 2: Walk from cwd up to the git root.
@@ -735,7 +735,7 @@ mod tests {
         write_skill_md(&server.path().join("dup"), "dup");
 
         let cwd = tempfile::tempdir().unwrap();
-        write_skill_md(&cwd.path().join(".do").join("skills").join("dup"), "dup");
+        write_skill_md(&cwd.path().join(".doit").join("skills").join("dup"), "dup");
 
         let config = SkillsConfig {
             server_skill_dirs: vec![server.path().to_string_lossy().into_owned()],
@@ -771,7 +771,7 @@ mod tests {
         write_skill_md(&bundled.path().join("dup"), "dup");
 
         let cwd = tempfile::tempdir().unwrap();
-        write_skill_md(&cwd.path().join(".do").join("skills").join("dup"), "dup");
+        write_skill_md(&cwd.path().join(".doit").join("skills").join("dup"), "dup");
 
         let config = SkillsConfig {
             bundled_skill_dirs: vec![bundled.path().to_string_lossy().into_owned()],
@@ -832,7 +832,7 @@ mod tests {
     fn find_skill_paths_flat_layout() {
         // Traditional flat layout: skills/<name>/SKILL.md
         let tmp = tempfile::tempdir().unwrap();
-        let grok_dir = tmp.path().join(".do");
+        let grok_dir = tmp.path().join(".doit");
 
         write_skill_md(&grok_dir.join("skills").join("alpha"), "alpha");
         write_skill_md(&grok_dir.join("skills").join("beta"), "beta");
@@ -846,7 +846,7 @@ mod tests {
     fn find_skill_paths_nested_layout() {
         // Nested: skills/team/infra/SKILL.md, skills/team/training/SKILL.md
         let tmp = tempfile::tempdir().unwrap();
-        let grok_dir = tmp.path().join(".do");
+        let grok_dir = tmp.path().join(".doit");
         let skills = grok_dir.join("skills");
 
         write_skill_md(&skills.join("team").join("infra"), "infra");
@@ -864,7 +864,7 @@ mod tests {
     fn find_skill_paths_mixed_flat_and_nested() {
         // Mix of flat and nested skills
         let tmp = tempfile::tempdir().unwrap();
-        let grok_dir = tmp.path().join(".do");
+        let grok_dir = tmp.path().join(".doit");
         let skills = grok_dir.join("skills");
 
         // Flat
@@ -882,7 +882,7 @@ mod tests {
     fn find_skill_paths_dir_without_skill_md_is_skipped() {
         // A subdirectory exists but has no SKILL.md — should not appear
         let tmp = tempfile::tempdir().unwrap();
-        let grok_dir = tmp.path().join(".do");
+        let grok_dir = tmp.path().join(".doit");
         let skills = grok_dir.join("skills");
 
         write_skill_md(&skills.join("valid"), "valid");
@@ -902,7 +902,7 @@ mod tests {
     fn find_skill_paths_no_skills_dir() {
         // .grok exists but no skills/ subdirectory
         let tmp = tempfile::tempdir().unwrap();
-        let grok_dir = tmp.path().join(".do");
+        let grok_dir = tmp.path().join(".doit");
         fs::create_dir_all(&grok_dir).unwrap();
 
         let paths = find_skill_paths(&grok_dir);
@@ -944,7 +944,7 @@ mod tests {
     fn find_skill_paths_parent_and_child_both_have_skill_md() {
         // A directory has SKILL.md and also has subdirectories with SKILL.md
         let tmp = tempfile::tempdir().unwrap();
-        let grok_dir = tmp.path().join(".do");
+        let grok_dir = tmp.path().join(".doit");
         let skills = grok_dir.join("skills");
 
         // Parent skill
@@ -1313,7 +1313,7 @@ mod tests {
         // Create workspace user dir with a skill
         let user_dir = repo_root.join("x").join("testuser");
         write_skill_md(
-            &user_dir.join(".do").join("skills").join("my-tool"),
+            &user_dir.join(".doit").join("skills").join("my-tool"),
             "my-tool",
         );
 
@@ -1343,7 +1343,7 @@ mod tests {
         // User dir with a skill
         let user_dir = repo_root.join("x").join("testuser");
         write_skill_md(
-            &user_dir.join(".do").join("skills").join("dedup-skill"),
+            &user_dir.join(".doit").join("skills").join("dedup-skill"),
             "dedup-skill",
         );
 
@@ -1371,7 +1371,7 @@ mod tests {
         // Create a skill that would only be found via workspace user path
         let user_dir = repo_root.join("x").join("ghost");
         write_skill_md(
-            &user_dir.join(".do").join("skills").join("ghost-skill"),
+            &user_dir.join(".doit").join("skills").join("ghost-skill"),
             "ghost-skill",
         );
 
@@ -1400,7 +1400,7 @@ mod tests {
 
         // User dir with nested skills
         let user_dir = repo_root.join("x").join("nested-user");
-        let skills_base = user_dir.join(".do").join("skills");
+        let skills_base = user_dir.join(".doit").join("skills");
         write_skill_md(&skills_base.join("flat-skill"), "flat-skill");
         write_skill_md(&skills_base.join("team").join("deep-skill"), "deep-skill");
 
@@ -1844,14 +1844,14 @@ mod tests {
         fs::create_dir_all(&repo_root).unwrap();
         init_git_repo(&repo_root);
 
-        let auto_dir = repo_root.join(".do").join("skills").join("dup-skill");
+        let auto_dir = repo_root.join(".doit").join("skills").join("dup-skill");
         write_skill_md(&auto_dir, "dup-skill");
 
         // Add the same auto-discovered skills root as a config path.
         let config = SkillsConfig {
             paths: vec![
                 repo_root
-                    .join(".do")
+                    .join(".doit")
                     .join("skills")
                     .to_str()
                     .unwrap()
@@ -1884,13 +1884,13 @@ mod tests {
         fs::create_dir_all(&repo_root).unwrap();
         init_git_repo(&repo_root);
 
-        let auto_dir = repo_root.join(".do").join("skills").join("overlap-skill");
+        let auto_dir = repo_root.join(".doit").join("skills").join("overlap-skill");
         write_skill_md(&auto_dir, "overlap-skill");
 
         let config = SkillsConfig {
             paths: vec![
                 repo_root
-                    .join(".do")
+                    .join(".doit")
                     .join("skills")
                     .to_str()
                     .unwrap()
@@ -1967,14 +1967,14 @@ mod tests {
         init_git_repo(&repo_root);
 
         // Same skill name in local (higher-priority) and repo (lower-priority) sources.
-        write_skill_md(&cwd.join(".do").join("skills").join("same"), "same");
-        let repo_skill_dir = repo_root.join(".do").join("skills").join("same");
+        write_skill_md(&cwd.join(".doit").join("skills").join("same"), "same");
+        let repo_skill_dir = repo_root.join(".doit").join("skills").join("same");
         write_skill_md(&repo_skill_dir, "same");
 
         // Ignore the local skill path. Repo fallback should remain visible.
         let config = SkillsConfig {
             paths: vec![],
-            ignore: vec![cwd.join(".do").join("skills").to_str().unwrap().to_string()],
+            ignore: vec![cwd.join(".doit").join("skills").to_str().unwrap().to_string()],
             disabled: vec![],
             server_skill_dirs: vec![],
             bundled_skill_dirs: vec![],
@@ -2016,11 +2016,11 @@ mod tests {
         init_git_repo(&repo_root);
 
         write_skill_md(
-            &repo_root.join(".do").join("skills").join("commit"),
+            &repo_root.join(".doit").join("skills").join("commit"),
             "commit",
         );
         write_skill_md(
-            &repo_root.join(".do").join("skills").join("review"),
+            &repo_root.join(".doit").join("skills").join("review"),
             "review",
         );
 
@@ -2064,7 +2064,7 @@ mod tests {
         init_git_repo(&repo_root);
 
         write_skill_md(
-            &repo_root.join(".do").join("skills").join("deploy"),
+            &repo_root.join(".doit").join("skills").join("deploy"),
             "deploy",
         );
 
@@ -2433,7 +2433,7 @@ mod tests {
         let tmp = tempfile::tempdir().unwrap();
         let cwd = tmp.path();
         // Not a git repo → falls to the cwd-only branch (no upward walk).
-        for name in [".do", ".agents", ".claude", ".cursor"] {
+        for name in [".doit", ".agents", ".claude", ".cursor"] {
             fs::create_dir_all(cwd.join(name)).unwrap();
         }
 
@@ -2455,7 +2455,7 @@ mod tests {
         );
         assert!(ends_with(&dirs, ".claude"), "claude must remain: {dirs:?}");
         assert!(
-            ends_with(&dirs, ".do"),
+            ends_with(&dirs, ".doit"),
             "do skill root must remain: {dirs:?}"
         );
     }
@@ -2638,7 +2638,7 @@ mod tests {
             ),
         ]);
         assert_eq!(out.len(), 1);
-        assert!(out[0].path.contains(".do"));
+        assert!(out[0].path.contains(".doit"));
     }
 
     #[tokio::test]
@@ -2652,7 +2652,7 @@ mod tests {
         fs::create_dir_all(&repo_root).unwrap();
         init_git_repo(&repo_root);
 
-        let skills_dir = repo_root.join(".do").join("skills");
+        let skills_dir = repo_root.join(".doit").join("skills");
         write_skill_md(&skills_dir.join("zz-copyfix-japandi"), "zz-copyfix-japandi");
         // The copy keeps the original's frontmatter name.
         write_skill_md(

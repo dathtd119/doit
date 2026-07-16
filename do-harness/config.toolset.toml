@@ -1,6 +1,6 @@
 # Product recommended toolset overlay (F-M3-HASH / VAL-M3-HASH-001).
 # Source of truth fragment for operators: merge into ~/.config/do/config.toml
-# and/or project .do/config.toml. Stock Rust Default remains Standard until
+# and/or project .doit/config.toml. Stock Rust Default remains Standard until
 # this key is set — product policy is "install hashline by default".
 #
 # Does NOT invent a second tool registry or hashline grammar.

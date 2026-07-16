@@ -2130,7 +2130,7 @@ fn validate_roles_accepts_valid_prompt_file() {
 #[test]
 fn discover_roles_loads_from_directory() {
     let tmp = tempfile::TempDir::new().unwrap();
-    let roles_dir = tmp.path().join(".do").join("roles");
+    let roles_dir = tmp.path().join(".doit").join("roles");
     std::fs::create_dir_all(&roles_dir).unwrap();
     std::fs::write(
             roles_dir.join("reviewer.toml"),
@@ -2149,7 +2149,7 @@ fn discover_roles_loads_from_directory() {
 #[test]
 fn discover_roles_inline_takes_precedence() {
     let tmp = tempfile::TempDir::new().unwrap();
-    let roles_dir = tmp.path().join(".do").join("roles");
+    let roles_dir = tmp.path().join(".doit").join("roles");
     std::fs::create_dir_all(&roles_dir).unwrap();
     std::fs::write(
             roles_dir.join("researcher.toml"),
@@ -2173,7 +2173,7 @@ fn discover_roles_inline_takes_precedence() {
 #[test]
 fn discover_roles_ignores_non_toml_files() {
     let tmp = tempfile::TempDir::new().unwrap();
-    let roles_dir = tmp.path().join(".do").join("roles");
+    let roles_dir = tmp.path().join(".doit").join("roles");
     std::fs::create_dir_all(&roles_dir).unwrap();
     std::fs::write(roles_dir.join("readme.md"), "This is not a role definition")
         .unwrap();
@@ -2222,7 +2222,7 @@ fn persona_lookup_returns_none_for_unknown() {
 #[test]
 fn discover_personas_loads_from_directory() {
     let tmp = tempfile::TempDir::new().unwrap();
-    let dir = tmp.path().join(".do").join("personas");
+    let dir = tmp.path().join(".doit").join("personas");
     std::fs::create_dir_all(&dir).unwrap();
     std::fs::write(
             dir.join("friendly.toml"),
@@ -2237,7 +2237,7 @@ fn discover_personas_loads_from_directory() {
 #[test]
 fn discover_personas_inline_takes_precedence() {
     let tmp = tempfile::TempDir::new().unwrap();
-    let dir = tmp.path().join(".do").join("personas");
+    let dir = tmp.path().join(".doit").join("personas");
     std::fs::create_dir_all(&dir).unwrap();
     std::fs::write(dir.join("strict.toml"), r#"instructions = "File-based strict""#)
         .unwrap();
@@ -2260,10 +2260,10 @@ fn bundled_personas_and_roles_have_lowest_priority_in_resolve_order() {
     let home = tmp.path().join("home");
     let workspace = tmp.path().join("workspace");
     let bundled = home.join(".grok").join("bundled");
-    std::fs::create_dir_all(workspace.join(".do").join("roles")).unwrap();
-    std::fs::create_dir_all(workspace.join(".do").join("personas")).unwrap();
-    std::fs::create_dir_all(home.join(".do").join("roles")).unwrap();
-    std::fs::create_dir_all(home.join(".do").join("personas")).unwrap();
+    std::fs::create_dir_all(workspace.join(".doit").join("roles")).unwrap();
+    std::fs::create_dir_all(workspace.join(".doit").join("personas")).unwrap();
+    std::fs::create_dir_all(home.join(".doit").join("roles")).unwrap();
+    std::fs::create_dir_all(home.join(".doit").join("personas")).unwrap();
     std::fs::create_dir_all(bundled.join("roles")).unwrap();
     std::fs::create_dir_all(bundled.join("personas")).unwrap();
     std::fs::write(
@@ -2277,22 +2277,22 @@ fn bundled_personas_and_roles_have_lowest_priority_in_resolve_order() {
         )
         .unwrap();
     std::fs::write(
-            home.join(".do/roles/reviewer.toml"),
+            home.join(".doit/roles/reviewer.toml"),
             r#"description = "User reviewer""#,
         )
         .unwrap();
     std::fs::write(
-            home.join(".do/personas/reviewer.toml"),
+            home.join(".doit/personas/reviewer.toml"),
             r#"instructions = "User persona""#,
         )
         .unwrap();
     std::fs::write(
-            workspace.join(".do/roles/reviewer.toml"),
+            workspace.join(".doit/roles/reviewer.toml"),
             r#"description = "Project reviewer""#,
         )
         .unwrap();
     std::fs::write(
-            workspace.join(".do/personas/reviewer.toml"),
+            workspace.join(".doit/personas/reviewer.toml"),
             r#"instructions = "Project persona""#,
         )
         .unwrap();
@@ -2325,8 +2325,8 @@ fn bundled_personas_and_roles_have_lowest_priority_in_resolve_order() {
             );
         },
     );
-    std::fs::remove_file(workspace.join(".do/roles/reviewer.toml")).unwrap();
-    std::fs::remove_file(workspace.join(".do/personas/reviewer.toml")).unwrap();
+    std::fs::remove_file(workspace.join(".doit/roles/reviewer.toml")).unwrap();
+    std::fs::remove_file(workspace.join(".doit/personas/reviewer.toml")).unwrap();
     with_env_var(
         "HOME",
         home.to_str().unwrap(),
@@ -2350,8 +2350,8 @@ fn bundled_personas_and_roles_have_lowest_priority_in_resolve_order() {
             );
         },
     );
-    std::fs::remove_file(home.join(".do/roles/reviewer.toml")).unwrap();
-    std::fs::remove_file(home.join(".do/personas/reviewer.toml")).unwrap();
+    std::fs::remove_file(home.join(".doit/roles/reviewer.toml")).unwrap();
+    std::fs::remove_file(home.join(".doit/personas/reviewer.toml")).unwrap();
     with_env_var(
         "HOME",
         home.to_str().unwrap(),
@@ -2963,7 +2963,7 @@ fn resolve_effective_plugins_config_gates_project_paths_on_folder_trust() {
     let _sim = simulate_release_build();
     let repo = tempfile::tempdir().unwrap();
     git2::Repository::init(repo.path()).unwrap();
-    let grok = repo.path().join(".do");
+    let grok = repo.path().join(".doit");
     std::fs::create_dir_all(&grok).unwrap();
     std::fs::write(
             grok.join("config.toml"),
@@ -3029,7 +3029,7 @@ fn discover_plugins_excludes_untrusted_configpath_plugin_end_to_end() {
     std::fs::create_dir_all(&plugin_dir).unwrap();
     std::fs::write(plugin_dir.join("plugin.json"), r#"{"name":"cfgpath-probe"}"#)
         .unwrap();
-    let grok = cwd.join(".do");
+    let grok = cwd.join(".doit");
     std::fs::create_dir_all(&grok).unwrap();
     std::fs::write(
             grok.join("config.toml"),
@@ -3092,7 +3092,7 @@ fn kill_switched_cold_cwd_stays_allowed_through_plugins_config_read() {
     let _sim = simulate_release_build();
     let repo = tempfile::tempdir().unwrap();
     git2::Repository::init(repo.path()).unwrap();
-    let grok = repo.path().join(".do");
+    let grok = repo.path().join(".doit");
     std::fs::create_dir_all(&grok).unwrap();
     std::fs::write(grok.join("config.toml"), "[plugins]\npaths = [\"./proj-plugin\"]\n")
         .unwrap();

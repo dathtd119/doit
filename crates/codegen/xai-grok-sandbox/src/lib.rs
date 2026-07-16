@@ -621,7 +621,7 @@ mod tests {
             .unwrap()
             .as_nanos();
         let ws = std::env::temp_dir().join(format!("grok-{tag}-{}-{nanos}", std::process::id()));
-        let grok = ws.join(".do");
+        let grok = ws.join(".doit");
         std::fs::create_dir_all(&grok).unwrap();
         std::fs::write(grok.join("sandbox.toml"), toml_body).unwrap();
         ws

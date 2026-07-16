@@ -1,7 +1,7 @@
 # do-harness hooks
 
 Product hooks for **do**. Source of truth lives here; install onto product
-discovery paths (`~/.config/do/hooks/` or `<project>/.do/hooks/`) so
+discovery paths (`~/.config/do/hooks/` or `<project>/.doit/hooks/`) so
 `xai-grok-hooks` loads them.
 
 Evidence: hook discovery loads `*.json` from those directories
@@ -22,7 +22,7 @@ Verify: `bash do-harness/scripts/verify-continuation.sh` (VAL-M2-CONT-001).
 On `PostToolUse` for `update_goal`, plan enter/exit, `todo_write`, and task/spawn
 tools, the engine:
 
-1. Updates session state under `<cwd>/.do/continuation/<session>/state.json`
+1. Updates session state under `<cwd>/.doit/continuation/<session>/state.json`
 2. Selects the **highest-priority open lane** only
 3. Emits a short `Continue lane: <lane> …` nudge unless cooldown / quiet / max-nudges suppress (no thrash loop)
 
@@ -31,9 +31,9 @@ Never dumps full goal/plan/todo bodies. `DO_CONTINUATION_NUDGE=0` disables.
 ### Enable (project-scoped)
 
 ```sh
-mkdir -p .do/hooks/bin
-ln -sfn ../../do-harness/hooks/continuation-nudge.json .do/hooks/continuation-nudge.json
-ln -sfn ../../../do-harness/hooks/bin/continuation-nudge.py .do/hooks/bin/continuation-nudge.py
+mkdir -p .doit/hooks/bin
+ln -sfn ../../do-harness/hooks/continuation-nudge.json .doit/hooks/continuation-nudge.json
+ln -sfn ../../../do-harness/hooks/bin/continuation-nudge.py .doit/hooks/bin/continuation-nudge.py
 chmod +x do-harness/hooks/bin/continuation-nudge.py
 ```
 
@@ -80,12 +80,12 @@ PreToolUse on shell tools:
 ### Enable path + env packs (project-scoped)
 
 ```sh
-mkdir -p .do/hooks/bin
-ln -sfn ../../do-harness/hooks/guided-path-policy.json .do/hooks/guided-path-policy.json
-ln -sfn ../../../do-harness/hooks/bin/guided-path-policy.py .do/hooks/bin/guided-path-policy.py
-ln -sfn ../../do-harness/hooks/guided-env-expose.json .do/hooks/guided-env-expose.json
-ln -sfn ../../../do-harness/hooks/bin/guided-env-expose.py .do/hooks/bin/guided-env-expose.py
-ln -sfn ../../../do-harness/hooks/bin/guided_block.py .do/hooks/bin/guided_block.py
+mkdir -p .doit/hooks/bin
+ln -sfn ../../do-harness/hooks/guided-path-policy.json .doit/hooks/guided-path-policy.json
+ln -sfn ../../../do-harness/hooks/bin/guided-path-policy.py .doit/hooks/bin/guided-path-policy.py
+ln -sfn ../../do-harness/hooks/guided-env-expose.json .doit/hooks/guided-env-expose.json
+ln -sfn ../../../do-harness/hooks/bin/guided-env-expose.py .doit/hooks/bin/guided-env-expose.py
+ln -sfn ../../../do-harness/hooks/bin/guided_block.py .doit/hooks/bin/guided_block.py
 chmod +x do-harness/hooks/bin/guided-path-policy.py \
          do-harness/hooks/bin/guided-env-expose.py
 ```
@@ -134,9 +134,9 @@ Never a bare “Permission denied”. Matches pi-ness `formatGuidedBlock` shape 
 From the **do** repo root:
 
 ```sh
-mkdir -p .do/hooks/bin
-ln -sfn ../../do-harness/hooks/guided-dangerous-shell.json .do/hooks/guided-dangerous-shell.json
-ln -sfn ../../../do-harness/hooks/bin/guided-dangerous-shell.py .do/hooks/bin/guided-dangerous-shell.py
+mkdir -p .doit/hooks/bin
+ln -sfn ../../do-harness/hooks/guided-dangerous-shell.json .doit/hooks/guided-dangerous-shell.json
+ln -sfn ../../../do-harness/hooks/bin/guided-dangerous-shell.py .doit/hooks/bin/guided-dangerous-shell.py
 chmod +x do-harness/hooks/bin/guided-dangerous-shell.py
 ```
 

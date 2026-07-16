@@ -340,9 +340,9 @@ fn run_deny_case(
         .map(|p| format!("\"{p}\""))
         .collect::<Vec<_>>()
         .join(", ");
-    fs::create_dir_all(tmp.join(".do")).expect("mkdir .do");
+    fs::create_dir_all(tmp.join(".doit")).expect("mkdir .doit");
     fs::write(
-        tmp.join(".do").join("sandbox.toml"),
+        tmp.join(".doit").join("sandbox.toml"),
         format!("[profiles.{profile}]\nextends = \"workspace\"\ndeny = [{deny_list}]\n"),
     )
     .expect("write sandbox.toml");

@@ -413,8 +413,8 @@ pub struct Cwd(pub PathBuf);
 pub struct PlanFilePath(pub PathBuf);
 /// Default plan-file path (relative to the workspace root) used when no
 /// explicit [`PlanFilePath`] is set. Shared by the plan-mode tools.
-/// CFG P-CFG-PROJECT: product continuum plan lives under project `.do/`.
-pub const PLAN_FILE_RELATIVE_PATH: &str = ".do/plan.md";
+/// CFG P-CFG-PROJECT: product continuum plan lives under project `.doit/`.
+pub const PLAN_FILE_RELATIVE_PATH: &str = ".doit/plan.md";
 /// Resolve the session plan-file path from resources as `(absolute_target, display)`.
 ///
 /// `absolute_target` is `Some` ONLY when the resolved path is absolute, so

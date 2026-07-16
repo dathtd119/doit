@@ -2,7 +2,7 @@
 """PostToolUse continuation priority engine + anti-thrash nudges.
 
 F-M2-CONT / VAL-M2-CONT-001. Product identity under do-harness/; install onto
-project .do/hooks or ~/.config/do/hooks for discovery.
+project .doit/hooks or ~/.config/do/hooks for discovery.
 
 Protocol (xai-grok-hooks command runner):
   - stdin: hook envelope JSON (PostToolUse continuum tools)
@@ -111,7 +111,7 @@ def state_dir(envelope: dict[str, Any] | None = None) -> Path:
         or os.environ.get("GROK_WORKSPACE_ROOT")
         or os.getcwd()
     )
-    root = Path(str(cwd)) / ".do" / "continuation"
+    root = Path(str(cwd)) / ".doit" / "continuation"
     root.mkdir(parents=True, exist_ok=True)
     # Keep session files under gitignore-friendly path; never dual-write continuum.
     safe = re.sub(r"[^a-zA-Z0-9._-]+", "_", str(session))[:80] or "default"
@@ -287,9 +287,9 @@ def extract_plan_flags(
         return True, "plan mode"
     if name == "exit_plan_mode":
         return False, ""
-    # Prefer disk presence of .do/plan.md when cwd known
+    # Prefer disk presence of .doit/plan.md when cwd known
     cwd = envelope.get("cwd") or envelope.get("workspaceRoot") or os.getcwd()
-    plan = Path(str(cwd)) / ".do" / "plan.md"
+    plan = Path(str(cwd)) / ".doit" / "plan.md"
     if plan.is_file():
         try:
             text = plan.read_text(encoding="utf-8", errors="replace")
@@ -353,7 +353,7 @@ def focus_for_lane(state: dict[str, Any], lane: str) -> str:
         "interrupt": "resume after cancel",
         "streak": f"no progress streak={state.get('no_progress_streak', 0)}",
         "goal": state.get("goal_focus") or "active goal",
-        "plan": state.get("plan_focus") or ".do/plan.md",
+        "plan": state.get("plan_focus") or ".doit/plan.md",
         "workflow": state.get("workflow_focus") or "active workflow",
         "todo": state.get("todo_focus") or "open todo",
     }
@@ -364,7 +364,7 @@ def build_nudge(lane: str, focus: str) -> str:
     base = PREFIX[lane]
     extras = {
         "interrupt": (
-            f"{base} — re-orient after cancel; re-read update_goal and .do/plan.md "
+            f"{base} — re-orient after cancel; re-read update_goal and .doit/plan.md "
             f"before new edits. Focus: {focus}."
         ),
         "streak": (
@@ -376,7 +376,7 @@ def build_nudge(lane: str, focus: str) -> str:
             f"the goal. Focus: {focus}."
         ),
         "plan": (
-            f"{base} — re-read .do/plan.md; finish the current phase before expanding "
+            f"{base} — re-read .doit/plan.md; finish the current phase before expanding "
             f"scope. Focus: {focus}."
         ),
         "workflow": (
