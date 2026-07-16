@@ -1,88 +1,68 @@
 # Current status (expanded)
 
 Date: **2026-07-16**  
-Mission: `mis_413072d4`  
+Mission: Factory **M1 seal → PRIV → M2/M3** (`mis_e0bdf86b`; prior history `mis_413072d4` / OpenCode `mis_3ce18e2a`)  
 Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrative expansion.
 
 ## Where we are
 
-**do** is a private/local fork of Grok Build intended to absorb pi-ness harness-control ideas without porting OpenTUI. M0 is **not sealed**.
+**do** is a private/local fork of Grok Build intended to absorb pi-ness harness-control ideas without porting OpenTUI. **M0 is sealed.** **M1 is sealed** (F-M1-SHIP). Next product track is **PRIV**, then M2/M3 per [backlog-m1-m3.md](./backlog-m1-m3.md).
 
-### Done
+### M0 sealed (summary)
 
-- Fork import of grok-build tree into `/home/datht/code/do` (feature **F-FORK-001**)
-- **Build smoke** (F-FORK-002 / VAL-FORK-002): `cargo check -p xai-grok-pager-bin` exit 0; requires `dotslash` for `bin/protoc`
-- Project control plane bootstrap:
-  - Root `AGENTS.md` (operating contract + living status)
-  - Docs split: index, architecture, future-plan, current-status, milestone-ship-discipline, related-projects, **models-and-config**
-  - `CHANGELOGS.md` entry for control-plane bootstrap
-  - Human `README.md` product framing (alongside upstream build notes)
-- Multi-model design **sealed** (F-MODEL-001 / VAL-MODEL-001..002):
-  - Grok already supports many `[model.<name>]` + default + role/persona/spawn resolution (fork evidence cited)
-  - Gap is OpenCode-like **assignment UX** and do **YAML overlay** (**L13**)
-  - `docs/models-and-config.md` complete (schema, map, ≥2 models / ≥3 role example)
-  - Template: `do-harness/config.models.yaml` (`models.registry` + `assignment`)
-  - L13 folded into `docs/limitations.md` + `docs/patch-matrix.md`
-- **Role switch lock** product rule **sealed** (F-ROLE-001 / VAL-ROLE-001):
-   - Tab/Shift+Tab role cycle **only before first user message**
-   - **Disabled** after any conversation content (keep system/role context clean)
-   - Model re-assignment from role only while switch still allowed
-   - M0 = document (done); **M1 = implement** (session flag, keybind gate, stack freeze, role→model wire)
-   - Sources of truth: root `AGENTS.md`, `docs/prompt-system.md` (Role lifecycle + M1 note), `docs/architecture.md`
-- **Grok-build inventory** **sealed** (F-GROK-001 / VAL-GROK-001):
-    - `docs/grok-build/{README,overview,native-tools,extension-seams,hard-limits,patterns}.md`
-    - Fork evidence: tool registry, namespaces/kinds, hooks, agents, subagent resolution, hashline `FileToolset`, hard limits
-    - Linked from `docs/index.md` under **Grok-build inventory**
-    - **Required read before crate work**
-- **Limitations L1–L13** **sealed** (F-DOC-001 / VAL-DOC-001):
-    - `docs/limitations.md` fully evidence-backed (pi-ness + forked grok paths per row)
-    - L13: multi-model registry **exists**; gap is assignment UX / do YAML wire (see models-and-config)
-- **Patch matrix L1–L13** **sealed** (F-DOC-002 / VAL-DOC-002):
-    - `docs/patch-matrix.md` maps every L1–L13 gap → preferred path / risk / recommended order
-    - Expanded rows cite limitations + grok-build extension-seams / hard-limits
-    - Crate patch log scaffold; milestone → matrix slice (M0–M3)
-- **Capability map** **sealed** (F-DOC-003 / VAL-DOC-003):
-    - `docs/capability-map.md` maps pi-ness native modules, L0–L6 layer purposes, roles, continuum, and **model registry + assignment** to grok tools/APIs/hooks/config or `"gap"`
-    - Includes dual TOML/YAML assignment flow; explicit gap register tied to L* / milestones
-- **README + FORK policy** **sealed** (F-DOC-004 / VAL-DOC-004):
-    - `README.md` product intent, dual config, multi-model facts, build smoke
-    - `FORK.md`: extension-before-deep-fork order; **`~/.grok` reuse for M0**; dual TOML + do YAML; no external upstream PRs; sibling trees read-only
+- Fork import + `cargo check -p xai-grok-pager-bin` smoke
+- Control plane (AGENTS + docs split + CHANGELOGS + README/FORK)
+- Multi-model design (L13): stock multi-`[model.*]` facts + do YAML assignment template
+- Role switch lock **policy** documented (implement later sealed in M1)
+- Grok-build inventory, limitations L1–L13, patch-matrix, capability-map
+- Proof extension: intake agent, guided dangerous-shell hook, `verify-discovery.sh`
+- Ordered backlog `docs/backlog-m1-m3.md`
 
-### In progress / pending (M0)
+### M1 sealed (harness control v1)
 
-| Item | Feature | Notes |
-|------|---------|-------|
-| `cargo check -p xai-grok-pager-bin` | F-FORK-002 | **Done** — VAL-FORK-002; needs `dotslash` |
-| Grok-build inventory docs | F-GROK-001 / VAL-GROK-001 | **Done** — evidence-backed six-file inventory + index links |
-| Limitations L1–L13 deep evidence | F-DOC-001 / VAL-DOC-001 | **Done** — every L1–L13 row has evidence paths |
-| patch-matrix L1–L13 | F-DOC-002 / VAL-DOC-002 | **Done** — path/risk/order for every gap; sealed |
-| capability-map | F-DOC-003 / VAL-DOC-003 | **Done** — modules + model assignment surfaces; sealed |
-| README identity + FORK policy expansion | F-DOC-004 / VAL-DOC-004 | **Done** — README + FORK.md sealed |
-| Proof intake agent + guided hook + discovery | F-EXT-001..003 | **Done** — intake, guided shell hook, `verify-discovery.sh` |
-| M1–M3 backlog including multi-model wire + role Tab lock | F-BACK-001 / VAL-BACK-001 | **Done** — `docs/backlog-m1-m3.md` sealed |
-| Control plane VAL evidence | F-CTRL-001 | **Done** — VAL-CTRL-001..003; sealed in git |
-| Model design VAL | F-MODEL-001 | **Done** — VAL-MODEL-001..002; models-and-config + YAML + L13 in limitations/patch-matrix |
-| Role switch lock policy documented | F-ROLE-001 | **Done** — VAL-ROLE-001 sealed in AGENTS + prompt-system + architecture |
+| Surface | Evidence |
+|---------|----------|
+| Five product agents | `verify-roster.sh` — intake, orchestrator, explorer, worker, oracle on `.grok/agents/` |
+| Role switch lock | `verify-role-lock.sh` — 10 `role_switch_policy` tests; Tab only pre-message |
+| Lock UX toast | `c8bf39f` — locked-attempt toast points to new session (`role_switch_locked_toast`) |
+| YAML → agent pins | `apply-models.py --validate` — 5 assignment pins; stock TOML remains runtime |
+| Model re-pin gate | `verify-model-resolve.sh` — re-pin only while `role_switch_allowed` |
+| L0–L6 + workspace | `docs/prompt-system.md` implementable; `docs/workspace.md` non-stub (reuse `.grok` only) |
+| Progressive skills start | `verify-progressive-skills.sh` + `config.skills.yaml`; reduced firehose on intake/explorer/oracle |
+
+M1 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full seal entry: [CHANGELOGS.md](../CHANGELOGS.md) F-M1-SHIP.
+
+### In progress / next
+
+| Item | Track | Notes |
+|------|-------|-------|
+| No-telemetry fail-closed | **PRIV** | P-NOTEL-01..06 from `~/code/grok-build-no-telemetry` (manual port) |
+| Custom models / BYOK no forced OAuth | **PRIV** | Config-first; P-AUTH-01 if crate needed |
+| Continuation priority + guided pack | **M2** | Native goal/plan/todo; ≥2 more gates |
+| CodeGraph + hashline default | **M3** | After M2 |
 
 ### True-now constraints
 
-- Do not modify `~/code/pi-ness` or `~/code/grok-build`
+- Do not modify `~/code/pi-ness`, `~/code/grok-build`, or `~/code/grok-build-no-telemetry` (read-only)
 - Extension-before-deep-fork
-- Config root remains `~/.grok` for M0; brand as do in docs
+- Config root remains `~/.grok` for M0/M1; brand as do in docs
+- Role cycle remains **pre-message only** (no mid-session hop)
 - Commit every milestone; handoff needs `commitId` + `repoPath`
 
 ## Near-term sequence
 
-1. M0 seal commit (all M0 features including F-BACK-001 complete)
-2. M1 per `docs/backlog-m1-m3.md` (role Tab lock + YAML→agent model wire first)
-3. M2 continuation + guided-block harden
-4. M3 CodeGraph + hashline default
+1. **PRIV** seal (no-telemetry + BYOK auth)
+2. **M2** continuation + guided-block harden
+3. **M3** CodeGraph + hashline default
 
 ## Links
 
 - [architecture.md](./architecture.md)
 - [models-and-config.md](./models-and-config.md)
 - [backlog-m1-m3.md](./backlog-m1-m3.md)
+- [prompt-system.md](./prompt-system.md)
+- [workspace.md](./workspace.md)
+- [progressive-skills.md](./progressive-skills.md)
 - [../FORK.md](../FORK.md)
 - [grok-build/README.md](./grok-build/README.md)
 - [future-plan.md](./future-plan.md)

@@ -1,6 +1,6 @@
 # Backlog: M1–M3
 
-**Status:** M0 **sealed** for F-BACK-001 / VAL-BACK-001.  
+**Status:** M0 **sealed**. **M1 sealed** (F-M1-SHIP / VAL-M1-* evidence gates pass 2026-07-16). Next: **PRIV** then M2.  
 **Purpose:** Ordered product backlog after M0 (limitations, patch matrix, proof extension).  
 **Sources of truth for gaps:** [limitations.md](./limitations.md), [patch-matrix.md](./patch-matrix.md), [capability-map.md](./capability-map.md), [models-and-config.md](./models-and-config.md), [prompt-system.md](./prompt-system.md).
 
@@ -73,13 +73,13 @@ Canonical six-step seed (keep in sync with [prompt-system.md](./prompt-system.md
 
 ### M1 exit criteria
 
-- [ ] Tab cycle works only pre-message; locked after first user message  
-- [ ] Five product roles exist and are discoverable  
-- [ ] `config.models.yaml` assignment is applied (not hand-sync only)  
-- [ ] Role cycle re-pins model only while switch allowed  
-- [ ] L0–L6 map is implementable (not stub-only)  
-- [ ] Workspace continuum contract documented  
-- [ ] Docs + CHANGELOGS + conventional commit; handoff `commitId` + `repoPath`
+- [x] Tab cycle works only pre-message; locked after first user message (`verify-role-lock.sh`)  
+- [x] Five product roles exist and are discoverable (`verify-roster.sh`)  
+- [x] `config.models.yaml` assignment is applied (not hand-sync only) (`apply-models.py --validate`)  
+- [x] Role cycle re-pins model only while switch allowed (`verify-model-resolve.sh`)  
+- [x] L0–L6 map is implementable (not stub-only) (`docs/prompt-system.md` + `do-harness/prompts/`)  
+- [x] Workspace continuum contract documented (`docs/workspace.md`)  
+- [x] Docs + CHANGELOGS + conventional commit; handoff `commitId` + `repoPath` (**F-M1-SHIP** / VAL-M1-SHIP-001)
 
 ---
 

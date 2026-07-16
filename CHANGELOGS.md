@@ -4,6 +4,52 @@ Append-only ship log for **do**. Not a status essay — one entry per substantiv
 
 ---
 
+## 2026-07-16 — F-M1-SHIP M1 harness control seal (VAL-M1-SHIP-001)
+
+**Scope:** seal M1 implement evidence + living docs; no new product code  
+**Feature:** F-M1-SHIP · **VALs:** VAL-M1-ROSTER-001, VAL-M1-LOCK-001, VAL-M1-MODEL-001, VAL-M1-PROMPT-001, VAL-M1-WORK-001, VAL-M1-SKILL-001, VAL-M1-SHIP-001
+
+### Evidence (all exit 0)
+
+| Command | Result |
+|---------|--------|
+| `bash do-harness/scripts/verify-roster.sh` | PASS — five agents + `.grok/agents/` discovery |
+| `bash do-harness/scripts/verify-discovery.sh` | PASS — intake + guided shell hook path |
+| `python3 do-harness/scripts/apply-models.py --validate` | PASS — 5 role pins (combo-big / combo-small) |
+| `bash do-harness/scripts/verify-role-lock.sh` | PASS — 10 `role_switch_policy` tests |
+| `bash do-harness/scripts/verify-model-resolve.sh` | PASS — re-pin only while unlocked |
+| `bash do-harness/scripts/verify-progressive-skills.sh` | PASS — progressive default + reduced firehose |
+
+### M1 product surface sealed (prior implement commits)
+
+- **Roster** — intake / orchestrator / explorer / worker / oracle under `do-harness/agents/` + project `.grok/agents/` symlinks
+- **Role switch lock** — `role_switch_allowed` pre-message only; Tab/Shift+Tab gated; L1 freeze after first user message
+- **Lock UX** — locked-attempt toast points to new session (`c8bf39f` `feat(session): toast when role switch locked`; `role_switch_locked_toast`)
+- **YAML→agent models** — `apply-models.py` maps `config.models.yaml` `assignment.*` into agent frontmatter; stock TOML remains runtime registry
+- **Model re-resolve** — role cycle re-pins model only while switch allowed
+- **L0–L6 + workspace** — `docs/prompt-system.md` implementable map; role fragments in `do-harness/prompts/`; `docs/workspace.md` non-stub continuum (reuse `.grok` only)
+- **Progressive skills (start)** — `docs/progressive-skills.md` + `config.skills.yaml`; intake/explorer/oracle `discoverSkills: false`
+
+### Docs / process this ship
+
+- Root `AGENTS.md` Status/Next: M0 + **M1 sealed**; next **PRIV** then M2
+- `docs/current-status.md` narrative refreshed for M1 seal
+- `docs/backlog-m1-m3.md` M1 exit criteria checked
+- This CHANGELOGS entry
+
+### Next (not in this seal)
+
+- **PRIV** — P-NOTEL fail-closed + custom-models/BYOK no forced OAuth
+- **M2** — continuation priority + guided-block pack + progressive deepen + role floors
+- Proactive first-message lock toast (deferred polish)
+
+### Key commits (implement lineage)
+
+- `9338619` roster · `07a19ca` prompt/workspace docs · `a0aed58` apply-models  
+- `baef230` role lock · `2f7c725` model re-pin · `71d19b3` progressive skills · `c8bf39f` lock UX toast  
+
+---
+
 ## 2026-07-16 — F-M1-LOCK role switch lock (VAL-M1-LOCK-001)
 
 **Scope:** primary-session product role cycle gate + L1 freeze  
