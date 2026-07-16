@@ -61,6 +61,26 @@ pub fn cycle_product_role(current: Option<&str>, forward: bool) -> &'static str 
     }
 }
 
+/// Toast when Tab product-role cycle is denied after lock (F-M1-UX / M1-U01).
+///
+/// Points the user at a **new session** — mid-session hop is forbidden.
+pub const ROLE_SWITCH_LOCKED_HINT: &str =
+    "Role locked after first message — start a new session to switch roles";
+
+/// Toast once when the first user message freezes the product role (F-M1-UX).
+pub const ROLE_SWITCH_LOCKED_ON_FIRST_MESSAGE: &str =
+    "Role locked for this session — start a new session to change role";
+
+/// User-visible copy for a locked role-cycle attempt (optional role label).
+pub fn role_switch_locked_toast(current_role: Option<&str>) -> String {
+    match current_role {
+        Some(role) if is_product_role(role) => {
+            format!("Role locked ({role}) — start a new session to switch roles")
+        }
+        _ => ROLE_SWITCH_LOCKED_HINT.to_string(),
+    }
+}
+
 /// Outcome of a role-cycle keybind attempt.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RoleCycleGate {
@@ -191,6 +211,16 @@ mod tests {
             gate_role_cycle(0, true, Some("intake"), true),
             RoleCycleGate::Locked
         );
+    }
+
+    #[test]
+    fn role_switch_locked_toast_names_role_and_new_session() {
+        let named = role_switch_locked_toast(Some("worker"));
+        assert!(named.contains("worker"), "{named}");
+        assert!(named.contains("new session"), "{named}");
+        let generic = role_switch_locked_toast(None);
+        assert_eq!(generic, ROLE_SWITCH_LOCKED_HINT);
+        assert!(ROLE_SWITCH_LOCKED_ON_FIRST_MESSAGE.contains("new session"));
     }
 
     #[test]

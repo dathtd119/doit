@@ -548,13 +548,15 @@ pub(super) fn dispatch_cycle_product_role(app: &mut AppView, forward: bool) -> V
     let current = agent.session_agent_name.as_deref();
     match gate_role_cycle(turn_count, has_user, current, forward) {
         RoleCycleGate::Locked => {
-            // Post-lock: role cycle is a no-op. UX toast is F-M1-UX; keep quiet
-            // here so accidental Tab after work does not spam.
+            // Post-lock: no mid-session hop. F-M1-UX — surface why + new session.
+            use xai_grok_shell::session::role_switch::role_switch_locked_toast;
+            let msg = role_switch_locked_toast(current);
             tracing::debug!(
                 turn_count,
                 has_user,
                 "role_switch_allowed=false: product role cycle ignored"
             );
+            agent.show_toast(&msg);
             vec![]
         }
         RoleCycleGate::Apply { next_role } => {

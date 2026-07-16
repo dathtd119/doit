@@ -4,8 +4,9 @@
 //! in the shell crate (pre-existing). Pure policy is public on the lib.
 
 use xai_grok_shell::session::role_switch::{
-    PRODUCT_ROSTER, RoleCycleGate, RoleModelRepin, cycle_product_role, gate_role_cycle,
-    gate_role_model_repin, is_product_role, is_product_role_mode_id, role_switch_allowed,
+    PRODUCT_ROSTER, ROLE_SWITCH_LOCKED_HINT, ROLE_SWITCH_LOCKED_ON_FIRST_MESSAGE, RoleCycleGate,
+    RoleModelRepin, cycle_product_role, gate_role_cycle, gate_role_model_repin, is_product_role,
+    is_product_role_mode_id, role_switch_allowed, role_switch_locked_toast,
     should_repin_model_from_role,
 };
 
@@ -114,5 +115,21 @@ fn gate_role_model_repin_keep_post_lock_or_inherit() {
     assert_eq!(
         gate_role_model_repin(0, false, Some("")),
         RoleModelRepin::Keep
+    );
+}
+
+#[test]
+fn role_switch_locked_toast_points_to_new_session() {
+    // F-M1-UX: lock affordance must name new-session escape hatch.
+    let named = role_switch_locked_toast(Some("explorer"));
+    assert!(named.contains("explorer"), "{named}");
+    assert!(named.contains("new session"), "{named}");
+    assert_eq!(role_switch_locked_toast(None), ROLE_SWITCH_LOCKED_HINT);
+    assert!(ROLE_SWITCH_LOCKED_HINT.contains("new session"));
+    assert!(ROLE_SWITCH_LOCKED_ON_FIRST_MESSAGE.contains("new session"));
+    // Non-product label falls back to generic copy.
+    assert_eq!(
+        role_switch_locked_toast(Some("plan")),
+        ROLE_SWITCH_LOCKED_HINT
     );
 }

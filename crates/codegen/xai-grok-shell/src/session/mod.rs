@@ -330,8 +330,6 @@ pub(crate) mod normalize_cache;
 pub mod persistence;
 pub use xai_grok_shared::placeholder_images;
 pub mod plan_mode;
-/// Primary-session product role switch lock (`role_switch_allowed`).
-pub mod role_switch;
 pub mod prompt_history;
 pub mod prompt_parser;
 pub(crate) mod prompt_timing;
@@ -340,6 +338,8 @@ pub mod repo_changes;
 #[path = "restore_stub.rs"]
 pub mod restore;
 pub mod result;
+/// Primary-session product role switch lock (`role_switch_allowed`).
+pub mod role_switch;
 pub mod signals;
 pub(crate) mod slash_commands;
 pub mod storage;

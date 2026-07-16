@@ -40,3 +40,18 @@ Long-lived ideas for **do**. Root `AGENTS.md` **Future Plan** stays short; promo
 - Full OpenTUI / Node port of pi-ness TUI
 - Deep pager/TUI fork before extension seams exhausted
 - Upstream PRs to xAI grok-build
+
+## Privacy & offline auth (parked)
+
+### Native no-telemetry (from grok-build-no-telemetry)
+
+- Port 6 patches from `~/code/grok-build-no-telemetry` into do crates as **P-NOTEL-01..06**
+- Scout: [`plans/reports/scout-grok-build-no-telemetry-260716.md`](../plans/reports/scout-grok-build-no-telemetry-260716.md)
+- Fail-closed SpaceXAI analytics / Mixpanel / Sentry / internal OTLP / trace upload / feedback
+- Keep `GROK_EXTERNAL_OTEL`
+
+### Custom-models-only / no forced Grok OAuth
+
+- Bypass startup grok.com OAuth when using custom `[model.*]` BYOK or product offline mode
+- Key: `auth_method.rs`, `acp/mod.rs` `startup_auth_metadata`, pager-bin `workspace_start` `ensure_authenticated`
+- Config-first then optional crate knob

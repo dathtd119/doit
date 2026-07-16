@@ -202,7 +202,9 @@ impl SessionActor {
         model_id: &str,
         effort: Option<&xai_grok_agent::config::Effort>,
     ) {
-        use crate::agent::config::{find_model_by_id, resolve_credentials, sampling_config_for_model};
+        use crate::agent::config::{
+            find_model_by_id, resolve_credentials, sampling_config_for_model,
+        };
 
         let models = self.models_manager.models();
         let Some(entry) = find_model_by_id(&models, model_id) else {
@@ -221,14 +223,7 @@ impl SessionActor {
         // SamplerConfig is built without full MvpAgent preferred-method
         // gymnastics; session credentials + catalog entry match set_session_model
         // for custom [model.*] pins from assignment YAML.
-        let mut sampling = sampling_config_for_model(
-            entry,
-            credentials,
-            None,
-            None,
-            None,
-            None,
-        );
+        let mut sampling = sampling_config_for_model(entry, credentials, None, None, None, None);
         if let Some(eff) = effort {
             let token = match eff {
                 xai_grok_agent::config::Effort::Low => "low",
