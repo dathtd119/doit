@@ -1,3 +1,12 @@
 /target
 **/*.rs.bk
 .DS_Store
+
+# Local agent/job state — keep on disk, never push to remote
+AGENTS.md
+CONTINUE.md
+plans/
+.opencode/
+.claude/
+.pi/
+.grok/

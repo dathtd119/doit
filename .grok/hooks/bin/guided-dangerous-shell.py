@@ -1,1 +1,0 @@
-../../../do-harness/hooks/bin/guided-dangerous-shell.py
