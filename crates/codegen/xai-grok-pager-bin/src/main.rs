@@ -404,12 +404,17 @@ async fn workspace_start(
              Enable it with `[cli] use_leader = true` in ~/.grok/config.toml, or pass --leader."
         );
     }
-    ensure_authenticated(
-        &agent_config.grok_com_config,
-        false,
-        Some("No cached credentials found. Run `grok login` first."),
-    )
-    .await?;
+    // P-AUTH-01: custom [model.*] BYOK / preferred_method=api_key must not force
+    // interactive grok.com OAuth. ACP initialize already advertises xai.api_key
+    // first in that case; mirror the same policy for this CLI hard gate.
+    if xai_grok_shell::agent::auth_method::should_require_interactive_oauth(&agent_config) {
+        ensure_authenticated(
+            &agent_config.grok_com_config,
+            false,
+            Some("No cached credentials found. Run `grok login` first."),
+        )
+        .await?;
+    }
     let env_urls = LeaderEnvUrls::from(&agent_config.grok_com_config);
     let capabilities = ClientCapabilities {
         client_version: Some(PAGER_CLIENT_VERSION.to_string()),

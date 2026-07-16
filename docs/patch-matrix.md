@@ -258,6 +258,14 @@ Source: `~/code/grok-build-no-telemetry/patches/0001`–`0006` (manual port; no 
 | 2026-07-16 | **P-NOTEL-05** | **applied** | shell `is_trace_upload_enabled`/`resolve_trace_upload`; telemetry `trace_upload` defaults | Disable session/trace/GCS upload | Low–Medium | Env/config opt-in still re-enabled upload without crate pin |
 | 2026-07-16 | **P-NOTEL-06** | **applied** | shell `is_feedback_enabled`/`resolve_feedback`; `extensions/feedback.rs` message | Disable `/feedback` posts to cli-chat-proxy | Low | Config feedback flag remains re-enableable without resolve hard-off |
 
+### Applied — P-AUTH (PRIV F-PRIV-AUTH)
+
+Config-first: `[models] default` + `[model.*]` `api_key`/`env_key` + optional `[auth] preferred_method = "api_key"` (documented in [models-and-config.md](./models-and-config.md) Auth section). ACP already puts `xai.api_key` first for BYOK; hard CLI gate still forced OAuth.
+
+| Date | ID | Status | Crate / path | Reason | Risk | Alternatives exhausted |
+|------|----|--------|--------------|--------|------|------------------------|
+| 2026-07-16 | **P-AUTH-01** | **applied** | `xai-grok-shell` `agent/auth_method.rs` (`config_satisfies_api_key_auth`, `should_require_interactive_oauth` + unit tests); `xai-grok-pager-bin` `main.rs` `workspace_start` | Skip interactive `ensure_authenticated` / grok.com OAuth when BYOK or `preferred_method=api_key` | Medium | Config alone cannot change pager-bin hard gate; extension/hooks cannot intercept `workspace_start` pre-login |
+
 ---
 
 ## Milestone → matrix slice

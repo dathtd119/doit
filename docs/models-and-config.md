@@ -4,7 +4,9 @@
 `do-harness/scripts/apply-models.sh` (F-M1-MODEL-APPLY / VAL-M1-MODEL-001): maps
 YAML `assignment` → agent frontmatter. **F-M1-MODEL-RESOLVE:** primary-session
 role cycle re-pins model from agent `model:` **only while** `role_switch_allowed`;
-post-lock keeps the model stack; subagent spawn overrides unchanged.  
+post-lock keeps the model stack; subagent spawn overrides unchanged.
+**PRIV F-PRIV-AUTH:** BYOK / `preferred_method=api_key` does not force grok.com
+OAuth (see Auth section; crate **P-AUTH-01**).  
 **Limitation ID:** **L13**
 
 ## Summary
@@ -244,9 +246,58 @@ Also listed in [architecture.md](./architecture.md) L1–L13 table. Full invento
 | [related-projects.md](./related-projects.md) | OpenCode / pi-ness pointers |
 | Root [AGENTS.md](../AGENTS.md) | Compact models & config control section |
 
+## Auth: custom models / BYOK without forced Grok OAuth (PRIV)
+
+**Status:** F-PRIV-AUTH / VAL-PRIV-AUTH-001. Config-first; crate gate **P-AUTH-01**.
+
+Stock grok pushes interactive **grok.com OAuth** when there is no session token **and** no advertiseable API-key path. Product policy: operators who run **custom `[model.*]` BYOK** (or global API key) must **not** be forced through that OAuth on startup.
+
+### Config-first (preferred; no secrets in repo)
+
+In `~/.grok/config.toml`:
+
+```toml
+[models]
+default = "my-custom"   # name of a [model.*] with env_key or api_key
+
+[model.my-custom]
+model = "provider-model-id"
+base_url = "https://api.example.com/v1"
+api_backend = "chat_completions"
+env_key = "MY_PROVIDER_API_KEY"   # prefer env; never commit raw api_key
+context_window = 128000
+
+# Optional hard pin: never advertise or auto-mint OIDC / browser login
+[auth]
+preferred_method = "api_key"
+```
+
+| Knob | Effect |
+|------|--------|
+| `[model.*]` `api_key` / `env_key` | Resolves as BYOK → ACP advertises `xai.api_key` **first** → `startup_auth_metadata` sets `needs_login = false` |
+| `XAI_API_KEY` (or legacy `GROK_CODE_XAI_API_KEY`) / auth.json `xai::api_key` | Same non-interactive path as BYOK |
+| `[auth] preferred_method = "api_key"` | Fail-closed pin: only API-key family; **no** automatic OIDC mint / browser fallthrough |
+| `[auth] preferred_method = "oidc"` | Session only; API-key path hidden (enterprise IdP) |
+| unset `preferred_method` | Multi-method fallthrough; BYOK still puts `xai.api_key` first so the login screen is skipped |
+
+**Product assignment (do YAML):** keep secrets out of `do-harness/config.models.yaml` registry template; map registry names via apply-models into agent frontmatter, but put keys only in local `~/.grok/config.toml` / env.
+
+### Runtime paths (fork)
+
+| Path | Behavior |
+|------|----------|
+| `xai-grok-shell` `agent/auth_method.rs` | `should_advertise_xai_api_key`, `build_auth_methods`, **`config_satisfies_api_key_auth`**, **`should_require_interactive_oauth`** |
+| `xai-grok-pager` `acp/mod.rs` | `startup_auth_metadata` / `needs_login` from `auth_methods.first()` |
+| `xai-grok-pager-bin` `workspace_start` | Skips `ensure_authenticated` when `!should_require_interactive_oauth(cfg)` (**P-AUTH-01**) |
+
+Evidence tests (package `xai-grok-shell`, `auth_method` unit tests): preferred_method pin skips OAuth gate; resolved BYOK `env_key` skips OAuth gate; stock empty config still requires the interactive gate.
+
+Patch log: [patch-matrix.md](./patch-matrix.md) **P-AUTH-01**.
+
 ## Non-goals (this page)
 
 - Replacing `config.toml` multi-model with a YAML-only runtime  
 - Implementing OpenCode providers wholesale in Rust in M0  
 - Multi-provider auth redesign (parked; see [future-plan.md](./future-plan.md))  
 - Mid-session primary role hop that re-pins model (forbidden by role switch lock)
+- Committing API keys or auth tokens (always env / local home config)

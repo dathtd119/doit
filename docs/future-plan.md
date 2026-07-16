@@ -52,6 +52,5 @@ Long-lived ideas for **do**. Root `AGENTS.md` **Future Plan** stays short; promo
 
 ### Custom-models-only / no forced Grok OAuth
 
-- Bypass startup grok.com OAuth when using custom `[model.*]` BYOK or product offline mode
-- Key: `auth_method.rs`, `acp/mod.rs` `startup_auth_metadata`, pager-bin `workspace_start` `ensure_authenticated`
-- Config-first then optional crate knob
+- **Done (F-PRIV-AUTH / P-AUTH-01, 2026-07-16):** config-first BYOK + `[auth] preferred_method=api_key`; crate skips `workspace_start` `ensure_authenticated` when satisfied. See [models-and-config.md](./models-and-config.md) Auth section.
+- Remaining parked: deeper multi-provider auth redesign / full offline product mode UX

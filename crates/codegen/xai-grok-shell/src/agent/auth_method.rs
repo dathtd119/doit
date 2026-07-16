@@ -70,6 +70,56 @@ where
     has_xai_api_key_env() || models.into_iter().any(ModelEntry::has_own_credentials)
 }
 
+/// Whether product startup can skip forced interactive grok.com OAuth.
+///
+/// True when API-key / BYOK credentials satisfy auth for the current config:
+/// - global `XAI_API_KEY` / legacy env, or
+/// - any resolved `[model.*]` `api_key` / `env_key` (BYOK), and
+/// - admin has not disabled API-key auth.
+///
+/// Use for CLI gates (e.g. `workspace_start`) that still call
+/// [`crate::auth::ensure_authenticated`] even when ACP already advertises
+/// `xai.api_key` first. The interactive login screen path already skips OAuth
+/// when [`should_advertise_xai_api_key`] is true; this helper mirrors that
+/// policy for code that never builds `auth_methods`.
+///
+/// Resolves the model catalog from `cfg` (disk `[model.*]` + defaults) so
+/// callers that only hold `Config` (no live `ModelsManager`) share the same
+/// BYOK predicate as ACP `initialize`.
+pub fn config_satisfies_api_key_auth(cfg: &crate::agent::config::Config) -> bool {
+    if cfg.grok_com_config.api_key_auth_disabled() {
+        return false;
+    }
+    if has_xai_api_key_env() {
+        return true;
+    }
+    if let Some(key) = crate::auth::read_api_key(&crate::util::grok_home::grok_home())
+        && !key.trim().is_empty()
+    {
+        return true;
+    }
+    let models = crate::agent::config::resolve_model_list(cfg, None);
+    should_advertise_xai_api_key(false, models.values())
+}
+
+/// Whether a hard OAuth/`ensure_authenticated` gate should run for this config.
+///
+/// Returns `false` (skip OAuth) when:
+/// 1. `[auth] preferred_method = "api_key"` — pin is fail-closed: never auto-mint OIDC, or
+/// 2. BYOK / global API key credentials are available ([`config_satisfies_api_key_auth`]).
+///
+/// Returns `true` (still require interactive session login) for stock defaults
+/// with no custom model credentials and no preferred_method pin.
+pub fn should_require_interactive_oauth(cfg: &crate::agent::config::Config) -> bool {
+    if matches!(
+        cfg.grok_com_config.preferred_method,
+        Some(PreferredAuthMethod::ApiKey)
+    ) {
+        return false;
+    }
+    !config_satisfies_api_key_auth(cfg)
+}
+
 /// Inputs to [`build_auth_methods`].
 ///
 /// Booleans are computed by the caller (`MvpAgent::initialize()`) because they
@@ -1101,5 +1151,84 @@ mod tests {
         });
         assert_eq!(method_ids(&built), vec![GROK_COM_METHOD_ID]);
         assert!(built.default_auth_method_id.is_none());
+    }
+
+    // ── P-AUTH-01: skip forced OAuth for BYOK / preferred_method=api_key ─
+
+    #[test]
+    #[serial]
+    fn preferred_method_api_key_skips_interactive_oauth_even_without_key() {
+        let toml: toml::Value = toml::from_str(
+            r#"
+            [auth]
+            preferred_method = "api_key"
+            "#,
+        )
+        .unwrap();
+        let cfg = Config::new_from_toml_cfg(&toml).expect("config should parse");
+        assert_eq!(
+            cfg.grok_com_config.preferred_method,
+            Some(PreferredAuthMethod::ApiKey)
+        );
+        assert!(
+            !should_require_interactive_oauth(&cfg),
+            "preferred_method=api_key must never force interactive grok.com OAuth"
+        );
+    }
+
+    #[test]
+    #[serial]
+    fn byok_custom_model_skips_interactive_oauth() {
+        const TEST_ENV_VAR: &str = "TEST_PAUTH_BYOK_TOKEN";
+        let _global = EnvGuard::unset(XAI_API_KEY_ENV_VAR);
+        let _set = EnvGuard::set(TEST_ENV_VAR, "byok-product-secret");
+
+        let toml: toml::Value = toml::from_str(&format!(
+            r#"
+            [models]
+            default = "my-custom"
+
+            [model.my-custom]
+            model = "provider-model-id"
+            base_url = "https://api.example.com/v1"
+            env_key = "{TEST_ENV_VAR}"
+            context_window = 128000
+            "#,
+        ))
+        .unwrap();
+        let cfg = Config::new_from_toml_cfg(&toml).expect("config should parse");
+        assert!(
+            config_satisfies_api_key_auth(&cfg),
+            "resolved [model.*] env_key must satisfy API-key / BYOK auth"
+        );
+        assert!(
+            !should_require_interactive_oauth(&cfg),
+            "BYOK custom models must not force interactive grok.com OAuth"
+        );
+
+        // Same stack as ACP initialize: xai.api_key first ⇒ needs_login false.
+        let models = resolve_model_list(&cfg, None);
+        let has_external = should_advertise_xai_api_key(false, models.values());
+        let built = build_auth_methods(AuthMethodsBuildInputs {
+            has_external_api_key: has_external,
+            has_cached_token: false,
+            preferred_method: None,
+            ..default_inputs()
+        });
+        assert_eq!(first_kind(&built.methods), Some(AuthMethodKind::XaiApiKey));
+        assert!(!AuthMethodKind::from_id(built.methods[0].id()).needs_interactive_login());
+    }
+
+    #[test]
+    #[serial]
+    fn stock_config_without_byok_still_requires_interactive_oauth() {
+        let _global = EnvGuard::unset(XAI_API_KEY_ENV_VAR);
+        let _legacy = EnvGuard::unset(LEGACY_XAI_API_KEY_ENV_VAR);
+        let toml: toml::Value = toml::from_str("").unwrap();
+        let cfg = Config::new_from_toml_cfg(&toml).expect("empty config should parse");
+        assert!(
+            should_require_interactive_oauth(&cfg),
+            "stock defaults with no BYOK must still allow interactive OAuth gate"
+        );
     }
 }
