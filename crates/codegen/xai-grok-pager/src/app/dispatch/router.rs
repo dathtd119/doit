@@ -28,8 +28,8 @@ use super::import_claude::{
 };
 use super::interject::dispatch_interject;
 use super::modes::{
-    dispatch_cycle_mode, dispatch_enter_plan_mode, dispatch_show_plan, dispatch_toggle_yolo,
-    set_permission_mode, set_plan_mode, set_yolo_mode,
+    dispatch_cycle_mode, dispatch_cycle_product_role, dispatch_enter_plan_mode,
+    dispatch_show_plan, dispatch_toggle_yolo, set_permission_mode, set_plan_mode, set_yolo_mode,
 };
 use super::notes::{
     dispatch_enter_feedback_mode, dispatch_enter_remember_mode,
@@ -872,6 +872,8 @@ pub(crate) fn dispatch(action: Action, app: &mut AppView) -> Vec<Effect> {
             vec![Effect::FetchCatalogEntry { kind, name }]
         }
         Action::CycleMode => dispatch_cycle_mode(app),
+        Action::CycleProductRole => dispatch_cycle_product_role(app, true),
+        Action::CycleProductRolePrev => dispatch_cycle_product_role(app, false),
         Action::ShareSession => dispatch_share_session(app),
         Action::ShowSessionInfo => dispatch_show_session_info(app),
         Action::ShowReleaseNotes { title, content } => {

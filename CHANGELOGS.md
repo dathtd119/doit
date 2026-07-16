@@ -4,6 +4,39 @@ Append-only ship log for **do**. Not a status essay — one entry per substantiv
 
 ---
 
+## 2026-07-16 — F-M1-LOCK role switch lock (VAL-M1-LOCK-001)
+
+**Scope:** primary-session product role cycle gate + L1 freeze  
+**Feature:** F-M1-LOCK · **VAL:** VAL-M1-LOCK-001
+
+### Sealed
+
+- Pure policy module `xai-grok-shell::session::role_switch`:
+  - `role_switch_allowed(turn_count, has_user_message_content)`
+  - product roster cycle: intake → orchestrator → explorer → worker → oracle
+  - `gate_role_cycle` Apply / Locked outcomes
+- Shell: product-role `session/set_mode` refused when flag is false (plan/default/ask remain switchable)
+- Pager: pre-message Tab / Shift+Tab cycle product roles; after lock, Shift+Tab falls through to stock CycleMode (plan/yolo)
+- Integration tests `tests/role_switch_policy.rs` (6 cases) + `do-harness/scripts/verify-role-lock.sh`
+- Crate patches logged in `docs/patch-matrix.md`
+
+### Not in scope
+
+- Visible lock toast / “start new session” UX (F-M1-UX)
+- Model re-pin from YAML only while unlocked (F-M1-MODEL-RESOLVE)
+- Full lib unit-test suite (pre-existing cfg(test) seams unrelated to this feature)
+
+### Files
+
+- `crates/codegen/xai-grok-shell/src/session/role_switch.rs`
+- `crates/codegen/xai-grok-shell/tests/role_switch_policy.rs`
+- `crates/codegen/xai-grok-shell/src/session/acp_session_impl/session_mode.rs`
+- `crates/codegen/xai-grok-pager/src/app/dispatch/modes.rs`, `router.rs`, `agent_view/prompt.rs`, actions
+- `do-harness/scripts/verify-role-lock.sh`
+- `docs/patch-matrix.md`, this CHANGELOGS entry
+
+---
+
 ## 2026-07-16 — F-BACK-001 M1–M3 ordered backlog
 
 **Scope:** docs backlog for post-M0 product work  

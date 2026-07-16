@@ -414,6 +414,10 @@ pub enum Action {
     /// Cycle session mode (Shift+Tab): Normal → Plan → Always-Approve → Normal.
     /// Plan mode sends a signal to the shell; always-approve is local.
     CycleMode,
+    /// Cycle primary-session product role forward (Tab) while `role_switch_allowed`.
+    CycleProductRole,
+    /// Cycle primary-session product role backward (Shift+Tab) while allowed.
+    CycleProductRolePrev,
     /// Toggle YOLO mode (auto-approve all permissions). Ctrl+O.
     ToggleYolo,
     /// Set YOLO (auto-approve / `always-approve`) mode.

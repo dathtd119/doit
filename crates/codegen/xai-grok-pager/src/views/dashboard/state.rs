@@ -4272,6 +4272,8 @@ fn dashboard_action_for_id(
         | ActionId::OpenExtensions
         | ActionId::SendToBackground
         | ActionId::CycleMode
+        | ActionId::CycleProductRole
+        | ActionId::CycleProductRolePrev
         | ActionId::BashMode
         | ActionId::Rewind
         | ActionId::KillBgTask

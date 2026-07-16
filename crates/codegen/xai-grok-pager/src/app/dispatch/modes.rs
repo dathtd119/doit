@@ -523,6 +523,56 @@ pub(super) fn dispatch_toggle_yolo(app: &mut AppView) -> Vec<Effect> {
     set_yolo_mode(app, new)
 }
 
+/// Primary-session product role cycle (do L1 / VAL-M1-LOCK-001).
+///
+/// Tab / Shift+Tab (when routed here) advance the product roster only while
+/// `role_switch_allowed` — no user messages / no conversation content yet.
+/// After lock: no-op (does not change active role or emit SetSessionMode).
+///
+/// Emits ACP `session/set_mode` with the role name as mode id so shell
+/// `handle_session_mode` loads the agent definition and rebuilds L1 while
+/// still unlocked (shell also gates product roles on turn_count).
+pub(super) fn dispatch_cycle_product_role(app: &mut AppView, forward: bool) -> Vec<Effect> {
+    use crate::app::dispatch::scrollback_has_user_messages;
+    use xai_grok_shell::session::role_switch::{RoleCycleGate, gate_role_cycle};
+
+    let ActiveView::Agent(id) = app.active_view else {
+        return vec![];
+    };
+    let Some(agent) = app.agents.get_mut(&id) else {
+        return vec![];
+    };
+    let has_user = scrollback_has_user_messages(&agent.scrollback);
+    // turn_count from scrollback is the client-side completed-turn signal.
+    let turn_count = agent.scrollback.turn_count() as u32;
+    let current = agent.session_agent_name.as_deref();
+    match gate_role_cycle(turn_count, has_user, current, forward) {
+        RoleCycleGate::Locked => {
+            // Post-lock: role cycle is a no-op. UX toast is F-M1-UX; keep quiet
+            // here so accidental Tab after work does not spam.
+            tracing::debug!(
+                turn_count,
+                has_user,
+                "role_switch_allowed=false: product role cycle ignored"
+            );
+            vec![]
+        }
+        RoleCycleGate::Apply { next_role } => {
+            agent.session_agent_name = Some(next_role.to_string());
+            agent.show_mode_switch_banner(next_role);
+            let Some(session_id) = agent.session.session_id.clone() else {
+                // Pre-session: optimistic local name only; first prompt /
+                // session create can pick up session_agent_name.
+                return vec![];
+            };
+            vec![Effect::SetSessionMode {
+                session_id,
+                mode_id: acp::SessionModeId::new(next_role),
+            }]
+        }
+    }
+}
+
 /// Shift+Tab mode cycle from the agent chat view: the shared cycle body plus
 /// plan-nudge acceptance telemetry (the nudge advertises this chord). The
 /// dashboard peek calls [`dispatch_cycle_mode_and_sync`] instead, so a peeked

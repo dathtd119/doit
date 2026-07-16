@@ -501,9 +501,32 @@ impl AgentView {
             }
         }
 
-        // Shift+Tab (cycle session mode) is not special-cased here — the
-        // `CycleMode` ActionDef carries all encodings; the registry lookup
-        // below resolves it (same as `DashboardCycleMode`).
+        // Product role cycle (do L1): pre-message Tab / Shift+Tab cycle
+        // product roles. After lock, bare Tab falls through (completion /
+        // focus); Shift+Tab falls through to CycleMode (plan/yolo ring).
+        // Must run before the ActionRegistry lookup so we can choose role
+        // vs mode for the shared Shift+Tab chord.
+        if !self.prompt.slash_open()
+            && !self.prompt.file_search_visible()
+            && !self.prompt.completion_dropdown_open()
+        {
+            use crate::app::dispatch::scrollback_has_user_messages;
+            use xai_grok_shell::session::role_switch::role_switch_allowed;
+            let turn_count = self.scrollback.turn_count() as u32;
+            let has_user = scrollback_has_user_messages(&self.scrollback);
+            let switch_ok = role_switch_allowed(turn_count, has_user);
+            if switch_ok {
+                if key!(Tab).matches(key) && key.modifiers.is_empty() {
+                    return InputOutcome::Action(Action::CycleProductRole);
+                }
+                if crate::input::key::shift_tab_keys()
+                    .iter()
+                    .any(|k| k.matches(key))
+                {
+                    return InputOutcome::Action(Action::CycleProductRolePrev);
+                }
+            }
+        }
 
         // 2. Multiline mode: Shift+Enter (or Alt+Enter) sends.
         //    This must come BEFORE the action registry lookup so that

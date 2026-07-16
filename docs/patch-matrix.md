@@ -239,11 +239,10 @@ Each row: gap → path → risk → order → seams → avoid → links.
 
 ## Crate patch log
 
-_No product crate patches yet (M0 docs/extension only). Add rows when a surgical fork edit lands._
-
 | Date | Crate / path | L* | Reason | Risk | Alternatives exhausted |
 |------|--------------|----|--------|------|------------------------|
-| — | — | — | — | — | — |
+| 2026-07-16 | `xai-grok-shell` `session/role_switch.rs` + `acp_session_impl/session_mode.rs` | L1 | Session flag `role_switch_allowed` + gate product-role `session/set_mode` after first turn so L1 prompt freeze is enforced server-side | Medium | Agents/hooks cannot observe turn_count or refuse ACP set_mode; pure policy module is shared, not a deep TUI fork |
+| 2026-07-16 | `xai-grok-pager` `dispatch/modes.rs`, `agent_view/prompt.rs`, `actions` | L1 | Tab/Shift+Tab product-role cycle pre-message; no-op after lock (Shift+Tab reverts to plan/yolo CycleMode) | Medium | Keybind lives in pager input path; extension-only cannot intercept Tab before completion UI |
 
 ---
 

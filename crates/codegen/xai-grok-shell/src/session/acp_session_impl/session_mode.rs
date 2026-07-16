@@ -96,7 +96,33 @@ impl SessionActor {
             )
             .in_scope(|| {});
         }
-        let agent_def = match session_mode_id.0.as_ref() {
+        let mode_id = session_mode_id.0.as_ref();
+        // Product L1 freeze (VAL-M1-LOCK-001): after first user message /
+        // conversation content, refuse product-role hops so the system/role
+        // prompt stack stays frozen. Plan/default/ask and non-product modes
+        // remain switchable.
+        if crate::session::role_switch::is_product_role_mode_id(mode_id) {
+            let turn_count = self
+                .signals_handle()
+                .snapshot()
+                .await
+                .map(|s| s.turn_count)
+                .unwrap_or(0);
+            // turn_count is the session signal for completed user turns; zero
+            // means pre-message (or restored empty). Content scan is not
+            // available here — shell gate uses turn_count; pager also gates
+            // on scrollback user prompts.
+            if !crate::session::role_switch::role_switch_allowed(turn_count, false) {
+                tracing::info!(
+                    session_id = % self.session_info.id.0,
+                    requested_role = % mode_id,
+                    turn_count,
+                    "role_switch_allowed=false: ignoring product role mode (L1 freeze)"
+                );
+                return;
+            }
+        }
+        let agent_def = match mode_id {
             "browser_use" => Some(AgentDefinition::browser_use()),
             name => {
                 let cwd = self.tool_context.cwd.as_path();
@@ -117,6 +143,8 @@ impl SessionActor {
             *self.active_agent_type.lock() = Some(def.name.clone());
         }
         if let Some(ref def) = agent_def {
+            // L1 prompt stack: rewrite system head only when switch was allowed
+            // (product roles already gated above; other modes still rebuild).
             let new_prompt = self.agent.borrow().render_prompt_for_definition(def).await;
             let mut conversation = self.chat_state_handle.get_conversation().await;
             for item in conversation.iter_mut() {

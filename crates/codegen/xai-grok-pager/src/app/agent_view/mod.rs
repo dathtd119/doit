@@ -1997,6 +1997,8 @@ fn resolve_action(action_id: Option<ActionId>) -> Option<InputOutcome> {
         ActionId::FocusScrollback => Action::FocusScrollback,
         ActionId::NextModel => Action::NextModel,
         ActionId::CycleMode => Action::CycleMode,
+        ActionId::CycleProductRole => Action::CycleProductRole,
+        ActionId::CycleProductRolePrev => Action::CycleProductRolePrev,
         ActionId::CancelTurn
         | ActionId::Quit
         | ActionId::ExitSession

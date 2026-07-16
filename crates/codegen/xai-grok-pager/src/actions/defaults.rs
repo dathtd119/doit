@@ -475,6 +475,8 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
             label: "mode",
             description: "Cycle mode (Normal / Plan / Always-approve)",
             // All Shift+Tab encodings — see `input::key::shift_tab_keys()`.
+            // Pre-message: product role cycle claims Shift+Tab first
+            // (`CycleProductRolePrev`); after lock, this arm owns the chord.
             default_key: crate::input::key::shift_tab_keys()[0],
             alt_keys: crate::input::key::shift_tab_keys()[1..].to_vec(),
             category: Category::GettingStarted,
@@ -483,9 +485,13 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
             hint_key_display: Some("Shift+Tab"),
             requires_confirmation: false,
             long_help: Some(
-                "Steps the session mode: Normal -> Plan -> Always-Approve -> Normal.\nPlan keeps the agent planning first and writes no files; Always-Approve runs every tool call without asking.\nCtrl+O toggles auto-approve directly.",
+                "Steps the session mode: Normal -> Plan -> Always-Approve -> Normal.\nPlan keeps the agent planning first and writes no files; Always-Approve runs every tool call without asking.\nCtrl+O toggles auto-approve directly.\nBefore the first user message, Shift+Tab cycles product roles instead (see role cycle).",
             ),
         },
+        // CycleProductRole / CycleProductRolePrev: no ActionDef keybinds.
+        // Prompt handler emits Action::CycleProductRole{,Prev} only while
+        // role_switch_allowed (Tab / Shift+Tab). After lock, Tab is completion
+        // and Shift+Tab is CycleMode.
         // ── Panes (agent-level — toggle side panes) ─────────────────
         ActionDef {
             id: ActionId::ToggleTodos,
