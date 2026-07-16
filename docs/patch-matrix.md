@@ -266,6 +266,14 @@ Config-first: `[models] default` + `[model.*]` `api_key`/`env_key` + optional `[
 |------|----|--------|--------------|--------|------|------------------------|
 | 2026-07-16 | **P-AUTH-01** | **applied** | `xai-grok-shell` `agent/auth_method.rs` (`config_satisfies_api_key_auth`, `should_require_interactive_oauth` + unit tests); `xai-grok-pager-bin` `main.rs` `workspace_start` | Skip interactive `ensure_authenticated` / grok.com OAuth when BYOK or `preferred_method=api_key` | Medium | Config alone cannot change pager-bin hard gate; extension/hooks cannot intercept `workspace_start` pre-login |
 
+### Applied — P-CFG-HOME (CFG F-CFG-HOME)
+
+Scout: [`plans/reports/scout-config-home-xdg-do-260716.md`](../plans/reports/scout-config-home-xdg-do-260716.md). Default user home is **`~/.config/do` only** when `GROK_HOME` unset. **No** default dual-read of `~/.grok`. Env override remains **`GROK_HOME`** (full root replace; document this one — `DO_HOME` not wired). Project discovery `.do/` is F-CFG-PROJECT.
+
+| Date | ID | Status | Crate / path | Reason | Risk | Alternatives exhausted |
+|------|----|--------|--------------|--------|------|------------------------|
+| 2026-07-16 | **P-CFG-HOME** | **applied** | `xai-grok-config` `paths.rs` (`default_grok_home` → `.config/do`, `DEFAULT_USER_HOME_REL`); `xai-fast-worktree` `db/mod.rs` `resolve_grok_home` (synced); `xai-grok-workspace` `worktree/mod.rs` fallback join; `xai-grok-agent` `discovery.rs` drop legacy `~/.grok` dual-read in `user_agent_dirs` | Product default user config/session/home root is XDG-style `~/.config/do`; no silent `~/.grok` fallback for default resolve or agent scan | Medium | Env-only `GROK_HOME=~/.config/do` leaves stock default `~/.grok`; extension/docs cannot change `default_grok_home` / `resolve_grok_home` hardcodes |
+
 ---
 
 ## Milestone → matrix slice
@@ -275,7 +283,7 @@ Config-first: `[models] default` + `[model.*]` `api_key`/`env_key` + optional `[
 | **M0** | L10 docs; L13 template; L6/L8 proof (hook + intake agent); this matrix + limitations sealed |
 | **M1** | L1 Tab lock + role roster; L13 YAML→agent wire; L2 prompt layers; start L4 |
 | **PRIV** | P-NOTEL-01..06 fail-closed SpaceXAI telemetry; P-AUTH-01 BYOK skip forced OAuth (**applied**, 2026-07-16) |
-| **CFG** | P-CFG-* user home `~/.config/do` + project `.do/` discovery (next) |
+| **CFG** | P-CFG-HOME user home `~/.config/do` (**applied**); P-CFG-PROJECT project `.do/` discovery (next) |
 | **M2** | L5 continuation; L6 harden; L4 progressive catalog; L11 only if explicit |
 | **M3** | L7 CodeGraph product surface; L3 tool packs as needed; hashline default policy (backlog) |
 

@@ -11,7 +11,14 @@ const CLAUDE_MANAGED_SETTINGS_PATH: &str =
 #[cfg(target_os = "linux")]
 const CLAUDE_MANAGED_SETTINGS_PATH: &str = "/etc/claude-code/managed-settings.json";
 
-/// The default user grok directory (`~/.grok`, canonicalized) used when
+/// Relative path under `$HOME` for the product user config home (`~/.config/do`).
+///
+/// CFG rebrand (P-CFG-HOME): default is XDG-style `~/.config/do` only. There is
+/// **no** silent dual-read or write fallback to `~/.grok`. Relocate the root with
+/// **`GROK_HOME`** (full override; same family as stock). `DO_HOME` is not wired.
+pub const DEFAULT_USER_HOME_REL: &str = ".config/do";
+
+/// The default user config directory (`~/.config/do`, canonicalized) used when
 /// `GROK_HOME` is unset. Exposed so callers (e.g. display helpers) can detect
 /// whether [`grok_home()`] is the default without duplicating the computation.
 ///
@@ -19,19 +26,22 @@ const CLAUDE_MANAGED_SETTINGS_PATH: &str = "/etc/claude-code/managed-settings.js
 /// Windows, std returns a verbatim path (`\\?\C:\Users\...`) which external
 /// tools choke on — e.g. `git clone` rejects `\\?\` destinations with
 /// "Invalid argument", breaking marketplace cache clones under
-/// `~/.grok/marketplace-cache`. `dunce` strips the prefix whenever the path
+/// `$GROK_HOME/marketplace-cache`. `dunce` strips the prefix whenever the path
 /// is safely representable in legacy form; on non-Windows it is identical to
 /// `std::fs::canonicalize`.
 ///
-/// Keep the dunce canonicalization in sync with the hand-rolled duplicate in
-/// `xai_fast_worktree::db::resolve_grok_home` (deliberately standalone crate).
+/// Keep the dunce canonicalization and default relative path in sync with the
+/// hand-rolled duplicate in `xai_fast_worktree::db::resolve_grok_home`
+/// (deliberately standalone crate).
 pub fn default_grok_home() -> PathBuf {
     #[allow(deprecated)]
     let home = std::env::home_dir().unwrap_or_else(|| PathBuf::from("."));
-    dunce::canonicalize(&home).unwrap_or(home).join(".grok")
+    dunce::canonicalize(&home)
+        .unwrap_or(home)
+        .join(DEFAULT_USER_HOME_REL)
 }
 
-/// Per-user config directory: `$GROK_HOME` or `~/.grok`. Created if needed.
+/// Per-user config directory: `$GROK_HOME` or `~/.config/do`. Created if needed.
 pub fn grok_home() -> PathBuf {
     GROK_HOME
         .get_or_init(|| {
@@ -46,11 +56,11 @@ pub fn grok_home() -> PathBuf {
         .clone()
 }
 
-/// The user-global grok home, but only when one genuinely resolves: `Some` when
+/// The user-global config home, but only when one genuinely resolves: `Some` when
 /// `$GROK_HOME` is set or a home directory is found, `None` otherwise. Unlike
-/// [`grok_home()`], this never falls back to a cwd-relative `.grok`, so callers
-/// that *scan* user-global grok resources (hooks, marketplace sources, ...) don't
-/// mistake a project's `.grok` tree for the user-global one when no home resolves.
+/// [`grok_home()`], this never falls back to a cwd-relative path, so callers
+/// that *scan* user-global resources (hooks, marketplace sources, ...) don't
+/// mistake a project's config tree for the user-global one when no home resolves.
 pub fn user_grok_home() -> Option<PathBuf> {
     #[allow(deprecated)]
     let resolvable = std::env::var_os("GROK_HOME").is_some() || std::env::home_dir().is_some();
@@ -307,7 +317,30 @@ mod tests {
         // canonicalization must yield a plain path. No-op assertion on Unix.
         let home = default_grok_home();
         assert!(!home.to_string_lossy().starts_with(r"\\?\"));
-        assert!(home.ends_with(".grok"));
+        assert!(
+            home.ends_with(DEFAULT_USER_HOME_REL) || home.ends_with("do"),
+            "default user home must be ~/.config/do (got {})",
+            home.display()
+        );
+        assert!(
+            !home.ends_with(".grok"),
+            "default must not be ~/.grok (got {})",
+            home.display()
+        );
+    }
+
+    #[test]
+    fn default_grok_home_is_xdg_do_not_legacy_dot_grok() {
+        let home = default_grok_home();
+        let display = home.to_string_lossy();
+        assert!(
+            display.contains(".config") && display.ends_with("do"),
+            "expected ~/.config/do default, got {display}"
+        );
+        assert!(
+            !display.ends_with(".grok"),
+            "no default dual-read or fallback to ~/.grok"
+        );
     }
 
     #[test]
