@@ -67,7 +67,7 @@ OpenCode-style **Tab / Shift+Tab** role cycling is a product requirement with a 
 
 **Why:** Mid-session role hops pollute the system/role prompt stack and mix control contracts in one transcript. Cleaner to pick a role before work starts (or start a new session).
 
-**Implementation:** Documented in M0; **implement in M1** (role + prompt layers). Full TUI polish may lag; the lock policy is binding whenever role cycle UI exists. Details: [`docs/prompt-system.md`](./docs/prompt-system.md) (Role lifecycle), [`docs/architecture.md`](./docs/architecture.md).
+**Implementation:** **Documented in M0** (F-ROLE-001 / VAL-ROLE-001); **implement in M1** (role + prompt layers: session flag, keybind gate, stack freeze, role→model wire). Full TUI polish may lag; the lock policy is binding whenever role cycle UI exists. Details: [`docs/prompt-system.md`](./docs/prompt-system.md) (Role lifecycle + M1 note), [`docs/architecture.md`](./docs/architecture.md).
 
 ## Models & config control
 
@@ -206,7 +206,7 @@ Date: 2026-07-16
 - **Fork import** — grok-build tree present under `/home/datht/code/do` (F-FORK-001 done); `cargo check` smoke still pending
 - **Control plane** — root `AGENTS.md` + docs split **sealed** (F-CTRL-001 / VAL-CTRL-001..003): index, architecture, future-plan, current-status, ship-discipline, related-projects, **models-and-config** + CHANGELOGS + README; mission AGENTS points here
 - **Multi-model requirement** — captured: grok already multi-`[model.*]`; gap is OpenCode-like role assignment + do YAML overlay (L13); template at `do-harness/config.models.yaml`
-- **Role switch lock** — product rule captured: Tab/Shift+Tab role cycle **only pre-message**; disabled after first user message / conversation content (M1 implement)
+- **Role switch lock** — **sealed** (F-ROLE-001 / VAL-ROLE-001): Tab/Shift+Tab **only pre-message**; disabled after first user message / conversation content; M1 implements (see `docs/prompt-system.md` Role lifecycle + M1 note)
 - **Scout** — pi-ness harness ideas + grok native tools inventory in mission architecture / L1–L12 sketch; L13 added for model assignment UX
 - **Grok-build inventory** — `docs/grok-build/` (overview, native-tools, extension-seams, hard-limits, patterns) scaffolded with fork evidence paths; expand under F-GROK-001 / VAL-GROK-001
 - **Not yet** — limitations/patch-matrix/capability-map evidence docs; do-harness proof agent + guided hook; YAML→TOML wiring; M0 seal commit

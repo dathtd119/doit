@@ -8,15 +8,26 @@ Product thesis: *harness control* — roles as the unit of control, prompt + too
 
 ## Session / role control (binding product rule)
 
-OpenCode-style **Tab / Shift+Tab** role cycle:
+OpenCode-style **Tab / Shift+Tab** role cycle. **M0 documented** (VAL-ROLE-001 / F-ROLE-001); **M1 implements**.
 
-- **Allowed only at session start** — empty transcript / no user messages yet
-- **Disabled after the first user message** (or any non-empty conversation content) — no mid-session role hop
-- **Why:** keep system/role prompt stack clean; mid-session switches pollute context
-- **Model assignment:** re-resolve role→model only while switch is still allowed
-- **Milestone:** document in M0; **implement in M1** (full TUI polish may lag; lock policy binds whenever cycle UI exists)
+| Phase | Role cycle | Model re-resolve from role |
+|-------|------------|----------------------------|
+| Session start — empty transcript, no user messages | **Allowed** (Tab / Shift+Tab) | Yes — apply role→model assignment |
+| After first user message **or** any conversation content | **Disabled** | No mid-session hop; keep active role + model stack |
 
-Details: [prompt-system.md](./prompt-system.md) (Role lifecycle), root [AGENTS.md](../AGENTS.md) Hard Constraints + Session / role control.
+- **Why:** mid-session role hops pollute the system/role prompt stack and mix control contracts in one transcript
+- **Escape hatch:** start a **new session** to pick a different role
+- **Lock policy binds whenever cycle UI exists** — full TUI polish may lag; never ship cycle without the lock
+
+### M1 implementation note (backlog seed)
+
+1. Session flag: role switch allowed only pre-message  
+2. Gate Tab / Shift+Tab on that flag  
+3. Freeze L1 / system role stack after first message  
+4. Role→model re-pin only while switch allowed (do YAML → agents; L13 wire)  
+5. Prefer session/shell + agent seams before crate patch  
+
+Full detail: [prompt-system.md](./prompt-system.md) (Role lifecycle + M1 note). Contract: root [AGENTS.md](../AGENTS.md) Hard Constraints + Session / role control. Ordered M1 backlog: `docs/backlog-m1-m3.md` (F-BACK-001).
 
 ## Source trees
 

@@ -43,7 +43,7 @@ Read **before crate work**. Evidence-backed map of the forked Grok Build base: p
 
 | Doc | Purpose |
 |-----|---------|
-| [prompt-system.md](./prompt-system.md) | L0–L6 prompt layers (stub) |
+| [prompt-system.md](./prompt-system.md) | L0–L6 prompt layers (stub) + **Role lifecycle** (Tab cycle lock; M1 note) |
 | [workspace.md](./workspace.md) | Session continuum: goal / plan / todo (stub) |
 
 ## Product surfaces

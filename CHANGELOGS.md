@@ -33,4 +33,26 @@ Append-only ship log for **do**. Not a status essay — one entry per substantiv
 - `cargo check` smoke (F-FORK-002)
 - Evidence limitations / patch-matrix / capability-map (F-DOC-001..003)
 - Proof agent + guided hook (F-EXT-*)
-- Formal F-MODEL-001 / F-ROLE-001 worker seals (content may already exist on disk)
+- Formal F-MODEL-001 worker seal
+
+---
+
+## 2026-07-16 — F-ROLE-001 role switch lock policy seal
+
+**Scope:** docs only (AGENTS, prompt-system, architecture, status)  
+**Feature:** F-ROLE-001 · **VAL:** VAL-ROLE-001
+
+### Sealed
+
+- **Tab / Shift+Tab** role cycle **only** at session start (empty transcript / no user messages)
+- **Disabled** after first user message or any conversation content — no mid-session role hop
+- Model re-assignment from role only while switch is still allowed
+- **M1** is the implementation milestone (session flag, keybind gate, L1 stack freeze, role→model wire)
+- M1 implementation note seeded in `docs/prompt-system.md` and `docs/architecture.md` for F-BACK-001 backlog pickup
+
+### Files
+
+- Root `AGENTS.md` — Hard Constraints + Session / role control + living status
+- `docs/prompt-system.md` — Role lifecycle + M1 implementation note
+- `docs/architecture.md` — Session / role control table + M1 note
+- `docs/current-status.md` — F-ROLE-001 marked done

@@ -20,12 +20,12 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
   - Grok already supports many `[model.<name>]` + default + role/persona/spawn resolution
   - Gap is OpenCode-like **assignment UX** and do **YAML overlay** (**L13**)
   - Template: `do-harness/config.models.yaml`
-- **Role switch lock** product rule captured:
+- **Role switch lock** product rule **sealed** (F-ROLE-001 / VAL-ROLE-001):
   - Tab/Shift+Tab role cycle **only before first user message**
   - **Disabled** after any conversation content (keep system/role context clean)
   - Model re-assignment from role only while switch still allowed
-  - M0 = document; **M1 = implement**
-- Mission artifacts updated for control plane + multi-model + **VAL-ROLE-001** / F-ROLE-001
+  - M0 = document (done); **M1 = implement** (session flag, keybind gate, stack freeze, role→model wire)
+  - Sources of truth: root `AGENTS.md`, `docs/prompt-system.md` (Role lifecycle + M1 note), `docs/architecture.md`
 
 ### In progress / pending (M0)
 
@@ -39,7 +39,7 @@ Compact status lives in root [AGENTS.md](../AGENTS.md); this file is the narrati
 | M1–M3 backlog including multi-model wire + role Tab lock | F-BACK-001 | role→model wiring + post-message lock |
 | Control plane VAL evidence | F-CTRL-001 | **Done** — VAL-CTRL-001..003; sealed in git |
 | Model design VAL | F-MODEL-001 | models-and-config + YAML template |
-| Role switch lock policy documented | F-ROLE-001 | VAL-ROLE-001; content written; formal seal via worker |
+| Role switch lock policy documented | F-ROLE-001 | **Done** — VAL-ROLE-001 sealed in AGENTS + prompt-system + architecture |
 
 ### True-now constraints
 
