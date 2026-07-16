@@ -4,6 +4,36 @@ Append-only ship log for **do**. Not a status essay — one entry per substantiv
 
 ---
 
+## 2026-07-16 — F-EXT-003 proof extension discovery verified
+
+**Scope:** do-harness discovery verification + product README  
+**Feature:** F-EXT-003 · **VAL:** VAL-EXT-003
+
+### Sealed
+
+- `do-harness/scripts/verify-discovery.sh` — scripted discovery-path check (exit 0):
+  - project `.grok/agents/intake.md` and `.grok/hooks/*` on real grok paths
+  - symlinks resolve to `do-harness/` source of truth
+  - agent frontmatter + hook PreToolUse JSON shape
+  - guided deny/allow self-test (`[GATE: …]`)
+  - forked evidence citations (`discovery.rs`, `util/hooks.rs`)
+  - optional binary `inspect` when a pager binary is built
+- `do-harness/README.md` — layout, enablement, **verify commands** for VAL-EXT-003
+
+### Not in scope
+
+- Full binary-built inspect e2e when no binary is present (path check is authoritative per VAL-EXT-003(b))
+- YAML→agent wiring / role Tab cycle (M1)
+- M0 seal commit / backlog-m1-m3 (F-BACK-001)
+
+### Files
+
+- `do-harness/scripts/verify-discovery.sh`
+- `do-harness/README.md`
+- This CHANGELOGS entry
+
+---
+
 ## 2026-07-16 — F-EXT-002 guided PreToolUse hook proof
 
 **Scope:** do-harness hooks + project discovery install  
