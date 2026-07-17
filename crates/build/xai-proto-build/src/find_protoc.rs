@@ -1,4 +1,4 @@
-use anyhow::{Context, bail};
+use anyhow::{bail, Context};
 use std::env;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -41,10 +41,17 @@ pub fn find_protoc() -> anyhow::Result<Option<PathBuf>> {
     //    and is set by Bazel cargo_build_script build_script_env to point at a hermetic
     //    protoc binary instead of the dotslash wrapper.
     if let Ok(protoc_env) = env::var("PROTOC") {
-        let protoc = PathBuf::from(&protoc_env);
-        if protoc.try_exists()? {
-            check_protoc_good(&protoc)?;
-            return Ok(Some(protoc));
+        let protoc = PathBuf::from(protoc_env.trim());
+        // Prefer $PROTOC even when try_exists is flaky (e.g. MSYS path written
+        // into GITHUB_ENV). check_protoc_good is the real gate.
+        match check_protoc_good(&protoc) {
+            Ok(()) => return Ok(Some(protoc)),
+            Err(e) => {
+                eprintln!(
+                    "PROTOC={} not usable ({e:#}); trying bin/protoc and PATH",
+                    protoc.display()
+                );
+            }
         }
     }
 
@@ -56,6 +63,22 @@ pub fn find_protoc() -> anyhow::Result<Option<PathBuf>> {
         // Return relative path to make build more deterministic.
         let protoc = dir_rel.join("bin/protoc");
         if protoc.try_exists()? {
+            // Windows cannot execute the DotSlash shebang file (Win32 193).
+            // Fall through to PATH / $PROTOC without spawning when no .exe suffix.
+            #[cfg(windows)]
+            {
+                let is_dotslash_wrapper = protoc
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .is_some_and(|n| n.eq_ignore_ascii_case("protoc"));
+                if is_dotslash_wrapper {
+                    eprintln!(
+                        "bin/protoc at `{}` skipped on Windows (DotSlash wrapper);                          trying PATH",
+                        protoc.display()
+                    );
+                    break;
+                }
+            }
             match check_protoc_good(&protoc) {
                 Ok(()) => return Ok(Some(protoc)),
                 Err(e) => {

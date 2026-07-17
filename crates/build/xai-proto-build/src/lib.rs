@@ -5,6 +5,25 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::{fs, iter};
 
+/// Strip `target:` from a protoc --dependency_out makefile line.
+/// Avoids splitting on Windows drive-letter colons (e.g. `C:\...`).
+fn strip_makefile_target_prefix<'a>(line: &'a str, target: &str) -> Option<&'a str> {
+    let slash = target.replace('\\', "/");
+    let back = target.replace('/', "\\");
+    for key in [target, slash.as_str(), back.as_str()] {
+        if let Some(rest) = line.strip_prefix(key) {
+            if let Some(r) = rest.strip_prefix(':') {
+                return Some(r);
+            }
+        }
+    }
+    // Fallback: recipe separator is typically ": " (not a drive letter).
+    if let Some(idx) = line.find(": ") {
+        return Some(&line[idx + 2..]);
+    }
+    None
+}
+
 /// Find the protoc well-known types include directory.
 ///
 /// When PROTOC is set (e.g., in Bazel), the include directory is typically
@@ -113,11 +132,27 @@ impl XaiProtoBuilder {
         }
 
         // Can only process one input file when using --dependency_out=FILE.
+        // Use real temp paths (not /dev/stdout|/dev/null): Windows protoc has no
+        // /dev/* devices; that was the GH Actions MSVC build failure after PROTOC
+        // install.
         for proto in protos {
+            let dep_file = tempfile::NamedTempFile::new().context("create dep tempfile")?;
+            let desc_file = tempfile::NamedTempFile::new().context("create desc tempfile")?;
+            let dep_path = dep_file.path().to_path_buf();
+            let desc_path = desc_file.path().to_path_buf();
+            // Close handles so protoc can open/write on Windows (exclusive locks).
+            drop(dep_file);
+            drop(desc_file);
+
             let mut command = Command::new(protoc.unwrap_or(Path::new("protoc")));
-            command
-                .arg("--dependency_out=/dev/stdout")
-                .arg("--descriptor_set_out=/dev/null");
+            command.arg(format!(
+                "--dependency_out={}",
+                dep_path.to_str().context("dep path not UTF-8")?
+            ));
+            command.arg(format!(
+                "--descriptor_set_out={}",
+                desc_path.to_str().context("desc path not UTF-8")?
+            ));
 
             // Add protoc's well-known types include directory first (if found).
             // This is needed for Bazel sandboxed builds where protoc and its
@@ -138,27 +173,34 @@ impl XaiProtoBuilder {
             command.stdin(Stdio::null());
             command.stderr(Stdio::inherit());
 
-            let output = command.output().context("protoc command failed")?;
-            if !output.status.success() {
+            let status = command.status().context("protoc command failed")?;
+            if !status.success() {
                 return Err(anyhow::anyhow!("protoc command failed"));
             }
 
-            let output =
-                String::from_utf8(output.stdout).context("protoc command output not UTF-8")?;
+            let output = fs::read_to_string(&dep_path).context("read protoc dependency file")?;
 
+            // Makefile-style: first target is the descriptor path we passed.
+            // Do not split on the first ':' — Windows paths use drive letters (C:).
+            let desc_key = desc_path.to_str().context("desc path not UTF-8")?;
             let mut lines = output.lines();
             let first_line = lines.next().context("protoc command output is empty")?;
-            let prefix = "/dev/null:";
-            let rem = first_line.strip_prefix(prefix).with_context(|| {
-                format!("protoc command output must start with /dev/null: {output:?}")
+            let rem = strip_makefile_target_prefix(first_line, desc_key).with_context(|| {
+                format!("protoc dependency line must start with target: {output:?}")
             })?;
             for line in iter::once(rem).chain(lines) {
                 let line = line.trim();
-                let line = line.strip_suffix("\\").unwrap_or(line);
+                let line = line.strip_suffix('\\').unwrap_or(line);
                 // Depending on absolute paths like
                 // /Users/user/homebrew/Cellar/protobuf/29.1/include/google/protobuf/timestamp.proto
                 // is valid, but we want to have output more deterministic.
-                if line.contains("/include/google/protobuf/") {
+                if line.contains("/include/google/protobuf/")
+                    || line.contains("\\include\\google\\protobuf\\")
+                {
+                    continue;
+                }
+
+                if line.is_empty() {
                     continue;
                 }
 
@@ -168,6 +210,9 @@ impl XaiProtoBuilder {
 
                 println!("cargo:rerun-if-changed={line}");
             }
+
+            let _ = fs::remove_file(&dep_path);
+            let _ = fs::remove_file(&desc_path);
         }
 
         Ok(())

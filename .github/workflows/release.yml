@@ -142,11 +142,25 @@ jobs:
             echo "protoc not on PATH after setup-protoc" >&2
             exit 1
           fi
+          # MSVC/cargo build scripts need a Win32 path. Git Bash `command -v`
+          # returns /c/... which Path::try_exists rejects → find_protoc ignores $PROTOC.
+          if [[ "${RUNNER_OS}" == "Windows" ]]; then
+            if command -v cygpath >/dev/null 2>&1; then
+              PROTOC_BIN="$(cygpath -w "${PROTOC_BIN}")"
+            elif [[ "${PROTOC_BIN}" =~ ^/([a-zA-Z])/(.*)$ ]]; then
+              drive="$(echo "${BASH_REMATCH[1]}" | tr '[:lower:]' '[:upper:]')"
+              rest="${BASH_REMATCH[2]//\//\\}"
+              PROTOC_BIN="${drive}:\\${rest}"
+            fi
+          fi
           echo "PROTOC=${PROTOC_BIN}" >> "${GITHUB_ENV}"
+          echo "Exported PROTOC=${PROTOC_BIN}"
           protoc --version
 
-      # Optional on Unix: local bin/protoc DotSlash still works if PROTOC unset.
+      # Unix only: DotSlash enables local bin/protoc when $PROTOC is unset.
+      # Windows bin/protoc is a shebang script (Win32 error 193) — skip install.
       - name: Install DotSlash (optional local bin/protoc)
+        if: runner.os != 'Windows'
         shell: bash
         run: cargo install dotslash --locked
 
