@@ -124,7 +124,29 @@ jobs:
           echo "version=${PRODUCT_VERSION}" >> "${GITHUB_OUTPUT}"
           echo "Product VERSION=${PRODUCT_VERSION} (tag ${TAG})"
 
-      - name: Install DotSlash (protoc wrapper)
+      # bin/protoc is a DotSlash wrapper without Windows platforms; Command::new on
+      # the shebang file fails with Win32 error 193. Install a real protoc and set
+      # PROTOC so build scripts skip the broken wrapper (find_protoc prefers $PROTOC).
+      - name: Install protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          version: "29.3"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Export PROTOC
+        shell: bash
+        run: |
+          set -euo pipefail
+          PROTOC_BIN="$(command -v protoc)"
+          if [[ -z "${PROTOC_BIN}" ]]; then
+            echo "protoc not on PATH after setup-protoc" >&2
+            exit 1
+          fi
+          echo "PROTOC=${PROTOC_BIN}" >> "${GITHUB_ENV}"
+          protoc --version
+
+      # Optional on Unix: local bin/protoc DotSlash still works if PROTOC unset.
+      - name: Install DotSlash (optional local bin/protoc)
         shell: bash
         run: cargo install dotslash --locked
 

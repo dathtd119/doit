@@ -55,6 +55,21 @@ jobs:
         with:
           tool: cargo-llvm-cov@0.6.16,cargo-nextest@0.9.88,cargo-machete@0.7.0
 
+      # Smoke/clippy compile doit → xai-grok-tools-api build.rs needs protoc.
+      # Prefer $PROTOC over bin/protoc DotSlash wrapper for hermetic CI.
+      - name: Install protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          version: "29.3"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Export PROTOC
+        run: |
+          set -euo pipefail
+          PROTOC_BIN="$(command -v protoc)"
+          echo "PROTOC=${PROTOC_BIN}" >> "${GITHUB_ENV}"
+          protoc --version
+
       - name: Large file detection
         run: bash scripts/check-large-files.sh
 
