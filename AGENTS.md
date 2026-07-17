@@ -111,6 +111,7 @@ User → doit binary (xai-grok-pager lineage)
    - **L1** role switch lock (Tab cycle only pre-message) + role→model re-pin only while unlocked
    - **P-CFG-HOME-DOIT / PROJECT-DOIT** — `~/.config/doit` + project `.doit/` (no silent `~/.grok` / `~/.config/do`)
    - **Package identity** `doit` / `crates/codegen/doit`
+   - **P-VERSION** product `VERSION` SoT — do **not** overwrite root `VERSION` / product `doit` package semver with upstream monorepo `0.2.x` lockstep
 6. **Conflict default:** hotspot paths → keep **product Fork** semantics; pure monorepo without product markers → take **Upstream**. Do not drop PRIV/CFG/role-lock to “make merge easy.”
 7. **Smoke:** `cargo check -p doit` (and `bash do-harness/scripts/verify-install.sh` when install surfaces change). Prefer targeted package checks — not full-workspace RA.
 8. **Log the sync** in [`docs/patch-matrix.md`](./docs/patch-matrix.md) (new section or rows for the upstream tip SHA) + append [`CHANGELOGS.md`](./CHANGELOGS.md) when sealing.
@@ -349,6 +350,7 @@ Date: 2026-07-17
 - **Fork topology (true-now)** — **inject-first thin fork**: layer A `do-harness/` + layer B bounded crate pins (~3% product-touched crates); not pure overlay (no TS factories); not deep monorepo rewrite. Hotspot allowlist + must-survive pins in [`FORK.md`](./FORK.md) §2.1–§2.2
 - **Config root (true-now)** — user **`~/.config/doit`** (`$GROK_HOME` override) + project **`.doit/`** + `do-harness/` overlay; dual TOML registry + YAML assignment (no second runtime registry)
 - **Config-driven defaults (true-now)** — cold-start role = `[roles].default` (chrome + shell); per-role model/tools/color = `[roles.<stem>]`; stock `grok-build-plan` only if product agent not discoverable. Prefer editing config over hard-coding product stems
+- **Product version (true-now)** — root **`VERSION`** (`0.1.0`) is SoT for `doit --version`, GitHub tags `v{VERSION}`, and binstall archives. Upstream monorepo crate lines (e.g. pager/shell `0.2.x`) may differ — absorb must not overwrite product `VERSION` (P-VERSION)
 - **Power tools (true-now)** — CodeGraph via MCP **`doit-codegraph`** + `xai-codebase-graph`; product hashline toolset overlay (stock Rust Default remains Standard until TOML merge)
 - **Process** — git at **`/home/datht/code/doit`**; commit every milestone; English + conventional commits; handoff needs `commitId` + `repoPath`
 - **Worktree (true-now)** — **implementation root = `/home/datht/code/doit` only**. Sibling `/home/datht/code/do` is **deprecated** as writable product root (do not edit; do not delete without user OK). Origin: `dathtd119/doit`. Config **`~/.config/doit`** + project **`.doit/`**; harness folder `do-harness/`; CLI package/binary **`doit`**
@@ -358,7 +360,7 @@ Date: 2026-07-17
 
 1. Finish role-kernel parity plan `260716-2010` (phases 02 body swap, 03 strict TOML tools, 07 verify) — see residual K1–K7 in [`docs/future-plan.md`](./docs/future-plan.md)
 2. Promote parking-lot items only when chosen (goal-as-mission from opencode-missions, side-ask dual stream, BM25 skill_search, multi-provider auth, OpenCode permission-rules YAML)
-3. Optional: cut first `v*` GitHub Release for prebuilt binstall assets; proactive first-message role-lock toast; CodeGraph in-process `tool_pack` if MCP friction forces it; remove host deprecation symlinks `~/.config/do` → `doit` when operators ready
+3. Optional: cut first `v0.1.0` GitHub Release (tag must match `VERSION`) for prebuilt binstall assets; proactive first-message role-lock toast; CodeGraph in-process `tool_pack` if MCP friction forces it; remove host deprecation symlinks `~/.config/do` → `doit` when operators ready
 4. Optional inject-layer hardening (when chosen): ordered product inject inventory + skip double-load; package do-harness as formal grok plugin; thin composition-root `register_tool_pack` path; config-first `PRODUCT_ROSTER` (reduce crate hardcode)
 
 ### Future Plan

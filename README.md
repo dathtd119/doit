@@ -59,6 +59,8 @@ Grok-build **already** supports multiple custom models in `~/.config/doit/config
 
 Product package and binary are both **`doit`**. Releases ship from
 **[dathtd119/doit](https://github.com/dathtd119/doit)** (not crates.io).
+Product semver is the repo-root [`VERSION`](./VERSION) file (not upstream
+grok-build `0.2.x`). Tag releases as `v$(grep -vE '^[[:space:]]*(#|$)' VERSION | head -1)`.
 
 ### Prebuilt (preferred)
 

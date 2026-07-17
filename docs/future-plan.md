@@ -215,6 +215,7 @@ Sources: `/home/datht/code/opencode-missions/docs/mission-lifecycle.md`, `src/to
 - **Done (F-CFG-SHIP / VAL-CFG-SHIP-001):** docs + CHANGELOGS + living next → M2
 - **Done (CFG-DOIT):** paths + share + MCP `doit-codegraph` — sealed brand mission
 - **Done (P-BRAND-UI, 2026-07-17):** user-facing chrome + L0 identity + in-product user-guide → **Doit** (`commitId` `da03f34`). System prompt is `You are ${{ system_prompt_label }}.` (default Doit, no “released by xAI”). Does **not** rename crates, `GROK_*` env, or model slugs.
+- **Done (P-VERSION, 2026-07-17):** product-owned root `VERSION` SoT; release tags/`doit --version` track this git, not upstream `0.2.x` lockstep
 
 ### Brand / identity follow-ups (parked after P-BRAND-UI)
 

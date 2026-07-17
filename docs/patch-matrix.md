@@ -295,6 +295,14 @@ Product chrome and in-session identity still said **Grok / Grok Build** after CF
 |------|----|--------|--------------|--------|------|------------------------|
 | 2026-07-17 | **P-BRAND-UI** | **applied** | `xai-grok-agent` `DEFAULT_SYSTEM_PROMPT_LABEL` + `templates/{prompt,subagent,apply_patch}_prompt.md`; `do-harness/prompts/l0-general.md` + `config.defaults.toml` `[agent] system_prompt_label`; pager welcome/hero/notifications/dispatch/cli; pager-minimal welcome/auth; `doit` main user strings; `xai-grok-pager/docs/user-guide/**` | Welcome + system prompt + `/docs` guides show **Doit**; identity is `You are ${{ system_prompt_label }}` (default Doit, no “released by xAI”) for later provider label mapping | Low–Med | Config-only label leaves TUI chrome “Grok Build”; docs-only leaves runtime chrome; extension cannot change embedded welcome literals |
 
+### Applied — P-VERSION (product-owned VERSION)
+
+Product semver is **not** locked to upstream monorepo `0.2.x`. Repo-root **`VERSION`** is SoT for `doit --version`, GitHub Release tags `v{VERSION}`, and binstall archives. Upstream absorb may still bump monorepo crate lines (pager/shell); do **not** overwrite product `VERSION` from that absorb.
+
+| Date | ID | Status | Crate / path | Reason | Risk | Alternatives exhausted |
+|------|----|--------|--------------|--------|------|------------------------|
+| 2026-07-17 | **P-VERSION** | **applied** | root `VERSION`; `xai-grok-version` + `doit` + `xai-grok-pager` `build.rs` (`DOIT_VERSION` → `GROK_VERSION` → `VERSION` → pkg); package `doit`/`xai-grok-version` `0.1.0`; clap `name = "doit"`; `.github/workflows/release.yml` tag↔VERSION gate + `DOIT_VERSION` inject | Product builds/releases track **this** git history, not grok-build lockstep | Low–Med | Env-only version leaves local/CI drift; tag-from-Cargo alone fights upstream absorb |
+
 ### Upstream sync — `8adf901` (2026-07-16, F-UPSTREAM-MERGE / VAL-UP-001..005)
 
 | Field | Value |

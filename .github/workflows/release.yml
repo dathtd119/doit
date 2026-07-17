@@ -4,6 +4,10 @@
 # Artifact names match cargo-binstall defaults for GitHub Releases
 # (see crates/codegen/doit/Cargo.toml [package.metadata.binstall]).
 #
+# Product version SoT: repo-root VERSION (not upstream monorepo 0.2.x).
+# Tags must be v{VERSION}. Build injects DOIT_VERSION so `doit --version`
+# and archives track this fork's releases, not grok-build lockstep.
+#
 # Targets (6):
 #   - x86_64-unknown-linux-gnu
 #   - aarch64-unknown-linux-gnu
@@ -86,12 +90,40 @@ jobs:
           shared-key: release-${{ matrix.target }}
           cache-on-failure: true
 
+      - name: Resolve product VERSION
+        id: product_version
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! -f VERSION ]]; then
+            echo "missing repo-root VERSION" >&2
+            exit 1
+          fi
+          # First non-empty, non-# line = product semver.
+          PRODUCT_VERSION="$(grep -vE '^[[:space:]]*(#|$)' VERSION | head -n1 | tr -d '[:space:]')"
+          if [[ -z "${PRODUCT_VERSION}" ]]; then
+            echo "VERSION file has no semver line" >&2
+            exit 1
+          fi
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          TAG_VERSION="${TAG#v}"
+          if [[ "${TAG_VERSION}" != "${PRODUCT_VERSION}" ]]; then
+            echo "tag ${TAG} does not match VERSION ${PRODUCT_VERSION}" >&2
+            echo "Bump VERSION and tag v${PRODUCT_VERSION} for product releases." >&2
+            exit 1
+          fi
+          echo "version=${PRODUCT_VERSION}" >> "${GITHUB_OUTPUT}"
+          echo "Product VERSION=${PRODUCT_VERSION} (tag ${TAG})"
+
       - name: Install DotSlash (protoc wrapper)
         shell: bash
         run: cargo install dotslash --locked
 
       - name: Build release binary
         shell: bash
+        env:
+          DOIT_VERSION: ${{ steps.product_version.outputs.version }}
+          GROK_VERSION: ${{ steps.product_version.outputs.version }}
         run: |
           set -euo pipefail
           cargo build -p "${PACKAGE}" --release --target "${{ matrix.target }}"
@@ -100,9 +132,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          TAG="${{ github.event.inputs.tag || github.ref_name }}"
-          # Strip leading v for archive version segment when present.
-          VERSION="${TAG#v}"
+          VERSION="${{ steps.product_version.outputs.version }}"
           TARGET="${{ matrix.target }}"
           BIN_NAME="${BINARY}${{ matrix.bin_ext }}"
           ROOT="$(pwd)"
@@ -200,10 +230,11 @@ jobs:
         run: |
           set -euo pipefail
           TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          PRODUCT_VERSION="$(grep -vE '^[[:space:]]*(#|$)' VERSION | head -n1 | tr -d '[:space:]' || true)"
           {
             echo "## ${TAG}"
             echo
-            echo "Automated release for **doit** (Grok Build fork)."
+            echo "Automated release for **doit** (product version from repo-root \`VERSION\`${PRODUCT_VERSION:+: ${PRODUCT_VERSION}})."
             echo
             echo "### Install"
             echo
@@ -229,7 +260,10 @@ jobs:
             echo "- \`x86_64-pc-windows-msvc\`"
             echo "- \`aarch64-pc-windows-msvc\`"
             echo
-            echo "### Changes"
+            echo "### Changes (this git release)"
+            echo
+            echo "Changelog is from **this repository's** commits since the previous tag — not upstream grok-build version history."
+            echo
             if PREV=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null); then
               git log --pretty=format:'- %s (%h)' "${PREV}..HEAD" | head -80
             else
@@ -240,6 +274,7 @@ jobs:
             echo "### Smoke"
             echo '```'
             echo "cargo check -p doit"
+            echo "doit --version   # expect doit ${PRODUCT_VERSION:-<VERSION>} (<sha>)"
             echo '```'
           } > RELEASE_NOTES.md
           cat RELEASE_NOTES.md

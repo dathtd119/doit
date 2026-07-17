@@ -382,7 +382,7 @@ fn version_with_channel() -> &'static str {
 }
 #[derive(Debug, Clone, Parser)]
 #[command(
-    name = "grok",
+    name = "doit",
     version = version_with_channel(),
     about = "Doit TUI",
     disable_version_flag = true,

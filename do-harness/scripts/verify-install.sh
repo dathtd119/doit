@@ -292,6 +292,18 @@ if [[ -f "$REL_YML" ]]; then
   else
     ok 'release.yml has no live crates.io/npm publish step'
   fi
+
+  if grep -Fq 'DOIT_VERSION' "$REL_YML" && grep -Fq 'Resolve product VERSION' "$REL_YML"; then
+    ok 'release.yml injects DOIT_VERSION from product VERSION'
+  else
+    fail 'release.yml missing DOIT_VERSION / Resolve product VERSION step'
+  fi
+
+  if grep -Fq 'tag' "$REL_YML" && grep -Fq 'PRODUCT_VERSION' "$REL_YML"; then
+    ok 'release.yml gates tag against product VERSION'
+  else
+    fail 'release.yml missing tag↔VERSION gate'
+  fi
 else
   fail 'missing .github/workflows/release.yml'
 fi
@@ -316,6 +328,23 @@ if [[ -f "$PKG_TOML" ]]; then
   fi
 else
   fail "cannot read $PKG_TOML for binstall metadata"
+fi
+
+# Product VERSION SoT (P-VERSION)
+if [[ -f "$REPO_ROOT/VERSION" ]]; then
+  PRODUCT_VERSION="$(grep -vE '^[[:space:]]*(#|$)' "$REPO_ROOT/VERSION" | head -n1 | tr -d '[:space:]')"
+  if [[ -n "${PRODUCT_VERSION}" ]]; then
+    ok "root VERSION present (${PRODUCT_VERSION})"
+    if grep -Eq "^version = \"${PRODUCT_VERSION}\"" "$PKG_TOML"; then
+      ok "package doit version matches VERSION (${PRODUCT_VERSION})"
+    else
+      fail "package doit version does not match root VERSION (${PRODUCT_VERSION})"
+    fi
+  else
+    fail 'VERSION file has no semver line'
+  fi
+else
+  fail 'missing repo-root VERSION (product semver SoT)'
 fi
 
 # ---------------------------------------------------------------------------

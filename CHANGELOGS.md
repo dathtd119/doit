@@ -4,6 +4,26 @@ Append-only ship log for **doit** (historical brand **do**). Not a status essay 
 
 ---
 
+## 2026-07-17 — P-VERSION product-owned VERSION
+
+**Scope:** product semver SoT + release/tag alignment  
+**Feature:** P-VERSION (fork version ownership)
+
+### What landed
+
+- Repo-root **`VERSION`** (`0.1.0`) is product SoT (comments allowed; first non-`#` line wins)
+- Build stamp precedence: `DOIT_VERSION` → `GROK_VERSION` → root `VERSION` → `CARGO_PKG_VERSION`
+- Packages `doit` + `xai-grok-version` at `0.1.0`; clap CLI name **`doit`**
+- Release workflow: tag must match `v{VERSION}`; injects `DOIT_VERSION` into release builds; notes from **this** repo’s git history
+- Upstream monorepo crate versions (e.g. pager/shell `0.2.x`) may diverge — absorb must **not** overwrite product `VERSION`
+
+### Evidence
+
+- `docs/patch-matrix.md` § P-VERSION
+- `cargo check -p doit` + `doit --version` → `doit 0.1.0 (<sha>)`
+
+---
+
 ## 2026-07-17 — P-BRAND-UI user-facing Grok → Doit
 
 **Scope:** runtime UX + L0 identity + in-product user-guide + light product docs  

@@ -89,7 +89,7 @@ These paths are the **bounded** merge tax of the thin fork. Prefer **Fork** (kee
 
 | Band | Paths / themes | Product semantics that must survive |
 |------|----------------|-------------------------------------|
-| **High** | `crates/codegen/doit/*`, `Cargo.lock`, root `README.md` | Package/binary **`doit`** (map from `xai-grok-pager-bin`); no resurrect pager-bin install |
+| **High** | `crates/codegen/doit/*`, root `VERSION`, `Cargo.lock`, root `README.md` | Package/binary **`doit`** (map from `xai-grok-pager-bin`); product **VERSION** SoT (not upstream 0.2.x lockstep); no resurrect pager-bin install |
 | **High** | `xai-grok-config` `paths.rs` (+ loader/managed_cache as needed) | Default user home **`~/.config/doit` only** (P-CFG-HOME-DOIT); no silent `~/.grok` / `~/.config/do` |
 | **High** | `xai-grok-pager` dispatch / modes / agent_view / role keybinds | Tab/Shift+Tab role cycle + **post-first-message lock** |
 | **Medium** | `xai-grok-shell` `agent/config.rs`, `auth_method.rs`, `session/role_switch*`, `product_role*` | PRIV resolve hard-off; BYOK skip forced OAuth; L1 session flag |
@@ -110,6 +110,7 @@ Full conflict history example: patch-matrix **Upstream sync — `8adf901`**.
 | **P-CFG-HOME-DOIT / PROJECT-DOIT** | Hardcoded default resolvers + discovery roots |
 | **L1 / L13 role lock + re-pin** | Keybind + turn_count + sampling re-pin live in pager/shell |
 | **Package `doit`** | Install identity is the composition root |
+| **P-VERSION** | Product semver is root `VERSION` (+ `doit`/`xai-grok-version` package lines); do not adopt upstream monorepo `0.2.x` lockstep for product releases |
 
 Anything **not** in this table defaults to **do-harness / config / hook / plugin / MCP** — not a new crate pin.
 

@@ -1,4 +1,7 @@
-//! Installed grok CLI version, lockstepped with shipping binaries.
+//! Product CLI version for Doit.
+//!
+//! Compiled value comes from build.rs: `DOIT_VERSION` / `GROK_VERSION` env, else
+//! repo-root `VERSION`, else this crate's `CARGO_PKG_VERSION`.
 
 use semver::Version;
 
