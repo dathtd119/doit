@@ -174,9 +174,12 @@ jobs:
         run: |
           set -euo pipefail
           # Avoid MSVC LNK1318 PDB size limit on large Windows binaries.
+          # Profile env alone still left /DEBUG on the link line; force it off.
           if [[ "${{ runner.os }}" == "Windows" ]]; then
             export CARGO_PROFILE_RELEASE_DEBUG=0
             export CARGO_PROFILE_RELEASE_STRIP=symbols
+            export CARGO_PROFILE_RELEASE_SPLIT_DEBUGINFO=off
+            export RUSTFLAGS="${RUSTFLAGS:+$RUSTFLAGS }-C debuginfo=0 -C link-arg=/DEBUG:NONE"
           fi
           cargo build -p "${PACKAGE}" --release --target "${{ matrix.target }}"
 
