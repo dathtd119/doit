@@ -3231,12 +3231,30 @@ fn process_effects(
     app: &mut AppView,
     progress_tx: &tokio::sync::mpsc::UnboundedSender<effects::RestoreProgressMsg>,
 ) -> bool {
+    // Stamp product agent on CreateSession so Tab cycle / config default
+    // survive shell resolve (otherwise chrome snaps back to intake).
+    let agent_override = app.agent_override.clone().or_else(|| {
+        if app.plan_mode || app.chat_mode {
+            return None;
+        }
+        let chrome = match app.active_view {
+            super::app_view::ActiveView::Agent(id) => app
+                .agents
+                .get(&id)
+                .and_then(|a| a.session_agent_name.as_deref()),
+            _ => None,
+        };
+        let name = chrome
+            .map(str::to_string)
+            .unwrap_or_else(crate::role_accent::default_product_role);
+        effects::SessionFlags::product_agent_profile_value(&name)
+    });
     let flags = effects::SessionFlags {
         plan_mode: app.plan_mode,
         subagents: app.subagents,
         ask_user: app.ask_user,
         restore_code: app.restore_code,
-        agent_override: app.agent_override.clone(),
+        agent_override,
         yolo_mode: app.default_yolo,
         auto_mode: super::dispatch::effective_auto(
             app.default_yolo,

@@ -3837,6 +3837,12 @@ impl AppView {
                             Some(eff) => format!("{model_name_base} ({eff})"),
                             None => model_name_base,
                         };
+                        // Product agent chrome on welcome: config default.
+                        let welcome_role = crate::role_accent::default_product_role();
+                        let welcome_role_color = crate::role_accent::resolve_role_accent(
+                            Some(welcome_role.as_str()),
+                            None,
+                        );
                         let hero_cta = crate::views::announcements::promo_cta(
                             &self.active_announcements,
                             &self.hidden_announcement_ids,
@@ -3866,6 +3872,8 @@ impl AppView {
                             announcement: hero_announcement,
                             tip,
                             model_name: &model_name,
+                            role: Some(welcome_role.as_str()),
+                            role_color: welcome_role_color,
                             flags: &flags_vec,
                             selected: self.welcome_menu_index,
                             team_name: self.team_name.as_deref(),

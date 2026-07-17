@@ -138,12 +138,29 @@ impl ClusterClient {
     /// The event loop's `process_effects`, minus terminal/auth-handle wiring
     /// (that fn is event_loop-private; this mirrors its body).
     fn process_effects(&mut self, effs: Vec<super::actions::Effect>) {
+        let agent_override = self.app.agent_override.clone().or_else(|| {
+            if self.app.plan_mode || self.app.chat_mode {
+                return None;
+            }
+            let chrome = match self.app.active_view {
+                super::app_view::ActiveView::Agent(id) => self
+                    .app
+                    .agents
+                    .get(&id)
+                    .and_then(|a| a.session_agent_name.as_deref()),
+                _ => None,
+            };
+            let name = chrome
+                .map(str::to_string)
+                .unwrap_or_else(crate::role_accent::default_product_role);
+            effects::SessionFlags::product_agent_profile_value(&name)
+        });
         let flags = effects::SessionFlags {
             plan_mode: self.app.plan_mode,
             subagents: self.app.subagents,
             ask_user: self.app.ask_user,
             restore_code: self.app.restore_code,
-            agent_override: self.app.agent_override.clone(),
+            agent_override,
             yolo_mode: self.app.default_yolo,
             auto_mode: dispatch::effective_auto(
                 self.app.default_yolo,

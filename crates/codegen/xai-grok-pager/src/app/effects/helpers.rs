@@ -211,14 +211,16 @@ pub(crate) fn sanitize_user_error(raw: &str) -> String {
 ///
 /// | plan  | subagents | ask-user | agentProfile                   | askUserQuestion    |
 /// |-------|-----------|----------|--------------------------------|--------------------|
-/// | false | false     | false    | `grok-build` (default)         | `false`            |
-/// | false | true      | false    | `grok-build` (default)         | `false`            |
-/// | false | false     | true     | `grok-build-ask-user`          | omitted (shell gate) |
-/// | false | true      | true     | `grok-build-ask-user`          | omitted (shell gate) |
+/// | false | *         | *        | product override / config      | per ask_user flag  |
 /// | true  | false     | false    | `grok-build-plan-no-subagents` | `false`            |
 /// | true  | true      | false    | `grok-build-plan`              | `false`            |
 /// | true  | false     | true     | `grok-build-plan-no-subagents` | omitted (shell gate) |
 /// | true  | true      | true     | `grok-build-plan`              | omitted (shell gate) |
+///
+/// Product cold-start: `plan_mode` defaults **false**. Stamp chrome product
+/// agent via `agent_override` (Tab cycle or config default) so CreateSession
+/// does not snap back to a different shell default. Explicit `--plan` stamps
+/// stock plan profile and wins over product override.
 ///
 /// When [`Self::chat_mode`] is set (gateway light-frontend / `--chat`), Build
 /// `agentProfile` injection is omitted (K12) and `_meta["x.ai/session"].kind`
@@ -261,13 +263,28 @@ impl SessionFlags {
         if self.chat_mode {
             return None;
         }
-        match (self.plan_mode, self.subagents, self.ask_user) {
-            (true, true, _) => Some("grok-build-plan"),
-            (true, false, _) => Some("grok-build-plan-no-subagents"),
-            (false, _, true) => Some("grok-build-ask-user"),
-            (false, _, false) => None,
+        // Only explicit plan mode injects a Build agentProfile. Otherwise the
+        // shell uses agent_override (chrome product agent) or config default.
+        // ask_user still gates the ask_user_question tool via to_meta, not agent id.
+        match (self.plan_mode, self.subagents) {
+            (true, true) => Some("grok-build-plan"),
+            (true, false) => Some("grok-build-plan-no-subagents"),
+            (false, _) => None,
         }
     }
+
+    /// Stamp product agent into `_meta.agentProfile` when plan mode is off.
+    ///
+    /// Chrome `session_agent_name` (alias or canonical) is mapped to the stock
+    /// native id so Tab cycle and config default survive CreateSession.
+    pub(crate) fn product_agent_profile_value(name: &str) -> Option<serde_json::Value> {
+        use xai_grok_shell::session::role_switch::{canonical_agent_name, is_product_agent};
+        if !is_product_agent(name) {
+            return None;
+        }
+        Some(serde_json::json!(canonical_agent_name(name)))
+    }
+
     /// Build the `_meta` JSON value for ACP `NewSessionRequest` / `LoadSessionRequest`.
     ///
     /// In practice always `Some`: the permission seeds (`yoloMode` /
@@ -288,8 +305,9 @@ impl SessionFlags {
             }
         } else if let Some(ref profile) = self.agent_override {
             meta.insert("agentProfile".into(), profile.clone());
-        } else if std::env::var("GROK_AGENT").ok().is_some_and(|s| !s.trim().is_empty())
-        {} else if let Some(profile) = self.agent_profile() {
+        } else if std::env::var("GROK_AGENT").ok().is_some_and(|s| !s.trim().is_empty()) {
+            // GROK_AGENT env chooses agent at shell side; do not stamp profile.
+        } else if let Some(profile) = self.agent_profile() {
             meta.insert("agentProfile".into(), serde_json::json!(profile));
         }
         if self.chat_mode {

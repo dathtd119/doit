@@ -1572,6 +1572,33 @@ fn runtime_default_flags_produce_plan_meta() {
 /// `askUserQuestion: false` since `ask_user` is off here.
 #[serial_test::serial(GROK_AGENT)]
 #[test]
+
+/// Product chrome agentProfile stamps canonical id so CreateSession matches Tab.
+#[serial_test::serial(GROK_AGENT)]
+#[test]
+fn product_agent_override_stamps_canonical_profile() {
+    let _env = without_grok_agent();
+    let profile = SessionFlags::product_agent_profile_value("orchestrator")
+        .expect("orchestrator is product agent");
+    assert_eq!(profile, serde_json::json!("grok-build-orchestrator"));
+    let flags = SessionFlags {
+        plan_mode: false,
+        subagents: true,
+        ask_user: true,
+        agent_override: Some(profile),
+        ..Default::default()
+    };
+    let meta = flags.to_meta().unwrap();
+    assert_eq!(meta["agentProfile"], "grok-build-orchestrator");
+}
+
+#[serial_test::serial(GROK_AGENT)]
+#[test]
+fn product_agent_alias_intake_maps_to_ask_user() {
+    let profile = SessionFlags::product_agent_profile_value("intake").unwrap();
+    assert_eq!(profile, serde_json::json!("grok-build-ask-user"));
+}
+
 fn plan_only_meta() {
     let _env = without_grok_agent();
     let flags = SessionFlags {

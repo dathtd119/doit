@@ -594,6 +594,10 @@ pub struct WelcomeRenderParams<'a> {
     pub announcement: Option<&'a xai_grok_announcements::RemoteAnnouncement>,
     pub tip: Option<&'a str>,
     pub model_name: &'a str,
+    /// Product agent alias for prompt chrome (`role · model · policy`).
+    pub role: Option<&'a str>,
+    /// Role accent color for the role name segment only.
+    pub role_color: Option<ratatui::style::Color>,
     pub flags: &'a [PromptFlag<'a>],
     pub selected: Option<usize>,
     pub team_name: Option<&'a str>,
@@ -689,8 +693,8 @@ pub fn render_welcome(
             let menu = [("l", login_text.as_str()), ("q", "Quit")];
             let msg = error.as_deref().map(|e| (e, theme.accent_error));
             let info = PromptInfo {
-                role: None,
-                role_color: None,
+                role: params.role,
+                role_color: params.role_color,
                 model_name: params.model_name,
                 flags: params.flags,
                 multiline: false,
@@ -2086,8 +2090,8 @@ fn render_welcome_done(
             None => (None, false),
         };
         let usage_info = PromptInfo {
-            role: None,
-            role_color: None,
+            role: p.role,
+            role_color: p.role_color,
             model_name: p.model_name,
             flags: p.flags,
             multiline: false,
@@ -2547,6 +2551,8 @@ mod tests {
             announcement: None,
             tip: None,
             model_name: "test",
+            role: None,
+            role_color: None,
             flags: &[],
             selected: None,
             team_name: None,
