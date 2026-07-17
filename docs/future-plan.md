@@ -214,6 +214,21 @@ Sources: `/home/datht/code/opencode-missions/docs/mission-lifecycle.md`, `src/to
 - **Done (F-CFG-PROJECT / P-CFG-PROJECT + P-CFG-FIXTURES):** project discovery **`.doit/`**; test fixtures aligned
 - **Done (F-CFG-SHIP / VAL-CFG-SHIP-001):** docs + CHANGELOGS + living next → M2
 - **Done (CFG-DOIT):** paths + share + MCP `doit-codegraph` — sealed brand mission
+- **Done (P-BRAND-UI, 2026-07-17):** user-facing chrome + L0 identity + in-product user-guide → **Doit** (`commitId` `da03f34`). System prompt is `You are ${{ system_prompt_label }}.` (default Doit, no “released by xAI”). Does **not** rename crates, `GROK_*` env, or model slugs.
+
+### Brand / identity follow-ups (parked after P-BRAND-UI)
+
+| Item | Why park | Preferred path |
+|------|----------|----------------|
+| **Per-provider `system_prompt_label`** | OAuth / BYOK for Codex, Claude Code, etc. should set identity so the model behaves as that agent (`You are Codex…`) without a second prompt system | Map provider/agent into existing resolve tiers (`GROK_SYSTEM_PROMPT_LABEL` → per-model → `[agent]` → default). Keep L0 Minijinja `${{ system_prompt_label }}` | 
+| **Install / PATH refresh** | Operators often run `~/.local/bin/doit` from an older build; rebrand is source-only until reinstall | Document: `cargo build -p doit --release` + install over `~/.local/bin/doit`; or `cargo run -p doit` from tree. On first launch after upgrade, stock extracts user-guide into `$GROK_HOME/docs/user-guide/` — stale home copies keep saying Grok until binary refresh or delete/re-extract |
+| **Live home guide refresh** | Extracted `~/.config/doit/docs/user-guide/*` can lag tree until next extract | On upgrade: re-run extract path (launch new binary) or `rm -rf ~/.config/doit/docs/user-guide` then start Doit |
+| **Model catalog display names** | Slug `grok-build` may still show marketing name “Grok Build” from remote/catalog | Product decision: leave as model marketing, or seed `[model.*] name` / assignment YAML display labels |
+| **Auth method chrome** | ACP method id `grok.com` still labels picker **Grok** (provider, not product) | Optional: product display “xAI” / “Doit (xAI)” without renaming method id |
+| **Theme ids `GrokNight` / `GrokDay`** | Technical theme keys; renaming breaks configs | Optional alias `doit-night` / keep stock ids |
+| **Env rename `GROK_*` → `DOIT_*`** | High merge tax; CFG-DOIT already moved paths | Defer unless operator demand; document `GROK_HOME` as override forever if needed |
+| **ASCII logo art** | Logo may still feel stock even when wordmark is Doit | Only if word “Grok” appears or product wants a new mark |
+| **Central `PRODUCT_DISPLAY_NAME` constant** | P-BRAND-UI used scattered string replace; future absorb may reintroduce Grok literals | Thin composition pin + re-apply checklist on upstream merge (patch-matrix P-BRAND-UI) |
 
 ---
 

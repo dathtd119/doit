@@ -375,6 +375,7 @@ _Short list only. Full parking lot: [`docs/future-plan.md`](./docs/future-plan.m
 - More product knobs as config (permissions rules, skill firehose per-role, roster order) — avoid new hard-coded tables
 - Role-cycle UX polish (proactive first-message toast deferred; no mid-session hop)
 - Optional CodeGraph `tool_pack` if MCP latency/install forces it
+- Brand follow-ups after P-BRAND-UI (parked): per-provider `system_prompt_label`; install/PATH + home user-guide refresh; optional model/auth/theme display polish — see [`docs/future-plan.md`](./docs/future-plan.md) § Config rebrand
 
 ## Non-Goals
 
