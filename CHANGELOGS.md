@@ -3,6 +3,34 @@
 Append-only ship log for **doit** (historical brand **do**). Not a status essay — one entry per substantive milestone or control-plane change.
 
 ---
+## 2026-07-17 — Release pipeline: GH + npm + Rust install
+
+**Scope:** install surfaces + release CI  
+**Feature:** P-REL-NPM (GitHub Release + npm optionalDeps + cargo-binstall)
+
+### What landed
+
+- **GitHub Actions** `.github/workflows/release.yml`: tag `v*` / dispatch → 6-target matrix → GitHub Release assets + optional **npm publish**
+- **npm** product tree under `npm/`:
+  - meta `@dathtd119/doit` (trampoline + postinstall → `~/.local/share/doit/bin`)
+  - platform optionalDeps `@dathtd119/doit-<os>-<arch>` (brotli-compressed native binary)
+- **Rust install paths** unchanged and documented: `cargo binstall --git …`, `cargo install --git` / `--path` (still **no crates.io**)
+- Assemble/publish scripts: `npm/doit/scripts/assemble-platform-packages.js`, `publish.js`
+- README Install: npm + binstall + source; verify-install section 9 enforces npm surface
+
+### Install (after first release cut)
+
+```sh
+npm install -g @dathtd119/doit
+cargo binstall --git https://github.com/dathtd119/doit.git doit
+```
+
+### Ops note
+
+- Repo secret **`NPM_TOKEN`** required for npm publish job; without it GH Release still ships (binstall works).
+- Tag must match root `VERSION` (`v0.0.2` for current SoT).
+
+---
 ## 2026-07-17 — Stock-native product agents (prompts/agents)
 
 **Scope:** agent naming + prompt inject + dynamic spawn floors  

@@ -6,9 +6,9 @@
 #   6    Product CI/docs smoke uses -p doit (VAL-PKG-001)
 #   7    Release matrix + binstall metadata (VAL-PKG-002, VAL-PKG-003)
 #   8    README Install seal (VAL-PKG-005)
-#   9    NPM surface (optional) — skipped when no product npm package
+#   9    NPM surface (@dathtd119/doit + platform packages + release.yml job)
 #
-# Exit 0 only when all implemented gates pass. No live npm/crates.io publish.
+# Exit 0 only when all implemented gates pass. No live crates.io publish.
 
 set -euo pipefail
 
@@ -208,7 +208,23 @@ assert_smoke_file() {
 }
 
 assert_smoke_file "$REPO_ROOT/.github/workflows/ci.yml" "ci.yml"
-assert_smoke_file "$REPO_ROOT/.github/workflows/release.yml" "release.yml"
+# release.yml uses cargo build -p "${PACKAGE}" with PACKAGE: doit (not a literal -p doit).
+if [[ -f "$REPO_ROOT/.github/workflows/release.yml" ]]; then
+  REL="$REPO_ROOT/.github/workflows/release.yml"
+  if grep -Eq 'cargo (check|build|clippy|run) -p xai-grok-pager-bin' "$REL"; then
+    fail 'release.yml still smokes xai-grok-pager-bin'
+  else
+    ok 'release.yml does not smoke xai-grok-pager-bin'
+  fi
+  if grep -Fq 'cargo build -p "${PACKAGE}"' "$REL" || grep -Fq 'cargo build -p doit' "$REL" \
+    || grep -Fq "PACKAGE: doit" "$REL"; then
+    ok 'release.yml uses -p doit'
+  else
+    fail 'release.yml missing cargo … -p doit smoke'
+  fi
+else
+  fail 'missing release.yml'
+fi
 assert_smoke_file "$REPO_ROOT/.github/pull_request_template.md" "pull_request_template.md"
 assert_smoke_file "$REPO_ROOT/README.md" "README.md"
 
@@ -281,16 +297,17 @@ if [[ -f "$REL_YML" ]]; then
     fail 'release.yml missing dathtd119/doit'
   fi
 
-  if grep -Eq 'crates\.io|npm publish' "$REL_YML" \
-    && ! grep -Eq 'No crates\.io / npm publish|no crates\.io|not crates\.io' "$REL_YML"; then
-    # Allow explicit non-publish comments; fail only if a live publish step appears.
-    if grep -Eq 'cargo publish|npm publish' "$REL_YML"; then
-      fail 'release.yml appears to publish to crates.io/npm'
-    else
-      ok 'release.yml has no live crates.io/npm publish step'
-    fi
+  # crates.io must never be published; npm publish of @dathtd119/doit is allowed.
+  if grep -Eq 'cargo publish' "$REL_YML"; then
+    fail 'release.yml must not cargo publish (no crates.io)'
   else
-    ok 'release.yml has no live crates.io/npm publish step'
+    ok 'release.yml has no cargo publish (no crates.io)'
+  fi
+
+  if grep -Fq 'npm/doit' "$REL_YML" || grep -Fq 'Publish npm' "$REL_YML"; then
+    ok 'release.yml includes npm publish job'
+  else
+    fail 'release.yml missing npm publish job'
   fi
 
   if grep -Fq 'DOIT_VERSION' "$REL_YML" && grep -Fq 'Resolve product VERSION' "$REL_YML"; then
@@ -429,31 +446,69 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-section "9. NPM surface (optional / not implemented)"
+section "9. NPM surface (@dathtd119/doit)"
 # ---------------------------------------------------------------------------
-# Product install path is GitHub Releases + binstall + git/path. No live npm
-# publish this mission. If a product npm package tree appears later, extend
-# this section; for now skip without failing (VAL-PKG-004: implemented parts).
 
-npm_pkg_candidates=(
-  "$REPO_ROOT/npm"
-  "$REPO_ROOT/packages/npm"
-  "$REPO_ROOT/crates/codegen/doit/npm"
-)
-npm_found=0
-for p in "${npm_pkg_candidates[@]}"; do
-  if [[ -f "$p/package.json" ]]; then
-    npm_found=1
-    if grep -Eq '"name"[[:space:]]*:[[:space:]]*"@?dathtd119/doit"' "$p/package.json" \
-      || grep -Fq 'dathtd119/doit' "$p/package.json"; then
-      ok "npm package.json references dathtd119/doit ($p)"
+META_PKG="$REPO_ROOT/npm/doit/package.json"
+if [[ -f "$META_PKG" ]]; then
+  if grep -Fq '"name": "@dathtd119/doit"' "$META_PKG"; then
+    ok 'npm meta package is @dathtd119/doit'
+  else
+    fail 'npm/doit/package.json name is not @dathtd119/doit'
+  fi
+  if grep -Fq '"postinstall"' "$META_PKG"; then
+    ok 'npm meta package has postinstall'
+  else
+    fail 'npm meta package missing postinstall'
+  fi
+  if grep -Fq 'optionalDependencies' "$META_PKG"; then
+    ok 'npm meta package lists optionalDependencies'
+  else
+    fail 'npm meta package missing optionalDependencies'
+  fi
+  # Version stamp must match product VERSION
+  if [[ -n "${PRODUCT_VERSION:-}" ]]; then
+    if grep -Fq "\"version\": \"${PRODUCT_VERSION}\"" "$META_PKG"; then
+      ok "npm meta version matches VERSION (${PRODUCT_VERSION})"
     else
-      fail "npm package.json missing dathtd119/doit ($p)"
+      fail "npm meta version does not match VERSION (${PRODUCT_VERSION})"
     fi
   fi
+else
+  fail 'missing npm/doit/package.json'
+fi
+
+platform_ok=0
+for plat in darwin-arm64 darwin-x64 linux-arm64 linux-x64 win32-arm64 win32-x64; do
+  pj="$REPO_ROOT/npm/doit-${plat}/package.json"
+  if [[ -f "$pj" ]] && grep -Fq "@dathtd119/doit-${plat}" "$pj"; then
+    platform_ok=$((platform_ok + 1))
+  else
+    fail "missing or wrong npm platform package doit-${plat}"
+  fi
 done
-if [[ "$npm_found" -eq 0 ]]; then
-  ok 'NPM product package not present — gate skipped (no live npm this mission)'
+if [[ "$platform_ok" -eq 6 ]]; then
+  ok 'all 6 npm platform packages present'
+fi
+
+for script in assemble-platform-packages.js publish.js; do
+  if [[ -f "$REPO_ROOT/npm/doit/scripts/${script}" ]]; then
+    ok "npm script ${script} present"
+  else
+    fail "missing npm/doit/scripts/${script}"
+  fi
+done
+
+if [[ -f "$REPO_ROOT/npm/doit/bin/doit" ]] && [[ -f "$REPO_ROOT/npm/doit/bin/postinstall.js" ]]; then
+  ok 'npm trampoline + postinstall present'
+else
+  fail 'missing npm/doit/bin/doit or postinstall.js'
+fi
+
+if [[ -f "$README" ]] && grep -Fq 'npm install -g @dathtd119/doit' "$README"; then
+  ok 'README documents npm install -g @dathtd119/doit'
+else
+  fail 'README missing npm install -g @dathtd119/doit'
 fi
 
 # ---------------------------------------------------------------------------

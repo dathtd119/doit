@@ -67,6 +67,9 @@ grok-build `0.2.x`). Tag releases as `v$(grep -vE '^[[:space:]]*(#|$)' VERSION |
 Once a `v*` GitHub Release exists (six targets: Linux/macOS/Windows × x86_64/aarch64):
 
 ```sh
+# npm (global CLI) — meta package + platform optionalDependencies
+npm install -g @dathtd119/doit
+
 # cargo-binstall reads [package.metadata.binstall] → dathtd119/doit releases
 cargo binstall --git https://github.com/dathtd119/doit.git doit
 
@@ -93,7 +96,13 @@ cargo install --git https://github.com/dathtd119/doit.git \
 ```
 
 **Not an install path:** crates.io publish (`cargo install doit` from the registry).
-This monorepo is path/git only; use Releases / binstall / git install above.
+This monorepo is path/git only for Rust; use Releases / binstall / git install / npm above.
+
+| Surface | Package |
+|---------|---------|
+| npm | `@dathtd119/doit` (+ `@dathtd119/doit-<os>-<arch>`) |
+| cargo-binstall / GH Release | binary `doit` |
+| crates.io | not published (`publish = false`) |
 
 ## Build (forked binary)
 

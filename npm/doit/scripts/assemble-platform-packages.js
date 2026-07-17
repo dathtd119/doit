@@ -93,6 +93,10 @@ const TARGETS = [
   },
 ];
 
+function shellQuote(s) {
+  return JSON.stringify(s);
+}
+
 function ensureDir(p) {
   fs.mkdirSync(path.dirname(p), { recursive: true });
 }
@@ -112,13 +116,9 @@ function extractBinaryFromArchive(archivePath, binName, destDir) {
   const stage = fs.mkdtempSync(path.join(destDir, '.extract-'));
   try {
     if (archivePath.endsWith('.zip')) {
-      execSync(`unzip -qo ${JSON.stringify(archivePath)} -d ${JSON.stringify(stage)}`, {
-        stdio: 'inherit',
-      });
+      execSync('unzip -qo ' + shellQuote(archivePath) + ' -d ' + shellQuote(stage), { stdio: 'inherit' });
     } else {
-      execSync(`tar -xzf ${JSON.stringify(archivePath)} -C ${JSON.stringify(stage)}`, {
-        stdio: 'inherit',
-      });
+      execSync('tar -xzf ' + shellQuote(archivePath) + ' -C ' + shellQuote(stage), { stdio: 'inherit' });
     }
     // Find binary (archive stages flat: doit / doit.exe)
     const candidates = [

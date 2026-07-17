@@ -1,2 +1,3 @@
-bin/doit
+# Never ship native payloads in the meta package (platform packages hold .br).
 bin/doit.exe
+bin/*.br

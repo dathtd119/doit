@@ -1,4 +1,4 @@
-# Release: multi-target GitHub Release for product package `doit` / binary `doit`.
+# Release: multi-target GitHub Release + npm for product package/binary `doit`.
 #
 # VAL-PKG-002: builds package doit + binary doit with a full 6-target matrix.
 # Artifact names match cargo-binstall defaults for GitHub Releases
@@ -16,7 +16,10 @@
 #   - x86_64-pc-windows-msvc
 #   - aarch64-pc-windows-msvc
 #
-# No crates.io / npm publish from this workflow.
+# Publish surfaces:
+#   - GitHub Release assets (cargo-binstall / manual download)
+#   - npm @dathtd119/doit + platform optionalDependencies (npm i -g)
+# No crates.io publish (package publish = false).
 
 name: Release
 
@@ -30,9 +33,15 @@ on:
         description: "Release tag (e.g. v0.1.0)"
         required: true
         type: string
+      skip_npm:
+        description: "Skip npm publish"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
+  id-token: write
 
 env:
   CARGO_TERM_COLOR: always
@@ -201,6 +210,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      tag: ${{ steps.meta.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -224,13 +236,23 @@ jobs:
           ls -la dist
           test "$(find dist -type f | wc -l)" -ge 6
 
+      - name: Resolve tag + version
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          PRODUCT_VERSION="$(grep -vE '^[[:space:]]*(#|$)' VERSION | head -n1 | tr -d '[:space:]')"
+          echo "tag=${TAG}" >> "${GITHUB_OUTPUT}"
+          echo "version=${PRODUCT_VERSION}" >> "${GITHUB_OUTPUT}"
+
       - name: Generate release notes
         id: notes
         shell: bash
         run: |
           set -euo pipefail
-          TAG="${{ github.event.inputs.tag || github.ref_name }}"
-          PRODUCT_VERSION="$(grep -vE '^[[:space:]]*(#|$)' VERSION | head -n1 | tr -d '[:space:]' || true)"
+          TAG="${{ steps.meta.outputs.tag }}"
+          PRODUCT_VERSION="${{ steps.meta.outputs.version }}"
           {
             echo "## ${TAG}"
             echo
@@ -238,16 +260,20 @@ jobs:
             echo
             echo "### Install"
             echo
-            echo "Prebuilt binaries (package/binary \`doit\`):"
+            echo "```sh"
+            echo "# npm (global CLI)"
+            echo "npm install -g @dathtd119/doit"
             echo
-            echo '```sh'
-            echo "# cargo-binstall (preferred when a release exists)"
+            echo "# cargo-binstall (preferred Rust path when a release exists)"
             echo "cargo binstall --git https://github.com/dathtd119/doit.git doit"
             echo
             echo "# or download the archive for your target from this release:"
             echo "#   doit-<version>-<target>.tar.gz  (Unix)"
             echo "#   doit-<version>-<target>.zip     (Windows)"
-            echo '```'
+            echo
+            echo "# from source (Rust + DotSlash)"
+            echo "cargo install --git https://github.com/dathtd119/doit.git --package doit --locked"
+            echo "```"
             echo
             echo "Repository: https://github.com/dathtd119/doit"
             echo
@@ -273,8 +299,8 @@ jobs:
             echo
             echo "### Smoke"
             echo '```'
-            echo "cargo check -p doit"
-            echo "doit --version   # expect doit ${PRODUCT_VERSION:-<VERSION>} (<sha>)"
+            echo "doit --version   # expect doit ${PRODUCT_VERSION:-<VERSION>}"
+            echo "npm view @dathtd119/doit version"
             echo '```'
           } > RELEASE_NOTES.md
           cat RELEASE_NOTES.md
@@ -285,7 +311,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          TAG="${{ steps.meta.outputs.tag }}"
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             git tag -f "$TAG" || true
             git push origin "$TAG" || true
@@ -302,3 +328,56 @@ jobs:
               --notes-file RELEASE_NOTES.md \
               dist/*
           fi
+
+      - name: Upload staged dist for npm
+        uses: actions/upload-artifact@v4
+        with:
+          name: doit-release-dist
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  npm:
+    name: Publish npm packages
+    needs: release
+    if: ${{ github.event.inputs.skip_npm != 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download release archives
+        uses: actions/download-artifact@v4
+        with:
+          name: doit-release-dist
+          path: dist
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Assemble platform packages
+        env:
+          DOIT_VERSION: ${{ needs.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          node npm/doit/scripts/assemble-platform-packages.js --from-archives dist
+          ls -la npm/doit-*/bin/ || true
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${NPM_TOKEN:-}" ]]; then
+            echo "::warning::NPM_TOKEN secret not set — skipping npm publish."
+            echo "Add repo secret NPM_TOKEN (or configure npm trusted publishing) to enable:"
+            echo "  npm install -g @dathtd119/doit"
+            echo "GitHub Release assets were still published for cargo-binstall."
+            exit 0
+          fi
+          # Classic token auth for @scope publish
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "${HOME}/.npmrc"
+          node npm/doit/scripts/publish.js

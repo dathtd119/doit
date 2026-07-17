@@ -1,0 +1,161 @@
+#!/usr/bin/env node
+// Thin trampoline: runs the native `doit` binary from the matching
+// optionalDependency platform package (@dathtd119/doit-<platform>-<arch>).
+//
+// Resolution order:
+//   1. ~/.local/share/doit/bin/doit  (canonical postinstall layout)
+//   2. platform package bin/doit[.exe] (decompressed)
+//   3. platform package bin/doit[.exe].br (brotli; decompress on first use)
+//
+// Pattern follows upstream grok npm trampoline + OpenCode optionalDeps style.
+const { spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+const os = require('os');
+const zlib = require('zlib');
+
+const pkgName = '@dathtd119/doit';
+const IS_WINDOWS = process.platform === 'win32';
+const EXE = IS_WINDOWS ? '.exe' : '';
+const BIN_NAME = `doit${EXE}`;
+const CANONICAL_DIR = path.join(
+  process.env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share'),
+  'doit',
+  'bin',
+);
+const CANONICAL_PATH = path.join(CANONICAL_DIR, BIN_NAME);
+
+function readLocalVersion() {
+  try {
+    return require('../package.json').version;
+  } catch {
+    return undefined;
+  }
+}
+
+function resolvePlatformPackageDir() {
+  const platformPkg = `@dathtd119/doit-${process.platform}-${process.arch}`;
+  try {
+    return path.dirname(require.resolve(`${platformPkg}/package.json`));
+  } catch {
+    return null;
+  }
+}
+
+function decompressBrotli(brPath, outPath) {
+  const compressed = fs.readFileSync(brPath);
+  const decompressed = zlib.brotliDecompressSync(compressed);
+  const tmp = `${outPath}.tmp.${process.pid}`;
+  fs.writeFileSync(tmp, decompressed);
+  if (!IS_WINDOWS) fs.chmodSync(tmp, 0o755);
+  try {
+    fs.renameSync(tmp, outPath);
+  } catch {
+    try {
+      fs.unlinkSync(tmp);
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+function bootstrapCanonical(sourceBinPath, version) {
+  try {
+    fs.mkdirSync(CANONICAL_DIR, { recursive: true });
+    const versionedName = `doit-${version}${EXE}`;
+    const versionedPath = path.join(CANONICAL_DIR, versionedName);
+    if (!fs.existsSync(versionedPath)) {
+      const tmpPath = `${versionedPath}.tmp.${process.pid}`;
+      fs.copyFileSync(sourceBinPath, tmpPath);
+      if (!IS_WINDOWS) fs.chmodSync(tmpPath, 0o755);
+      fs.renameSync(tmpPath, versionedPath);
+    }
+    if (IS_WINDOWS) {
+      const oldPath = `${CANONICAL_PATH}.old`;
+      try {
+        fs.unlinkSync(oldPath);
+      } catch {
+        /* ignore */
+      }
+      try {
+        try {
+          fs.unlinkSync(CANONICAL_PATH);
+        } catch {
+          /* ignore */
+        }
+        fs.copyFileSync(versionedPath, CANONICAL_PATH);
+      } catch {
+        fs.renameSync(CANONICAL_PATH, oldPath);
+        try {
+          fs.copyFileSync(versionedPath, CANONICAL_PATH);
+        } catch {
+          try {
+            fs.renameSync(oldPath, CANONICAL_PATH);
+          } catch {
+            /* ignore */
+          }
+          throw new Error('locked');
+        }
+      }
+    } else {
+      const tmpLink = `${CANONICAL_PATH}.link.${process.pid}`;
+      try {
+        fs.unlinkSync(tmpLink);
+      } catch {
+        /* ignore */
+      }
+      fs.symlinkSync(versionedName, tmpLink);
+      fs.renameSync(tmpLink, CANONICAL_PATH);
+    }
+    return CANONICAL_PATH;
+  } catch {
+    return sourceBinPath;
+  }
+}
+
+function resolveBinary() {
+  if (fs.existsSync(CANONICAL_PATH)) return CANONICAL_PATH;
+
+  const platformDir = resolvePlatformPackageDir();
+  if (!platformDir) {
+    console.error(
+      `${pkgName}: no platform binary for ${process.platform}-${process.arch}.`,
+    );
+    console.error(
+      `  Expected optional package @dathtd119/doit-${process.platform}-${process.arch}.`,
+    );
+    console.error(
+      '  Reinstall without --no-optional, or use cargo-binstall / cargo install --git.',
+    );
+    process.exit(1);
+  }
+
+  const rawPath = path.join(platformDir, 'bin', BIN_NAME);
+  const brPath = `${rawPath}.br`;
+
+  if (!fs.existsSync(rawPath) && fs.existsSync(brPath)) {
+    decompressBrotli(brPath, rawPath);
+  }
+  if (!fs.existsSync(rawPath)) {
+    console.error(`${pkgName}: missing binary at ${rawPath}`);
+    process.exit(1);
+  }
+
+  const version = readLocalVersion();
+  if (version) return bootstrapCanonical(rawPath, version);
+  return rawPath;
+}
+
+const execPath = resolveBinary();
+const childEnv = { ...process.env, DOIT_MANAGED_BY_NPM: '1' };
+const child = spawn(execPath, process.argv.slice(2), {
+  stdio: 'inherit',
+  env: childEnv,
+});
+child.on('exit', (code, signal) => {
+  if (signal) {
+    process.kill(process.pid, signal);
+  } else {
+    process.exit(code ?? 0);
+  }
+});
