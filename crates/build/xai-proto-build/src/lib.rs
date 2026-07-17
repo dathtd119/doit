@@ -11,10 +11,10 @@ fn strip_makefile_target_prefix<'a>(line: &'a str, target: &str) -> Option<&'a s
     let slash = target.replace('\\', "/");
     let back = target.replace('/', "\\");
     for key in [target, slash.as_str(), back.as_str()] {
-        if let Some(rest) = line.strip_prefix(key) {
-            if let Some(r) = rest.strip_prefix(':') {
-                return Some(r);
-            }
+        if let Some(rest) = line.strip_prefix(key)
+            && let Some(r) = rest.strip_prefix(':')
+        {
+            return Some(r);
         }
     }
     // Fallback: recipe separator is typically ": " (not a drive letter).
