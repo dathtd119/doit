@@ -45,7 +45,7 @@ jscpd-report/
 .quality/
 
 # Local agent/job state — keep on disk, never push to remote
-AGENTS.md
+# AGENTS.md is the operating contract — tracked in repo (not local-only)
 CONTINUE.md
 plans/
 .opencode/
