@@ -136,9 +136,6 @@ pub struct AgentBuilder {
     /// `list_skills_with_plugins()`.
     preloaded_skills: Option<Vec<xai_grok_tools::implementations::skills::types::SkillInfo>>,
 }
-/// Ensure plan mode tools (`enter_plan_mode`, `exit_plan_mode`,
-/// `ask_user_question`) are present in the tool config.
-
 /// Apply product TOML description overrides onto matching tools.
 ///
 /// Matches by client-facing name (`name_override` or short id after `:`) or full
