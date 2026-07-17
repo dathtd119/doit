@@ -41,6 +41,12 @@ name = "intake"
 [tools]
 disable_zdr_incompatible_tools = true
 
+# Optional: override API tool descriptions without recompiling crates.
+# Keys match client-facing name (e.g. run_terminal_cmd) or short id.
+# Existing non-empty description_override from Rust (e.g. task tool) wins.
+# [tools.overrides.run_terminal_cmd]
+# description = "Run a shell command. Prefer focused commands; do not edit files with shell redirects."
+
 # [roles] tables: merge via:
 #   bash do-harness/scripts/sync-user-config.sh --apply
 # (config only — never copies prompts; prompts SoT = do-harness/prompts/)

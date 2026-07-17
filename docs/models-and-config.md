@@ -115,6 +115,8 @@ Spawn overrides for subagents are unchanged and independent of primary-session r
 | **Role contract (SoT)** | `~/.config/doit/config.toml` `[roles.*]` | Runtime parse (`Config.roles`); seed: `do-harness/config.roles.toml` |
 | **Role body** | `prompts/roles/<stem>.md` (project / user / bundled) | Mission text only — Extend `prompt_body` |
 | **Agent bridge** | `do-harness/agents/<stem>.md` frontmatter | Stock discovery until full role-as-system; **regenerate** from TOML |
+| **Tool description overrides** | `~/.config/doit/config.toml` `[tools.overrides.<name>] description` | Optional API guide text → `ToolConfig.description_override` (Phase C) |
+| **Prompt tool list** | `${toolsList}` in identity / templates | Finalized builtins after role/toolset/media filters (Phase B) |
 
 ### Schema
 

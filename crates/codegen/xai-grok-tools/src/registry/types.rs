@@ -1249,6 +1249,53 @@ impl xai_tool_runtime::ToolDispatch for InnerDispatchForToolset {
         xai_tool_runtime::terminal_only(result)
     }
 }
+
+/// Build a short markdown list of tools for system-prompt `${toolsList}`.
+///
+/// One bullet per definition: `- \`name\` — first line of description` (or
+/// name only when description is empty). Sorted by client-facing name.
+pub fn format_tools_list_from_definitions(defs: &[crate::types::definition::ToolDefinition]) -> String {
+    let mut items: Vec<(String, String)> = defs
+        .iter()
+        .map(|d| {
+            let name = d.function.name.clone();
+            let desc = d
+                .function
+                .description
+                .as_deref()
+                .unwrap_or("")
+                .lines()
+                .next()
+                .unwrap_or("")
+                .trim();
+            // Cap first-line summary so the prompt list stays cheap.
+            let summary = if desc.chars().count() > 120 {
+                let mut s: String = desc.chars().take(117).collect();
+                s.push_str("...");
+                s
+            } else {
+                desc.to_string()
+            };
+            (name, summary)
+        })
+        .collect();
+    items.sort_by(|a, b| a.0.cmp(&b.0));
+    if items.is_empty() {
+        return "_No built-in tools enabled._".to_string();
+    }
+    items
+        .into_iter()
+        .map(|(name, summary)| {
+            if summary.is_empty() {
+                format!("- `{name}`")
+            } else {
+                format!("- `{name}` — {summary}")
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
 impl FinalizedToolset {
     /// Construct an empty toolset for tests. No tools, no background tasks.
     ///
@@ -1316,6 +1363,16 @@ impl FinalizedToolset {
             .map(|t| t.definition.clone())
             .collect()
     }
+
+    /// Concise markdown bullets for active built-in tools (no MCP).
+    ///
+    /// Source for `${toolsList}` / `${{ toolsList }}` — matches model-callable
+    /// builtins after role/toolset/media filtering. Full contracts stay in
+    /// `tool_definitions()`.
+    pub fn format_tools_list_markdown(&self) -> String {
+        format_tools_list_from_definitions(&self.tool_definitions_builtins_only())
+    }
+
     /// Get the resolved contract version for a tool by its client-facing name.
     ///
     /// Returns `None` if the tool is not found or is not version-managed.
@@ -3152,6 +3209,22 @@ mod tests {
             "error must surface the no-terminal violation, got: {msg}"
         );
     }
+
+    #[test]
+    fn format_tools_list_from_definitions_sorts_and_summarizes() {
+        use crate::types::definition::ToolDefinition;
+        let a = ToolDefinition::function(
+            "zeta",
+            Some("First line.\nSecond line."),
+            serde_json::json!({}),
+        );
+        let b = ToolDefinition::function("alpha", Some("Alpha only"), serde_json::json!({}));
+        let list = format_tools_list_from_definitions(&[a, b]);
+        assert!(list.starts_with("- `alpha` — Alpha only"));
+        assert!(list.contains("- `zeta` — First line."));
+        assert!(!list.contains("Second line"));
+    }
+
     #[tokio::test]
     async fn tool_definitions_builtins_only_hides_mcp_tools() {
         let tmp = TempDir::new().unwrap();

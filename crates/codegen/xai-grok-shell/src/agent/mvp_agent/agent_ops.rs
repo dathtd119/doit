@@ -3417,6 +3417,7 @@ impl MvpAgent {
         let remote_settings_for_spawn = self.cfg.borrow().remote_settings.clone();
         let laziness_debug_log_for_spawn = self.cfg.borrow().laziness_debug_log.clone();
         let respect_gitignore = self.cfg.borrow().respect_gitignore;
+        let description_overrides = self.cfg.borrow().tool_description_overrides.clone();
         let path_not_found_hints = self.cfg.borrow().path_not_found_hints;
         let subagent_toggle = self.subagent_toggle.clone();
         let handle_display_cwd = prompt_display_cwd.clone();
@@ -3649,6 +3650,7 @@ impl MvpAgent {
                     disable_web_search,
                     backend_tools_enabled,
                     respect_gitignore,
+                    description_overrides,
                     path_not_found_hints,
                     tool_params_json,
                     {

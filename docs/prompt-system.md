@@ -37,7 +37,7 @@ Exact stock assembly is **system + agent prompts + skills + plugins + reminders*
 | **L0** | `base_template()` today; target = render `l0-system.md` with `${}` expand | Product SoT: `l0-general.md` + `l0-kernel.md` + `l0-system.md`; placeholders in `placeholders.md` | general ~4.6 KiB; product rules ≤ ~4 KiB | **Stock live**; product stack **extracted**, wire phase 02 |
 | **L1** | Agent `prompt_body` **appended** after stock base (`promptMode: extend`) | Body: `prompts/roles/<role>.md`; contract: `config.toml` `[roles.<role>]` (seed `config.roles.toml`) | ≤ **12 KiB** per role body | **Roster + lock shipped**; swap body + TOML SoT in plan 260716-2010; **never Full for roster** |
 | **L2** | `agentsMd: true` → project `AGENTS.md` (and nested) into context (`xai-grok-agent` prompt `agents_md`) | Root `AGENTS.md` + `docs/` | Prefer pointer + short rules; full AGENTS as discovered | **Mapped** — keep product rules compact in root AGENTS |
-| **L3** | Tool `description` / schema; role tool allow/deny | **`[roles.*].tools` / `disallowed_tools`** in config.toml + [role-permissions.md](./role-permissions.md); bridge still in agent frontmatter until strict schema filter (phase 03) | Per-tool: keep descriptions lean | **M2 floors** + **TOML SoT (D2)**; strict visibility gap → plan phase 03 |
+| **L3** | Tool `description` / schema; role tool allow/deny; prompt `${toolsList}` summary | **`[roles.*].tools` / `disallowed_tools`** + optional **`[tools.overrides.<name>] description`** → `description_override`; list from finalized builtins | Per-tool: keep descriptions lean; list first-line only | **Membership dynamic**; **`${toolsList}` shipped**; TOML description overrides **shipped** (Phase C) |
 | **L4** | Skill tool listing + `SkillDiscoveryReminder` | [progressive-skills.md](./progressive-skills.md) + `do-harness/config.skills.yaml` + agent `discoverSkills` (M2-S02) | Avoid full skill dump; progressive/curated default | **M2 advanced** — all five roles progressive/curated; firehose opt-in; MCP `search_tool`/`use_tool` |
 | **L5** | Goal/plan/todo tool results + session state; reminders | Native `update_goal`, plan mode, `todo_write`; [workspace.md](./workspace.md) | **Pointers only** in system; re-read disk/session — no full plan paste | **Mapped tools**; unified continuation = M2 |
 | **L6** | Hook deny `reason`, plan enter/exit tool output, user message wrappers | Guided hooks (`[GATE: …]`); turn framing | Gate deny: short + **Do this instead** | **M0 proof hook**; product-wide pack M2 |
@@ -49,7 +49,8 @@ Exact stock assembly is **system + agent prompts + skills + plugins + reminders*
 ```
 base_template()  = templates/prompt.md     ← LIVE core ("You are Grok…")
   + prompt_body  =
-      Identity block (product roles only — active role / policy / mission pointer)
+      Identity block (product roles — role / policy / mission pointer +
+        ## Available tools + ${toolsList} from finalized builtins)
       + agent.md / roles/<stem>.md body    ← role mission; swap pre-message (Extend)
   # product l0-system.md / l0-kernel.md extracted — full expander still phase 02
   + L2–L6 as today
@@ -80,7 +81,7 @@ render(l0-system.md) with:
   Identity: ${agent} ${role} ${policy}   (no model)
   ${role_body}    ← prompts/roles/<stem>.md
   Session: ${date} ${cwd} ${os} ${shell}
-  + MiniJinja ${{ tools.by_kind.* }} inside general
+  + ${toolsList} from finalized builtins (and MiniJinja ${{ tools.by_kind.* }})
   + tools/model/color from config.toml [roles.<stem>]
   + tool schemas ⊆ allowlist
   + L2 AGENTS + L4 skills (separate inject) + L5/L6 as today

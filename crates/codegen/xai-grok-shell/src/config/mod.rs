@@ -705,7 +705,43 @@ pub struct ToolsConfig {
     /// is `true`. Populated from `[tools.zdr_video_output_s3]` in config.
     pub zdr_video_output_s3:
         Option<xai_grok_tools::implementations::grok_build::video_gen::ZdrVideoOutputS3Config>,
+    /// Product TOML `[tools.overrides.<name>] description = "..."` →
+    /// `ToolConfig.description_override` for matching tools (client name or
+    /// short id). Empty map = no overrides. Keys are case-sensitive.
+    #[serde(default)]
+    pub description_overrides: std::collections::HashMap<String, String>,
 }
+
+/// Parse `[tools.overrides.<name>] description = "..."` tables.
+///
+/// Unknown keys under each override table are ignored. Empty / missing
+/// `overrides` yields an empty map.
+fn parse_tool_description_overrides(
+    tools: Option<&toml::Value>,
+) -> std::collections::HashMap<String, String> {
+    let mut out = std::collections::HashMap::new();
+    let Some(overrides) = tools.and_then(|t| t.get("overrides")).and_then(|v| v.as_table())
+    else {
+        return out;
+    };
+    for (name, entry) in overrides {
+        let Some(table) = entry.as_table() else {
+            tracing::warn!(
+                tool = %name,
+                "tools.overrides entry must be a table; ignoring"
+            );
+            continue;
+        };
+        if let Some(desc) = table.get("description").and_then(|v| v.as_str()) {
+            let trimmed = desc.trim();
+            if !trimmed.is_empty() {
+                out.insert(name.clone(), trimmed.to_string());
+            }
+        }
+    }
+    out
+}
+
 impl ToolsConfig {
     /// Resolve the final tools config, in priority order:
     /// 1. Env vars `GROK_RESPECT_GITIGNORE` and
@@ -751,6 +787,7 @@ impl ToolsConfig {
                         None
                     }
                 }),
+            description_overrides: parse_tool_description_overrides(tools),
         };
         match std::env::var("GROK_RESPECT_GITIGNORE").as_deref() {
             Ok("0") | Ok("false") => {

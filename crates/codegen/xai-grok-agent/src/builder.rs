@@ -98,6 +98,8 @@ pub struct AgentBuilder {
     app_builder_deployer_config:
         xai_grok_tools::implementations::grok_build::deploy_app::AppBuilderDeployerConfig,
     write_file_enabled: bool,
+    /// Client-name or short-id → description override (product [tools.overrides]).
+    description_overrides: HashMap<String, String>,
     subagents_enabled: bool,
     ask_user_question_enabled: bool,
     subagent_toggle: HashMap<String, bool>,
@@ -136,6 +138,39 @@ pub struct AgentBuilder {
 }
 /// Ensure plan mode tools (`enter_plan_mode`, `exit_plan_mode`,
 /// `ask_user_question`) are present in the tool config.
+
+/// Apply product TOML description overrides onto matching tools.
+///
+/// Matches by client-facing name (`name_override` or short id after `:`) or full
+/// registry id. Existing non-empty `description_override` values win (crate /
+/// task-tool rewrites take precedence over product TOML).
+fn apply_description_overrides(
+    tool_config: &mut xai_grok_tools::registry::types::ToolServerConfig,
+    overrides: &HashMap<String, String>,
+) {
+    if overrides.is_empty() {
+        return;
+    }
+    for tc in &mut tool_config.tools {
+        if tc
+            .description_override
+            .as_ref()
+            .is_some_and(|s| !s.is_empty())
+        {
+            continue;
+        }
+        let short = short_tool_name(&tc.id);
+        let client = tc.resolve_client_name(short);
+        let desc = overrides
+            .get(&client)
+            .or_else(|| overrides.get(short))
+            .or_else(|| overrides.get(&tc.id));
+        if let Some(d) = desc {
+            tc.description_override = Some(d.clone());
+        }
+    }
+}
+
 fn ensure_plan_mode_tools(tool_config: &mut xai_grok_tools::registry::types::ToolServerConfig) {
     use xai_grok_tools::implementations::grok_build;
     let existing: std::collections::HashSet<&str> =
@@ -222,6 +257,7 @@ impl AgentBuilder {
             video_gen_config: Default::default(),
             app_builder_deployer_config: Default::default(),
             write_file_enabled: true,
+            description_overrides: HashMap::new(),
             subagents_enabled: false,
             ask_user_question_enabled: true,
             subagent_toggle: HashMap::new(),
@@ -522,6 +558,12 @@ impl AgentBuilder {
     /// Enable or disable the `write` tool (default: enabled).
     pub fn with_write_file_enabled(mut self, enabled: bool) -> Self {
         self.write_file_enabled = enabled;
+        self
+    }
+
+    /// Apply product `[tools.overrides.<name>] description` to ToolConfig before finalize.
+    pub fn with_description_overrides(mut self, overrides: HashMap<String, String>) -> Self {
+        self.description_overrides = overrides;
         self
     }
     /// Enable or disable subagent (task tool) support.
@@ -1006,6 +1048,10 @@ impl AgentBuilder {
         }
         let use_backend_search = self.backend_search;
         let web_search_enabled = self.web_search_config.is_enabled();
+        // Phase C: product description overrides (do not clobber existing overrides).
+        if !self.description_overrides.is_empty() {
+            apply_description_overrides(&mut tool_config, &self.description_overrides);
+        }
         let tool_bridge = ToolBridge::finalize_builder(
             tool_bridge_builder,
             tool_config,

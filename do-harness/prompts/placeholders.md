@@ -46,11 +46,23 @@ hyphens (`l0-general.md`) for readability on disk.
 
 **Not in Identity:** `${model}` — model pin is config/chrome, not prompt identity.
 
-Phase B intent: `${toolsList}` will expand to concise bullets for the active, model-callable tools after role allowlist/denylist, file toolset, and media gates. Optional `${toolGuidelines}` may add bounded cross-tool guidance. Until Phase B lands, these placeholders are documented but not implemented.
+**Shipped (Phase B):** `${toolsList}` expands to concise bullets for the active, model-callable **built-in** tools after role allowlist/denylist, file toolset, and media gates. Source is the finalized toolset (`FinalizedToolset::format_tools_list_markdown`), not a hand-written TOML list. Optional `${toolGuidelines}` is still deferred (not implemented).
 
 Skills are **not** embedded in these files — progressive skill inject is a separate system path. Full tool contracts remain in `tools[]`; prompt lists are summaries only.
 
 Stock MiniJinja (inside `l0-general.md` only): `${{ tools.by_kind.read }}`, etc.
+
+### `${toolsList}` (live)
+
+| Detail | Behavior |
+|--------|----------|
+| Format | `- \`name\` — first line of description` (≤120 chars); sorted by client name |
+| Source | Finalized built-ins only (excludes MCP `server__tool` names) |
+| Expand paths | MiniJinja `${{ toolsList }}` via placeholders; product simple `${toolsList}` post-render in `ToolBridge::render_prompt` |
+| Rebuild | Same agent rebuild lifecycle as role switch / tool filter (pre-message only for primary role Tab) |
+| Contracts | Full schemas stay in API `tools[]`; prompt list is navigation only |
+
+Product identity block (`ensure_product_role_identity`) embeds `## Available tools` + `${toolsList}` so Extend assembly shows the list without waiting for full L0 expander.
 
 ---
 
@@ -60,7 +72,7 @@ Stock MiniJinja (inside `l0-general.md` only): `${{ tools.by_kind.read }}`, etc.
 |-------|------|--------------|
 | **l0-general** | Stock safety, tool-calling, output style | Product gates, role mission |
 | **l0-kernel** | Harness rules, gates, continuum priority, role-lock | Role-specific workflow |
-| **Identity** | Who is speaking (agent/role/policy) | Model id, tools lists |
+| **Identity** | Who is speaking (agent/role/policy); product roles also inject `## Available tools` + `${toolsList}` | Model id |
 | **role_body** | Identity sentence, can/cannot, workflow, style, DO/DON'T | Gate catalog, skills dump, model id |
 | **Session** | date / cwd / os / shell | Everything else |
 

@@ -276,6 +276,8 @@ pub(crate) struct SubagentSpawnContext {
     /// Whether tools should respect `.gitignore` patterns.
     /// Inherited from the parent session.
     pub respect_gitignore: bool,
+    /// Product tool description overrides.
+    pub description_overrides: std::collections::HashMap<String, String>,
     /// Whether to enrich path-not-found errors with hints.
     /// Inherited from the parent session.
     pub path_not_found_hints: bool,

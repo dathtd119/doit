@@ -1883,6 +1883,34 @@ fn with_grok_respect_gitignore<T>(value: &str, f: impl FnOnce() -> T) -> T {
     with_tools_env(Some(value), None, f)
 }
 #[test]
+fn tools_config_description_overrides_from_toml() {
+    without_grok_respect_gitignore(|| {
+        let config: toml::Value = toml::from_str(
+            r#"
+[tools]
+disable_zdr_incompatible_tools = true
+
+[tools.overrides.run_terminal_cmd]
+description = "Run focused shell commands only."
+
+[tools.overrides.read_file]
+description = "Read a file with offset/limit."
+"#,
+        )
+        .unwrap();
+        let tc = ToolsConfig::resolve(&config);
+        assert!(tc.disable_zdr_incompatible_tools);
+        assert_eq!(
+            tc.description_overrides.get("run_terminal_cmd").map(String::as_str),
+            Some("Run focused shell commands only.")
+        );
+        assert_eq!(
+            tc.description_overrides.get("read_file").map(String::as_str),
+            Some("Read a file with offset/limit.")
+        );
+    });
+}
+#[test]
 fn tools_config_default_disabled() {
     without_grok_respect_gitignore(|| {
         let config = toml::Value::Table(toml::map::Map::new());

@@ -258,7 +258,14 @@ impl PromptContext {
     /// MiniJinja so that `${{ tools.by_kind.* }}` variables resolve
     /// correctly regardless of prompt mode.
     pub async fn render(&self, tool_bridge: &ToolBridge) -> Option<String> {
-        let placeholders = self.placeholders();
+        let mut placeholders = self.placeholders();
+        // Phase B: active finalized builtins → `${toolsList}` / `${{ toolsList }}`.
+        if let Some(obj) = placeholders.as_object_mut() {
+            obj.insert(
+                "toolsList".to_string(),
+                serde_json::Value::String(tool_bridge.format_tools_list()),
+            );
+        }
         let prompt = match self.prompt_mode {
             PromptMode::Extend => {
                 let decrypted;

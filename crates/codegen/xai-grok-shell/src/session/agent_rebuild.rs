@@ -123,6 +123,8 @@ pub(crate) struct AgentRebuildSpec {
     pub subagent_depth: u32,
     pub session_id_str: String,
     pub respect_gitignore: bool,
+    /// Product `[tools.overrides]` description map.
+    pub description_overrides: HashMap<String, String>,
     pub path_not_found_hints: bool,
     pub mcp_state: Arc<tokio::sync::Mutex<crate::session::mcp_servers::McpState>>,
     pub managed_gateway_tool_client:
@@ -217,6 +219,7 @@ impl AgentRebuildSpec {
             subagent_depth,
             session_id_str,
             respect_gitignore,
+            description_overrides,
             path_not_found_hints,
             mcp_state,
             managed_gateway_tool_client,
@@ -250,6 +253,7 @@ impl AgentRebuildSpec {
         .with_app_builder_deployer_config(app_builder_deployer_config.clone())
         .with_web_fetch_config(web_fetch_config.clone())
         .with_write_file_enabled(*write_file_enabled)
+        .with_description_overrides(description_overrides.clone())
         .with_fs(fs_backend.clone())
         .with_subagents_enabled(*subagents_enabled)
         .with_subagent_toggle(subagent_toggle.clone())
@@ -419,6 +423,7 @@ pub(crate) fn test_rebuild_spec_default() -> Arc<AgentRebuildSpec> {
         subagent_depth: 0,
         session_id_str: "test-session".to_string(),
         respect_gitignore: false,
+        description_overrides: HashMap::new(),
         path_not_found_hints: false,
         mcp_state: Arc::new(tokio::sync::Mutex::new(
             crate::session::mcp_servers::McpState::new(vec![]),

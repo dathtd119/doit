@@ -204,6 +204,9 @@ pub fn product_role_identity_block(
          workflow, and DO/DON'T below. Do not claim a different product role.\n\
          Role may change only before the first user message; after conversation \
          content exists, this role is fixed for the session.\n\
+         \n\
+         ## Available tools\n\
+         ${{toolsList}}\n\
          ---\n"
     )
 }

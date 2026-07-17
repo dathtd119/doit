@@ -498,6 +498,7 @@ impl MvpAgent {
             laziness_debug_log: self.cfg.borrow().laziness_debug_log.clone(),
             backend_tools_enabled: self.cfg.borrow().resolve_backend_tools().value,
             respect_gitignore: self.cfg.borrow().respect_gitignore,
+            description_overrides: self.cfg.borrow().tool_description_overrides.clone(),
             path_not_found_hints: self.cfg.borrow().path_not_found_hints,
             plugin_registry: self.plugin_registry_handle.snapshot(),
             models_manager: self.models_manager.clone(),

@@ -108,6 +108,7 @@ pub(crate) fn ctx_with_toggle(toggle: HashMap<String, bool>) -> SubagentSpawnCon
         laziness_debug_log: None,
         backend_tools_enabled: true,
         respect_gitignore: false,
+        description_overrides: std::collections::HashMap::new(),
         path_not_found_hints: false,
         plugin_registry: None,
         models_manager: Default::default(),

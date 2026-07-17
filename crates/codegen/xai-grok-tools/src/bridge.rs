@@ -128,6 +128,11 @@ impl ToolBridge {
         self.registry.tool_definitions_builtins_only()
     }
 
+    /// Markdown bullets for active built-in tools (see FinalizedToolset).
+    pub fn format_tools_list(&self) -> String {
+        self.registry.format_tools_list_markdown()
+    }
+
     /// Render a prompt template through [`TemplateRenderer`] with extra
     /// agent-specific context fields.
     ///
@@ -151,7 +156,22 @@ impl ToolBridge {
                 .get::<TemplateRenderer>()
                 .and_then(|r| r.render_with_extra(template, placeholders).ok());
         }
-        result
+        // Product simple placeholders (`${toolsList}`) are not MiniJinja.
+        // Expand after template render so `${{ toolsList }}` and `${toolsList}`
+        // both resolve from the finalized active toolset when the placeholder
+        // value was not already provided by the caller.
+        result.map(|mut rendered| {
+            let tools_list = placeholders
+                .get("toolsList")
+                .and_then(|v| v.as_str())
+                .filter(|s| !s.is_empty())
+                .map(|s| s.to_string())
+                .unwrap_or_else(|| self.registry.format_tools_list_markdown());
+            if rendered.contains("${toolsList}") {
+                rendered = rendered.replace("${toolsList}", &tools_list);
+            }
+            rendered
+        })
     }
 
     pub async fn register_mcp_tools<T>(

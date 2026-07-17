@@ -50,7 +50,7 @@ base = match system_prompt {
   Custom(s)→ s
   Codex    → apply_patch_template()
 }
-rendered_base = tool_bridge.render_prompt(base, placeholders)  // MiniJinja + tools.by_kind.*
+rendered_base = tool_bridge.render_prompt(base, placeholders)  // MiniJinja + tools.by_kind.* + ${toolsList}
 if prompt_body:
   rendered_base += "\n\n" + render_prompt(prompt_body)
 return rendered_base   // this IS agent.system_prompt()
@@ -81,7 +81,7 @@ Not a mega “do kernel.” Sections:
 **Not in base:** role mission, AGENTS.md, tool allowlists, guided-gate catalog, continuum rules, product identity “do”.
 
 Placeholders available (`PromptContext::placeholders`):  
-`system_prompt_label`, `is_non_interactive`, `os_name`, `shell_path`, `working_directory`, `current_date`, `memory_*`, `role_instructions`, `persona_instructions`.
+`system_prompt_label`, `is_non_interactive`, `os_name`, `shell_path`, `working_directory`, `current_date`, `memory_*`, `role_instructions`, `persona_instructions`, **`toolsList`** (finalized builtins markdown).
 
 **Critical:** primary `prompt.md` does **not** reference `${{ role_instructions }}`.  
 That placeholder is only used in **`subagent_prompt.md`**. For primary session, role text must come from **`prompt_body` append** (or a future template change / Custom override).

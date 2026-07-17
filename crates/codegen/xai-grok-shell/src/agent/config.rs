@@ -1507,6 +1507,10 @@ pub struct Config {
     #[serde(skip)]
     pub zdr_video_output_s3:
         Option<xai_grok_tools::implementations::grok_build::video_gen::ZdrVideoOutputS3Config>,
+    /// Product `[tools.overrides.<name>] description` → ToolConfig.description_override.
+    /// Resolved by [`crate::config::ToolsConfig::resolve`].
+    #[serde(skip)]
+    pub tool_description_overrides: std::collections::HashMap<String, String>,
     /// Whether to enrich path-not-found errors with CWD reminders,
     /// "dropped repo folder" correction, and similar-name suggestions.
     /// Default `false`. Enabled via remote settings.
@@ -1905,6 +1909,7 @@ impl Default for Config {
             laziness_debug_log: None,
             respect_gitignore: false,
             disable_zdr_incompatible_tools: false,
+            tool_description_overrides: std::collections::HashMap::new(),
             zdr_video_output_s3: None,
             path_not_found_hints: false,
             cli_experimental_memory: false,
@@ -2067,6 +2072,7 @@ impl Config {
         };
         self.disable_zdr_incompatible_tools = tools.disable_zdr_incompatible_tools;
         self.zdr_video_output_s3 = tools.zdr_video_output_s3;
+        self.tool_description_overrides = tools.description_overrides;
         let mcps = crate::config::ManagedMcpsConfig::resolve(
             ctx.raw_config,
             ctx.remote_settings,
