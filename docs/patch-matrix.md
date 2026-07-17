@@ -332,6 +332,40 @@ Product **project** discovery root is **`.doit/`** (CFG-DOIT rebrand from `.do/`
 
 P-AUTH-01 path log still refers historically to `xai-grok-pager-bin` `main.rs`; live path is **`crates/codegen/doit/src/main.rs`**.
 
+### Upstream sync — `98c3b24` (2026-07-17, F-UPSTREAM-MERGE / VAL-UP-001..005)
+
+| Field | Value |
+|-------|--------|
+| **Upstream tip** | `98c3b24` (`upstream/main` — monorepo sync after `8adf901`) |
+| **Product branch** | `sync/upstream-98c3b24` (merge commit; product history preserved — not full rebase) |
+| **Merge base** | `8adf901` |
+| **Strategy** | `git merge upstream/main` → resolve conflicts per FORK §2.1 + AGENTS upstream checklist |
+
+#### Conflict resolutions
+
+| Path class | Resolution | Notes |
+|------------|------------|-------|
+| `crates/codegen/xai-grok-pager-bin/*` → product | **Map** | Keep package/binary **`doit`** under `crates/codegen/doit`. Adopt lockstep version **`0.2.102`**. Drop lock entry for `xai-grok-pager-bin`. |
+| Version lockstep (`doit`, `xai-grok-pager`, `xai-grok-shell`, `xai-grok-version`) | **Upstream version** | Product name kept; version line `0.2.102` (same as prior absorb of `0.2.101`). |
+| PRIV P-NOTEL `sync_profile` | **Fork** | Keep fail-closed empty body; do not re-enable Mixpanel `engage` path from upstream. |
+| CFG project hooks detect (`folder_trust.rs`) | **Fork + upstream helper** | Product path **`.doit/hooks`** with upstream `path_present_or_uncertain` (not `.grok/hooks`). |
+| Permission manager / auto_mode | **Upstream** | No product identity pins; take full upstream monorepo delta (requester-gone cancel + classifier turn). |
+| PTY harness (`lib.rs` / `pty.rs` / `content.rs`) + wrap e2e | **Upstream API** | Incomplete auto-merge left product without `wait_for_exit_and_drain` / `PtyRead`; took upstream harness API. Product binary resolve still via `env.rs` (`doit` package). |
+| `Cargo.lock` | **Product** | Keep `doit` package; drop `xai-grok-pager-bin`; versions `0.2.102`. |
+| Unrelated monorepo improvements | **Upstream** | Auto-merged when no product identity conflict. |
+| Internal `xai-grok-*` library crates | **Keep names** | No mass rename (VAL-CROSS-002). |
+
+#### Smoke / evidence
+
+- `cargo check -p doit` — exit 0 after conflict resolution
+- `git merge-base --is-ancestor 98c3b24 HEAD` — true after merge commit
+- Product package path: `crates/codegen/doit` only (no `xai-grok-pager-bin` directory)
+- Pins re-checked: P-NOTEL fail-closed; P-CFG `~/.config/doit` + `.doit/`; L1 `role_switch_allowed`; P-AUTH BYOK skip OAuth
+
+#### Dual-changed hotspots touched (merge-time)
+
+`Cargo.lock`, `crates/codegen/doit/Cargo.toml`, `xai-grok-pager` / `shell` / `version` Cargo.toml, `xai-grok-telemetry` `client.rs` (P-NOTEL), `xai-grok-workspace` `folder_trust.rs` (`.doit`), permission manager/auto_mode (upstream), `xai-grok-pager-pty-harness` (upstream API), pager wrap e2e `common.rs`, plus pure-upstream monorepo delta (~225 files on upstream side).
+
 ---
 
 ## Milestone → matrix slice
@@ -344,7 +378,7 @@ P-AUTH-01 path log still refers historically to `xai-grok-pager-bin` `main.rs`; 
 | **CFG** | P-CFG-HOME user home `~/.config/do` (**applied**); P-CFG-PROJECT project `.do/` discovery (**applied**); P-CFG-FIXTURES test drift cleanup (**applied**) |
 | **M2** | L5 continuation; L6 harden; L4 progressive catalog; L11 only if explicit |
 | **M3** | L7 CodeGraph product surface; L3 tool packs as needed; file toolset standard default + hashline opt-in |
-| **Upstream sync** | `8adf901` merge into product history (F-UPSTREAM-MERGE); preserve PRIV/CFG/role-lock; map pager-bin→`doit` |
+| **Upstream sync** | `8adf901` then **`98c3b24`** merge into product history (F-UPSTREAM-MERGE); preserve PRIV/CFG/role-lock; map pager-bin→`doit` |
 
 ---
 

@@ -181,7 +181,9 @@ pub async fn track(_event_name: &str, _request_id: &str, _ctx: &UserContext, _me
 
 /// Sync the user's Mixpanel profile once per init. Fire-and-forget.
 ///
-/// **no-telemetry fork:** permanently no-op.
+/// **no-telemetry fork:** permanently no-op (P-NOTEL).
+/// Upstream gates on TelemetryMode::Enabled + Mixpanel engage; product keeps
+/// fail-closed empty body so SpaceXAI phone-home cannot re-enable.
 pub fn sync_profile() {
     // Intentionally empty — SpaceXAI phone-home stripped in this fork.
 }
@@ -252,6 +254,56 @@ mod tests {
     #[test]
     fn event_value_strips_workspace_prefix() {
         assert_eq!(event_value("grok-workspace-turn"), "turn");
+    }
+
+    /// SessionMetrics must not attempt Mixpanel profile engage — sync_profile
+    /// is a no-op unless mode is fully Enabled.
+    #[test]
+    fn sync_profile_is_noop_in_session_metrics_mode() {
+        // No tokio runtime here BY DESIGN: if the gate wrongly falls through,
+        // sync_profile's tokio::spawn panics and fails this test. Converting
+        // this to #[tokio::test] would silently turn it into theater.
+        assert!(
+            tokio::runtime::Handle::try_current().is_err(),
+            "this test must run without a tokio runtime"
+        );
+        // Clear the global client even if an assert below panics.
+        struct ClearClient;
+        impl Drop for ClearClient {
+            fn drop(&mut self) {
+                let lock = TELEMETRY_CLIENT.get_or_init(|| Mutex::new(None));
+                *lock.lock().unwrap_or_else(|err| err.into_inner()) = None;
+            }
+        }
+        let _clear = ClearClient;
+
+        // Mixpanel configured, but no events endpoint: the global must never
+        // carry a live funnel out of this test.
+        let cfg = TelemetryConfig {
+            mixpanel_enabled: true,
+            mixpanel_token: Some("test-token".into()),
+            events_url: None,
+            events_api_key: None,
+            ..TelemetryConfig::default()
+        };
+        init(
+            cfg,
+            TelemetryMode::SessionMetrics,
+            Some("user-1".into()),
+            None,
+            None,
+            None,
+            "0.0.0-test".into(),
+            None,
+            reqwest::Client::new(),
+        );
+        // Explicit call must no-op too (init already invoked it once).
+        sync_profile();
+        assert!(
+            is_session_metrics_enabled(),
+            "client must be live for session metrics"
+        );
+        assert!(!is_enabled(), "product analytics must stay off");
     }
 
     /// Names without a known emitter prefix pass through unchanged (preserves

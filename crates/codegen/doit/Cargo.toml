@@ -1,7 +1,7 @@
 [package]
 name = "doit"
 # Keep product package name `doit`; adopt upstream version line for monorepo sync.
-version = "0.0.1"
+version = "0.2.102"
 edition.workspace = true
 license = "Apache-2.0"
 authors = ["xAI"]

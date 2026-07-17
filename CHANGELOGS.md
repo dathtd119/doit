@@ -4,6 +4,30 @@ Append-only ship log for **doit** (historical brand **do**). Not a status essay 
 
 ---
 
+## 2026-07-17 — Upstream absorb `98c3b24` (F-UPSTREAM-MERGE)
+
+**Scope:** merge `upstream/main` (`98c3b24`) into product history on `sync/upstream-98c3b24`  
+**Feature:** F-UPSTREAM-MERGE · **VALs:** VAL-UP-001..005
+
+### What landed
+
+- Merge monorepo sync tip `98c3b24` (one commit ahead of prior absorb `8adf901`)
+- Product identity preserved: package/binary **`doit`**, lockstep version **`0.2.102`**
+- Product pins re-verified: P-NOTEL fail-closed telemetry, CFG-DOIT paths, L1 role-switch lock, P-AUTH BYOK skip OAuth
+- Conflict map + dual-changed notes: [`docs/patch-matrix.md`](./docs/patch-matrix.md) § Upstream sync — `98c3b24`
+
+### Evidence
+
+- `cargo check -p doit` — exit 0
+- `git merge-base --is-ancestor 98c3b24 HEAD` — true after merge
+
+### Not in this entry
+
+- Push to origin / merge into `main` (operator choice)
+- Restoring local WIP stash `wip: pre-upstream-sync-98c3b24`
+
+---
+
 ## 2026-07-17 — Fork inject-first thesis docs (FORK + AGENTS)
 
 **Scope:** docs only — capture inject-first thin-fork stance for future upstream absorbs  
