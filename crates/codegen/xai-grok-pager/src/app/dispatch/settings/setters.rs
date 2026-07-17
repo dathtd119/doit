@@ -113,9 +113,7 @@ pub(in crate::app::dispatch) fn set_screen_mode(app: &mut AppView, value: String
     set_screen_mode_inner(app, canonical);
     refresh_open_settings_modals(app);
     tracing::info!(target: "settings", key = "screen_mode", value = canonical, "setting changed");
-    app.show_toast(&format!(
-        "✓ Screen mode: {canonical} (restart to apply)"
-    ));
+    app.show_toast(&format!("✓ Screen mode: {canonical} (restart to apply)"));
     vec![Effect::PersistSetting {
         key: "screen_mode",
         value: crate::settings::SettingValue::Enum(canonical),
@@ -133,7 +131,6 @@ fn screen_mode_raw_matches_canonical(raw: Option<&str>, canonical: &str) -> bool
         _ => false,
     }
 }
-
 
 /// Set the hunk-tracker mode (registry-driven path).
 ///
@@ -888,7 +885,6 @@ pub(in crate::app::dispatch) fn set_timestamps(app: &mut AppView, new: bool) -> 
         rollback_value: crate::settings::SettingValue::Bool(prev),
     }]
 }
-
 
 /// State-only mutation for `show_timeline`. Mirrors `set_timestamps_inner`.
 pub(super) fn set_timeline_inner(app: &mut AppView, new: bool) {

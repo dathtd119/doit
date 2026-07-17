@@ -373,7 +373,11 @@ pub fn definition_from_contract(
     def.disallowed_tools = contract.disallowed_tools.clone();
     if !contract.allowed_subagents.is_empty() {
         def.allowed_subagent_types = Some(contract.allowed_subagents.clone());
-    } else if contract.tools.iter().any(|t| t.starts_with("Agent(") || t == "task") {
+    } else if contract
+        .tools
+        .iter()
+        .any(|t| t.starts_with("Agent(") || t == "task")
+    {
         // Derive from Agent(...) tool floors when allowed_subagents omitted
         let derived: Vec<String> = contract
             .tools
@@ -549,13 +553,13 @@ CUSTOM_OVERRIDE_BODY
     #[test]
     fn prompt_body_override_without_agent_file() {
         let tmp = tempfile::tempdir().unwrap();
-        let agents = tmp
-            .path()
-            .join(".doit")
-            .join("prompts")
-            .join("agents");
+        let agents = tmp.path().join(".doit").join("prompts").join("agents");
         std::fs::create_dir_all(&agents).unwrap();
-        std::fs::write(agents.join("oracle.md"), "## Mission\n\nPROMPT_ONLY_OVERRIDE\n").unwrap();
+        std::fs::write(
+            agents.join("oracle.md"),
+            "## Mission\n\nPROMPT_ONLY_OVERRIDE\n",
+        )
+        .unwrap();
         let def = resolve_product_role("oracle", tmp.path(), None).expect("oracle");
         assert!(
             def.prompt_body

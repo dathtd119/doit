@@ -607,9 +607,7 @@ fn load_shell_config() -> Option<xai_grok_shell::agent::config::Config> {
 }
 /// Load `[agent]` from effective config (merged shell + pager config layers).
 fn load_agent_selection_config() -> AgentSelectionConfig {
-    load_shell_config()
-        .map(|cfg| cfg.agent)
-        .unwrap_or_default()
+    load_shell_config().map(|cfg| cfg.agent).unwrap_or_default()
 }
 /// Explicit `[agent] name` in config.toml (not env/CLI overrides).
 fn load_config_agent_name() -> Option<String> {

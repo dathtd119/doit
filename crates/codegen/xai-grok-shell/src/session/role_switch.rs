@@ -17,13 +17,7 @@
 /// config. This constant is the compile-time fallback only.
 ///
 /// Cycle wraps at ends. Canonical resolve: [`canonical_agent_name`].
-pub const PRODUCT_ROSTER: &[&str] = &[
-    "intake",
-    "orchestrator",
-    "explore",
-    "worker",
-    "oracle",
-];
+pub const PRODUCT_ROSTER: &[&str] = &["intake", "orchestrator", "explore", "worker", "oracle"];
 
 /// Alias → canonical agent id (stock-native).
 ///
@@ -232,7 +226,9 @@ pub fn gate_role_model_repin(
 const PRODUCT_ROLE_IDENTITY_MARKER: &str = "<!-- do-product-role-identity -->";
 
 /// Map agent permission mode to the Identity policy label.
-pub fn product_policy_label(permission_mode: &xai_grok_agent::config::PermissionMode) -> &'static str {
+pub fn product_policy_label(
+    permission_mode: &xai_grok_agent::config::PermissionMode,
+) -> &'static str {
     use xai_grok_agent::config::PermissionMode;
     match permission_mode {
         PermissionMode::Default => "default",
@@ -262,11 +258,7 @@ fn strip_product_role_identity(body: &str) -> &str {
 /// Stock `base_template()` still opens with "You are Grok…". This block is
 /// appended via `prompt_body` so the model can answer "what is your role?"
 /// without reading chrome.
-pub fn product_role_identity_block(
-    role: &str,
-    policy: &str,
-    description: &str,
-) -> String {
+pub fn product_role_identity_block(role: &str, policy: &str, description: &str) -> String {
     let alias = agent_alias(role);
     let canonical = canonical_agent_name(role);
     let desc = description.trim();

@@ -720,7 +720,9 @@ fn parse_tool_description_overrides(
     tools: Option<&toml::Value>,
 ) -> std::collections::HashMap<String, String> {
     let mut out = std::collections::HashMap::new();
-    let Some(overrides) = tools.and_then(|t| t.get("overrides")).and_then(|v| v.as_table())
+    let Some(overrides) = tools
+        .and_then(|t| t.get("overrides"))
+        .and_then(|v| v.as_table())
     else {
         return out;
     };

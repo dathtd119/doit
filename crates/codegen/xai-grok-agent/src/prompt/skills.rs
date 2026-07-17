@@ -1974,7 +1974,13 @@ mod tests {
         // Ignore the local skill path. Repo fallback should remain visible.
         let config = SkillsConfig {
             paths: vec![],
-            ignore: vec![cwd.join(".doit").join("skills").to_str().unwrap().to_string()],
+            ignore: vec![
+                cwd.join(".doit")
+                    .join("skills")
+                    .to_str()
+                    .unwrap()
+                    .to_string(),
+            ],
             disabled: vec![],
             server_skill_dirs: vec![],
             bundled_skill_dirs: vec![],

@@ -1254,7 +1254,9 @@ impl xai_tool_runtime::ToolDispatch for InnerDispatchForToolset {
 ///
 /// One bullet per definition: `- \`name\` — first line of description` (or
 /// name only when description is empty). Sorted by client-facing name.
-pub fn format_tools_list_from_definitions(defs: &[crate::types::definition::ToolDefinition]) -> String {
+pub fn format_tools_list_from_definitions(
+    defs: &[crate::types::definition::ToolDefinition],
+) -> String {
     let mut items: Vec<(String, String)> = defs
         .iter()
         .map(|d| {

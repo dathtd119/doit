@@ -1576,25 +1576,23 @@ fn resolve_agent_definition(
     subagent_type: &str,
     ctx: &SubagentSpawnContext,
 ) -> Option<xai_grok_agent::config::AgentDefinition> {
-    let mut def = crate::session::product_role::resolve_product_role_in_cwd(
-        subagent_type,
-        &ctx.parent_cwd,
-    )
-    .or_else(|| {
-        xai_grok_agent::discovery::by_name_in_cwd_with_plugins(
-            subagent_type,
-            &ctx.parent_cwd,
-            ctx.plugin_registry.as_deref(),
-        )
-    })
-    .or_else(|| {
-        ctx.agent_config.as_ref().and_then(|cfg| {
-            cfg.cli_agents
-                .iter()
-                .find(|d| d.name == subagent_type)
-                .cloned()
-        })
-    })?;
+    let mut def =
+        crate::session::product_role::resolve_product_role_in_cwd(subagent_type, &ctx.parent_cwd)
+            .or_else(|| {
+                xai_grok_agent::discovery::by_name_in_cwd_with_plugins(
+                    subagent_type,
+                    &ctx.parent_cwd,
+                    ctx.plugin_registry.as_deref(),
+                )
+            })
+            .or_else(|| {
+                ctx.agent_config.as_ref().and_then(|cfg| {
+                    cfg.cli_agents
+                        .iter()
+                        .find(|d| d.name == subagent_type)
+                        .cloned()
+                })
+            })?;
     ctx.apply_session_cli_overrides(&mut def);
     Some(def)
 }

@@ -3360,8 +3360,7 @@ impl PromptWidget {
                 let fg = if focused {
                     color
                 } else {
-                    crate::render::color::blend_color(bg, color, flag_opacity)
-                        .unwrap_or(theme.gray)
+                    crate::render::color::blend_color(bg, color, flag_opacity).unwrap_or(theme.gray)
                 };
                 Style::default().fg(fg).bg(bg).add_modifier(Modifier::BOLD)
             } else {

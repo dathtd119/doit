@@ -346,7 +346,8 @@ mod tests {
         let home = default_grok_home();
         let display = home.to_string_lossy();
         assert!(
-            display.contains(".config") && home.file_name().and_then(|n| n.to_str()) == Some("doit"),
+            display.contains(".config")
+                && home.file_name().and_then(|n| n.to_str()) == Some("doit"),
             "expected ~/.config/doit default, got {display}"
         );
         assert!(

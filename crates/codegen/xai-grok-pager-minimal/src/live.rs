@@ -572,7 +572,11 @@ fn render_prompt_info(
     let sep = theme.dim().bg(Color::Reset);
     let mut segs: Vec<(String, Style)> = Vec::new();
     // D3: role · model · policy; only role is accented.
-    if let Some(role) = agent.session_agent_name.as_deref().filter(|s| !s.is_empty()) {
+    if let Some(role) = agent
+        .session_agent_name
+        .as_deref()
+        .filter(|s| !s.is_empty())
+    {
         let accent = xai_grok_pager::role_accent::resolve_role_accent(Some(role), None)
             .unwrap_or(theme.text_secondary);
         segs.push((

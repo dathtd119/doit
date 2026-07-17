@@ -330,6 +330,8 @@ pub(crate) mod normalize_cache;
 pub mod persistence;
 pub use xai_grok_shared::placeholder_images;
 pub mod plan_mode;
+/// Product role definitions from config + prompts/roles (no agents bridge).
+pub mod product_role;
 pub mod prompt_history;
 pub mod prompt_parser;
 pub(crate) mod prompt_timing;
@@ -338,8 +340,6 @@ pub mod repo_changes;
 #[path = "restore_stub.rs"]
 pub mod restore;
 pub mod result;
-/// Product role definitions from config + prompts/roles (no agents bridge).
-pub mod product_role;
 /// Primary-session product role switch lock (`role_switch_allowed`).
 pub mod role_switch;
 pub mod signals;

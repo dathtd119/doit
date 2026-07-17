@@ -1760,9 +1760,7 @@ impl<'de> Deserialize<'de> for RolesConfig {
                             match value {
                                 toml::Value::Table(t) => {
                                     let contract: RoleContract = t.try_into().map_err(|e| {
-                                        de::Error::custom(format!(
-                                            "roles.{other}: {e}"
-                                        ))
+                                        de::Error::custom(format!("roles.{other}: {e}"))
                                     })?;
                                     contracts.insert(other.to_string(), contract);
                                 }
