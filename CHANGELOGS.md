@@ -4,6 +4,36 @@ Append-only ship log for **doit** (historical brand **do**). Not a status essay 
 
 ---
 
+## 2026-07-17 — Fork inject-first thesis docs (FORK + AGENTS)
+
+**Scope:** docs only — capture inject-first thin-fork stance for future upstream absorbs  
+**Feature:** control-plane / fork hygiene (no runtime code)
+
+### What landed
+
+- [`FORK.md`](./FORK.md):
+  - §1.1 topology thesis (pi-ness discipline vs doit hybrid vs pure-overlay non-goal)
+  - §2.1 dual-changed hotspot allowlist
+  - §2.2 must-survive product crate pins
+  - §3 feature placement rule + §3.1 foreign extension compatibility
+  - Non-goals: unfork, OC/pi factory load, third path rebrand
+- Root [`AGENTS.md`](./AGENTS.md):
+  - **Inject-first fork stance** section (binding for implement + sync)
+  - Hard Constraints: inject-first + freeze crate surface
+  - **Upstream sync checklist** expanded (hotspot walk, conflict default, FORK §2.2 pins)
+  - Customization Order anti-patterns + foreign ext placement
+  - Current Status / Next steps / Non-Goals updated for thesis
+
+### Evidence
+
+- File existence + cross-links FORK ↔ AGENTS; no cargo required (docs-only)
+
+### Not in this entry
+
+- Runtime inject inventory implementation, plugin packaging of do-harness, or `PRODUCT_ROSTER` config-first code
+
+---
+
 ## 2026-07-16 — F-PKG-SHIP packaging seal (VAL-PKG-004, VAL-PKG-005)
 
 **Scope:** seal M3 PKG leftovers — README Install + `verify-install.sh` gates  

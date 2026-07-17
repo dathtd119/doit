@@ -20,6 +20,44 @@ This file is the **fork hygiene and identity** contract. Operating rules for age
 
 **doit** is not a pure overlay on Pi, and not a Node/OpenTUI port. It owns a forked Rust tree plus a product layer (`do-harness/`) that prefers extension seams before crate patches.
 
+### 1.1 Topology thesis (inject-first on a thin fork)
+
+| Model | What it is | Applies to doit? |
+|-------|------------|------------------|
+| **pi-ness** | Stock pi (npm dep) + ordered `NATIVE_HARNESS_EXTENSION_FACTORIES` + agent overlay + ~3 thin dist patches | **Discipline to copy** — not the topology |
+| **doit true-now** | Full git fork of grok-build + `do-harness/` identity + surgical crate pins | **Yes** — hybrid |
+| **Pure external inject only** | Unmodified stock binary + external layer only | **No** — grok has no TS ExtensionFactory inject (L3); PRIV/CFG/role-lock need crate pins |
+
+**Binding product thesis:** *inject-first product layer on a thin fork* — not “edit half the monorepo,” not “unfork to pure overlay.”
+
+```
+User
+  → doit binary (composition root — minimal product pins)
+       → config: ~/.config/doit + project .doit/ + do-harness seeds
+       → product identity via discovery: hooks, roles, prompts, skills, MCP, plugins
+       → optional register_tool_pack (only when MCP/hooks cannot express)
+       → surgical crate patches ONLY when seams fail (PRIV / CFG / role lock / auth / package)
+```
+
+| Layer | Owns | Upstream merge cost |
+|-------|------|---------------------|
+| **A. Identity (`do-harness/`)** | Roles, hooks, prompts, YAML overlays, MCP wrappers, verify scripts | **None** (no crate) |
+| **B. Composition root** | Package `doit`, default paths, fail-closed privacy, role-switch lock, BYOK start gate | **Bounded** — fixed hotspot allowlist |
+| **C. Deep crate / TUI** | Anything beyond A+B | **High** — avoid; last resort |
+
+**Shape of the fork (evidence):** product markers touch ~3% of `crates/**/*.rs`; most shipped harness behavior (M2 gates/skills/continuation, M3 CodeGraph/hashline config) is **extension seal**. Crate work is **shallow-wide** (path rebrand + policy pins), not a second product runtime.
+
+**Copy from pi-ness (discipline, not TS code):**
+
+1. Ordered always-on **inject inventory** (hooks / contracts / skills / MCP) + explicit load order  
+2. **Skip / no double-load** when product native and user overlay share a feature  
+3. Role **deny floors win** over user unlock attempts  
+4. Guided blocks as identity (`[GATE:…]` + **Do this instead**)  
+5. Placement ask-first (do-harness → plugin → tool pack → crate → deep TUI)  
+6. Rare, marked base mutations — for us: **patch-matrix crate log**, not silent dist hacks  
+
+**Do not copy:** “never fork the base” topology; OpenTUI shell; npm ExtensionFactory factories 1:1.
+
 ---
 
 ## 2. Source trees (never modify references in place)
@@ -45,6 +83,36 @@ Every upstream update **must** follow the **Upstream sync checklist** in [AGENTS
 6. Log the sync in patch-matrix (+ CHANGELOGS on seal)  
 7. Never edit `~/code/pi-ness` or `~/code/grok-build` in place
 
+### 2.1 Dual-changed hotspot allowlist (expect conflict; re-verify)
+
+These paths are the **bounded** merge tax of the thin fork. Prefer **Fork** (keep product semantics) when they collide with upstream; do not expand this list casually.
+
+| Band | Paths / themes | Product semantics that must survive |
+|------|----------------|-------------------------------------|
+| **High** | `crates/codegen/doit/*`, `Cargo.lock`, root `README.md` | Package/binary **`doit`** (map from `xai-grok-pager-bin`); no resurrect pager-bin install |
+| **High** | `xai-grok-config` `paths.rs` (+ loader/managed_cache as needed) | Default user home **`~/.config/doit` only** (P-CFG-HOME-DOIT); no silent `~/.grok` / `~/.config/do` |
+| **High** | `xai-grok-pager` dispatch / modes / agent_view / role keybinds | Tab/Shift+Tab role cycle + **post-first-message lock** |
+| **Medium** | `xai-grok-shell` `agent/config.rs`, `auth_method.rs`, `session/role_switch*`, `product_role*` | PRIV resolve hard-off; BYOK skip forced OAuth; L1 session flag |
+| **Medium-wide** | Discovery string roots (agent, shell hooks, workspace, tools skills/plan, sandbox, pager modals, fixtures) | Project **`.doit/`** (P-CFG-PROJECT-DOIT) |
+| **Medium** | `xai-grok-telemetry`, `xai-mixpanel`, shell feedback/trace helpers | P-NOTEL fail-closed SpaceXAI telemetry (env/remote cannot re-enable) |
+| **Lower** | Monorepo crates without product markers | Prefer **Upstream** auto-merge |
+
+**Do not** start a third path rebrand (`doit` → something else) without explicit user decision — CFG string sweep is the noisiest dual-change class.
+
+Full conflict history example: patch-matrix **Upstream sync — `8adf901`**.
+
+### 2.2 Product crate pins that must survive every absorb
+
+| ID / theme | Why extension cannot replace it |
+|------------|----------------------------------|
+| **P-NOTEL-01..06** | Config opt-out is re-enableable via env/remote; product policy is hard-off |
+| **P-AUTH-01** | Composition-root / `workspace_start` gate before login — hooks cannot intercept |
+| **P-CFG-HOME-DOIT / PROJECT-DOIT** | Hardcoded default resolvers + discovery roots |
+| **L1 / L13 role lock + re-pin** | Keybind + turn_count + sampling re-pin live in pager/shell |
+| **Package `doit`** | Install identity is the composition root |
+
+Anything **not** in this table defaults to **do-harness / config / hook / plugin / MCP** — not a new crate pin.
+
 ---
 
 ## 3. Extension-before-deep-fork order
@@ -61,7 +129,30 @@ When changing behavior, prefer this order (same as root AGENTS Customization Ord
 
 **Before** a new always-on behavior, tool, or deep fork: ask placement (Native vs Extension vs Crate Patch). Default if “you choose”: identity/safety/roles/model-assignment → do-harness; optional → plugin; in-process tool → tool pack; only then crate patch.
 
+**Feature placement rule (binding for agents):**
+
+| Want… | Prefer | Avoid |
+|-------|--------|--------|
+| New harness policy / gate / skill catalog / role body | **do-harness** + hooks/prompts/config | Editing random `xai-grok-*` files |
+| External capability (graph, search, SaaS) | **MCP** first | Native tool unless MCP proven insufficient |
+| Optional installable bundle | **Grok plugin** (manifest) packaging do-harness pieces | Burying identity only under home-dir without repo SoT |
+| In-process tool only MCP cannot do | **`register_tool_pack`** from composition root | Scattering tools into unrelated crates |
+| Default path / privacy / session lock / binary name | **Documented crate pin** (expand §2.2 only with patch-matrix row) | Silent deep fork |
+
 Do **not** reinvent native tools grok already has (`plan` / plan mode, `update_goal`, hashline, `task`, `lsp`, multi-`[model.*]`, …). See [docs/grok-build/native-tools.md](./docs/grok-build/native-tools.md) and [docs/capability-map.md](./docs/capability-map.md).
+
+### 3.1 Foreign extension compatibility (true-now)
+
+| Ecosystem | Compatible? | How |
+|-----------|-------------|-----|
+| **Claude** skills / agents / hooks / plugins | **Yes** (gated) | Stock discovery + `CompatConfig` under `.claude/` walks |
+| **MCP servers** | **Yes** | First-class `search_tool` / `use_tool`; product CodeGraph is MCP |
+| **Grok plugins** (manifest: skills, agents, hooks, MCP, LSP) | **Yes** | Project `.doit/plugins`, user `$GROK_HOME/plugins`, marketplace |
+| **Cursor** hooks/skills/rules | **Partial** | Stock compat paths; not full Cursor product parity |
+| **OpenCode JS plugins** | **No** | OpenCode appears as a **native tool namespace**, not OpenCode’s plugin runtime |
+| **pi-ness / npm ExtensionFactory** | **No** 1:1 | Different stack; copy discipline only (see §1.1) |
+
+“Support extensions from other systems” means **MCP + Claude-layout + grok plugins** — not loading arbitrary OpenCode or pi factory packages.
 
 ---
 
@@ -69,7 +160,7 @@ Do **not** reinvent native tools grok already has (`plan` / plan mode, `update_g
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| User config home | **`~/.config/doit` only** when `GROK_HOME` unset | P-CFG-HOME-DOIT; no silent `~/.grok` or `~/.config/doit` fallback |
+| User config home | **`~/.config/doit` only** when `GROK_HOME` unset | P-CFG-HOME-DOIT; no silent `~/.grok` or `~/.config/do` fallback |
 | Project discovery | **`.doit/`** (agents, hooks, config, skills, plan, …) | P-CFG-PROJECT-DOIT; product install targets |
 | Share cache | **`~/.local/share/doit`** | Install scripts / bin cache |
 | MCP server id | **`doit-codegraph`** | CodeGraph MCP surface |
@@ -132,11 +223,14 @@ Upstream grok-build is treated as a **private/local** lineage for this product. 
 | Requirement | Where |
 |-------------|--------|
 | Product intent | [README.md](./README.md) + this file §1 |
+| Inject-first thin-fork thesis (not pure overlay, not deep rewrite) | §1.1 + AGENTS **Inject-first fork stance** |
 | Implementation root `/home/datht/code/doit` | §2 + [AGENTS.md](./AGENTS.md) Project Direction |
 | Sibling `/home/datht/code/do` deprecated (no force-delete) | §2 + AGENTS Hard Constraints |
 | Upstream sync + patch-matrix review every absorb | §2 + AGENTS **Upstream sync checklist** |
+| Dual-changed hotspot allowlist + must-survive pins | §2.1 / §2.2 + patch-matrix crate log |
 | Never edit pi-ness / grok-build in place | §2 + VAL-CROSS-001 |
-| Extension-before-deep-fork | §3 + AGENTS Customization Order |
+| Extension-before-deep-fork + feature placement rule | §3 + AGENTS Customization Order |
+| Foreign ext = MCP + Claude + grok plugins (not OC/pi factories) | §3.1 |
 | Config root `~/.config/doit` + project `.doit/` (CFG-DOIT sealed) | §4 |
 | Dual TOML + do YAML model surface | §5 + [docs/models-and-config.md](./docs/models-and-config.md) |
 | No external upstream PRs as product path | §6 + Non-Goals in AGENTS |
@@ -164,4 +258,8 @@ Upstream grok-build is treated as a **private/local** lineage for this product. 
 - Competing multi-model runtime that bypasses `~/.config/doit/config.toml` (or `$GROK_HOME/config.toml`)
 - Speculative abstractions before M0 baseline seals  
 - Deep pager fork before extension seams are exhausted  
-- Public upstream PR workflow as the definition of “done” for do features
+- Public upstream PR workflow as the definition of “done” for do features  
+- **Unforking** to a stock unmodified grok binary while keeping PRIV / CFG-DOIT / role-lock product pins (those pins require the thin fork)  
+- Loading **OpenCode JS plugins** or **pi-ness ExtensionFactory** packages as if they were native  
+- Expanding crate surface for features that fit do-harness / MCP / hooks  
+- A third product path rebrand after CFG-DOIT without explicit user OK
