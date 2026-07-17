@@ -40,7 +40,7 @@ Compress conversation history to save context window space. Optionally specify w
 /compact keep the auth implementation details
 ```
 
-When the context window fills up, Grok auto-compacts at 85% usage (configurable via `[session] auto_compact_threshold_percent` in config.toml).
+When the context window fills up, Doit auto-compacts at 85% usage (configurable via `[session] auto_compact_threshold_percent` in config.toml).
 
 ### `/context`
 
@@ -132,7 +132,7 @@ Switch to a different model. Accepts model IDs or display names (case-insensitiv
 
 ```
 /model grok-build
-/model Grok Build
+/model grok-build
 /model Reasoning X high
 ```
 
@@ -351,7 +351,7 @@ Generate a video from an image or text description. Plans shots, generates sourc
 
 ### `/loop [interval] <prompt>`
 
-Run a prompt on a recurring interval. Specify the interval as `30m`, `1 hour`, or `every 2 days`. If you omit it, Grok prompts you.
+Run a prompt on a recurring interval. Specify the interval as `30m`, `1 hour`, or `every 2 days`. If you omit it, Doit prompts you.
 
 ```
 /loop 30m check deploy status
@@ -368,7 +368,7 @@ Recurring tasks auto-expire after 7 days. Cancel with `scheduler_delete` (the jo
 
 ### `/goal`
 
-Set, manage, or check an autonomous goal. Grok works toward the objective across turns and reports progress.
+Set, manage, or check an autonomous goal. Doit works toward the objective across turns and reports progress.
 
 ```
 /goal Migrate the auth module to the new API
@@ -539,7 +539,7 @@ Toggle message timestamps on or off.
 
 ## Skills as Slash Commands
 
-Any enabled skill with `user-invocable: true` in its SKILL.md frontmatter appears as a slash command. (A skill turned off via `/skills` is not advertised.) For example, if you have a skill at `~/.grok/skills/commit/SKILL.md`, you can invoke it with:
+Any enabled skill with `user-invocable: true` in its SKILL.md frontmatter appears as a slash command. (A skill turned off via `/skills` is not advertised.) For example, if you have a skill at `~/.config/doit/skills/commit/SKILL.md`, you can invoke it with:
 
 ```
 /commit fix typo in README

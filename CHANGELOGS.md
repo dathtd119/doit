@@ -4,6 +4,31 @@ Append-only ship log for **doit** (historical brand **do**). Not a status essay 
 
 ---
 
+## 2026-07-17 — P-BRAND-UI user-facing Grok → Doit
+
+**Scope:** runtime UX + L0 identity + in-product user-guide + light product docs  
+**Feature:** P-BRAND-UI (user-visible product brand)
+
+### What landed
+
+- System prompt default label **Doit**; L0 opening is `You are ${{ system_prompt_label }}.` (no “released by xAI”)
+- Dual L0: `do-harness/prompts/l0-general.md` + agent `templates/prompt.md`; subagent/apply_patch templates rebranded
+- Config seed: `[agent] system_prompt_label = "Doit"` in `do-harness/config.defaults.toml`
+- TUI chrome: welcome / hero / minimal welcome / notifications / CLI about / billing & trust copy
+- In-product tool guide (`xai-grok-pager/docs/user-guide/**`): product noun **Doit**, CLI `doit`, paths `~/.config/doit` / `.doit/`
+- Root README title **doit**; install path already product binary
+
+### Not in this entry
+
+- Crate renames, `GROK_*` env rename, model slug / catalog marketing names
+- Per-provider OAuth → `system_prompt_label` mapping (parked; tiers already exist)
+
+### Evidence
+
+- `docs/patch-matrix.md` § P-BRAND-UI
+- `cargo check -p doit` (smoke)
+
+---
 ## 2026-07-17 — Upstream absorb `98c3b24` (F-UPSTREAM-MERGE)
 
 **Scope:** merge `upstream/main` (`98c3b24`) into product history on `sync/upstream-98c3b24`  

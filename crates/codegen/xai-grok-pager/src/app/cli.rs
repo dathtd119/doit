@@ -17,7 +17,7 @@ pub enum Command {
     },
     /// Sign out and clear cached credentials
     Logout,
-    /// Sign in to Grok
+    /// Sign in to Doit
     Login {
         /// Ignored (kept for backwards compatibility). OAuth2 is now the only auth method.
         #[arg(long, hide = true)]
@@ -384,7 +384,7 @@ fn version_with_channel() -> &'static str {
 #[command(
     name = "grok",
     version = version_with_channel(),
-    about = "Grok Build TUI",
+    about = "Doit TUI",
     disable_version_flag = true,
     next_display_order = None,
     help_template = "\

@@ -1,6 +1,6 @@
-# do
+# doit
 
-**do** is a forked **Grok Build** coding-agent harness that absorbs **pi-ness** harness-control ideas and **OpenCode-style** multi-model / config control ergonomics.
+**doit** is a forked **Grok Build** coding-agent harness that absorbs **pi-ness** harness-control ideas and **OpenCode-style** multi-model / config control ergonomics.
 
 This tree is a **private/local fork** of Grok Build (Rust: pager, shell, tools, agent). Upstream grok-build and pi-ness trees are **read-only references** — we import by **copy**, never modify them in place. External upstream PRs are **not** the product contribution path.
 
@@ -148,6 +148,6 @@ Apache-2.0 and third-party notices from the grok-build import — see `LICENSE` 
 
 ### Upstream Grok Build notes
 
-The imported tree remains a Grok Build coding agent (TUI, headless, ACP). Official upstream docs live at [docs.x.ai/build](https://docs.x.ai/build/overview). Local user guide may ship under `crates/codegen/xai-grok-pager/docs/user-guide/`.
+The imported tree is a Grok Build coding-agent base (TUI, headless, ACP). **Product brand is Doit** (binary/package `doit`). Official upstream docs live at [docs.x.ai/build](https://docs.x.ai/build/overview). Product user guide ships under `crates/codegen/xai-grok-pager/docs/user-guide/` (Doit-branded).
 
-This README’s **product framing** is for **do**; crate-level upstream README content may still appear in subtrees.
+This README’s **product framing** is for **doit**; crate-level upstream README content may still appear in subtrees.

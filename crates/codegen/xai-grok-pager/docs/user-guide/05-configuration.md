@@ -1,6 +1,6 @@
 # Configuration
 
-Grok reads configuration from local config files, environment variables, and
+Doit reads configuration from local config files, environment variables, and
 CLI flags. This document covers the common options.
 
 ---
@@ -11,7 +11,7 @@ Configuration is resolved in this order (highest priority first):
 
 1. **CLI flags** (e.g., `--yolo`, `--model`, `--sandbox`)
 2. **Environment variables** (e.g., `XAI_API_KEY`, `GROK_MEMORY`)
-3. **config.toml** (`~/.grok/config.toml`)
+3. **config.toml** (`~/.config/doit/config.toml`)
 4. **Managed / requirements config** (local files your org may deploy, e.g.
    `managed_config.toml` / `requirements.toml`)
 5. **Built-in defaults**
@@ -20,9 +20,9 @@ Configuration is resolved in this order (highest priority first):
 
 ## config.toml (Main Configuration)
 
-Location: `~/.grok/config.toml`
+Location: `~/.config/doit/config.toml`
 
-If the file does not exist, Grok uses built-in defaults. Specify only the values you want to override.
+If the file does not exist, Doit uses built-in defaults. Specify only the values you want to override.
 
 ### General Settings
 
@@ -97,7 +97,7 @@ simple_mode = false
 ```
 
 You can also toggle this setting from the settings pane (`/settings` →
-**Disable vim input mode**); Grok writes your choice to `[ui] simple_mode` in
+**Disable vim input mode**); Doit writes your choice to `[ui] simple_mode` in
 `config.toml`.
 
 `simple_mode` and `vim_mode` are independent: `simple_mode` changes the prompt
@@ -154,8 +154,8 @@ active in the **scrollback** pane. It does not affect the input prompt.
 | `true` | All vim-style scrollback bindings are active, exactly as listed in [Keyboard Shortcuts](03-keyboard-shortcuts.md). |
 
 Toggle `vim_mode` at runtime with `/vim-mode`, or from the settings pane
-(`/settings` → **Vim scrollback navigation**). Grok writes the change to
-`[ui] vim_mode` in `~/.grok/config.toml` immediately and applies it to every
+(`/settings` → **Vim scrollback navigation**). Doit writes the change to
+`[ui] vim_mode` in `~/.config/doit/config.toml` immediately and applies it to every
 future pager session — including new agents and subagents started in the same
 process. There is no separate per-session override; whatever is in
 `config.toml` is the source of truth on next launch.
@@ -175,7 +175,7 @@ opens with next time.
 | `"minimal"` | Open in minimal (scrollback-native) mode. |
 | `"fullscreen"` | Open in the standard TUI. Fullscreen-vs-inline still follows the alt-screen policy (`--no-alt-screen`, `[terminal] alt_screen`, terminal auto-detection), so environments like Zellij or tmux control mode keep their automatic inline fallback. |
 
-You normally never edit this key by hand — Grok writes it whenever you pass an
+You normally never edit this key by hand — Doit writes it whenever you pass an
 explicit `--minimal` / `--fullscreen` flag or run `/minimal` / `/fullscreen`.
 A plain `grok` launch only reads it. A CLI flag always wins over the config
 value for that invocation (and updates it), and `screen_mode` takes precedence
@@ -305,9 +305,9 @@ url = "https://mcp.example.com/api/mcp"  # HTTP/SSE transport
 headers = { "x-mcp-session-id" = "{{session_id}}" }
 ```
 
-MCP servers can also be configured per-project in `.grok/config.toml`. Project-scoped config contributes `[mcp_servers]`, `[plugins]`, and `[permission]` rules; other sections load only from `~/.grok/config.toml`.
+MCP servers can also be configured per-project in `.doit/config.toml`. Project-scoped config contributes `[mcp_servers]`, `[plugins]`, and `[permission]` rules; other sections load only from `~/.config/doit/config.toml`.
 
-Priority for `[mcp_servers]` and `[plugins]`: `.grok/config.toml` (current dir) > `<repo-root>/.grok/config.toml` > `~/.grok/config.toml`. `[permission]` rules are not overridden by priority; they merge across all files with `deny` > `ask` > `allow` (see [22-permissions-and-safety.md](22-permissions-and-safety.md)).
+Priority for `[mcp_servers]` and `[plugins]`: `.doit/config.toml` (current dir) > `<repo-root>/.doit/config.toml` > `~/.config/doit/config.toml`. `[permission]` rules are not overridden by priority; they merge across all files with `deny` > `ask` > `allow` (see [22-permissions-and-safety.md](22-permissions-and-safety.md)).
 
 ### Memory
 
@@ -394,7 +394,7 @@ Each cell can be toggled via environment variable or `config.toml`. See the
 environment-variables reference for the env var names. Resolution order:
 env var > config.toml > default (on).
 
-`grok inspect` reports cells that still need session-start resolution as
+`doit inspect` reports cells that still need session-start resolution as
 `?` until a value is available; cells with an explicit env or TOML value
 use that value. Affected discovery entries report
 `compatibilityStatus: "unresolved"` in JSON and `[compat unresolved]` in
@@ -410,9 +410,9 @@ disabled = ["user/a1b2c3d4/noisy-plugin"]
 
 ### Hints
 
-The `[hints]` table holds small persisted UI preferences — mostly "stop asking me" opt-outs. Grok writes these for you when you pick a "don't ask again" / "reset in config.toml" option in the TUI, but you can edit or remove them by hand. Deleting a key restores the default behavior.
+The `[hints]` table holds small persisted UI preferences — mostly "stop asking me" opt-outs. Doit writes these for you when you pick a "don't ask again" / "reset in config.toml" option in the TUI, but you can edit or remove them by hand. Deleting a key restores the default behavior.
 
-`[hints]` is read from the **effective config merge** (same precedence as other settings): system managed → user `managed_config.toml` → user `config.toml` → user `requirements.toml` → system `requirements.toml`. Higher-priority layers override lower ones. The TUI only **writes** opt-outs to user `~/.grok/config.toml`.
+`[hints]` is read from the **effective config merge** (same precedence as other settings): system managed → user `managed_config.toml` → user `config.toml` → user `requirements.toml` → system `requirements.toml`. Higher-priority layers override lower ones. The TUI only **writes** opt-outs to user `~/.config/doit/config.toml`.
 
 ```toml
 [hints]
@@ -424,7 +424,7 @@ fork_worktree_mode = "ask"             # /fork worktree prompt: "ask" | "always"
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `project_picker_disabled` | bool | `false` | When `true`, skips the picker that asks you to choose a project directory on the first prompt when Grok is launched from a non-project directory (home, Desktop, Downloads, `/tmp`). Set automatically when you choose **"Don't ask me again"** in that picker. Teams can pin this in `managed_config.toml` or `requirements.toml` via `[hints] project_picker_disabled = true`. |
+| `project_picker_disabled` | bool | `false` | When `true`, skips the picker that asks you to choose a project directory on the first prompt when Doit is launched from a non-project directory (home, Desktop, Downloads, `/tmp`). Set automatically when you choose **"Don't ask me again"** in that picker. Teams can pin this in `managed_config.toml` or `requirements.toml` via `[hints] project_picker_disabled = true`. |
 | `memory_modal_fullscreen` | bool | `false` | Remembers whether the memory modal was last opened fullscreen. |
 | `new_session_worktree_mode` | string | `"never"` | Worktree prompt for `/new`: `ask` shows the popup, `always` creates a worktree, `never` skips it. |
 | `fork_worktree_mode` | string | `"ask"` | Worktree prompt for `/fork`: `ask`, `always`, or `never`. |
@@ -474,10 +474,10 @@ items = ["action-required", "spinner", "activity", "session-name", "grok"]
 | VS Code | BEL | Yes | No |
 | Apple Terminal | BEL | No | No |
 | VTE (GNOME Terminal) | OSC 777 | Yes | No |
-| Grok Desktop | None (native) | N/A | N/A |
+| Doit Desktop | None (native) | N/A | N/A |
 | Unknown | BEL | No | No |
 
-When `method = "auto"`, Grok detects the terminal brand and selects the best
+When `method = "auto"`, Doit detects the terminal brand and selects the best
 protocol automatically. Set `method` explicitly to override auto-detection.
 
 #### Notification Hooks
@@ -488,7 +488,7 @@ Run custom commands when events occur. Hooks receive environment variables
 ```toml
 # macOS native notification
 [[ui.notifications.hooks]]
-command = "terminal-notifier -title 'Grok' -message '$GROK_MESSAGE'"
+command = "terminal-notifier -title 'Doit' -message '$GROK_MESSAGE'"
 events = ["turn_complete", "approval_required"]
 only_unfocused = true
 timeout_secs = 10
@@ -530,7 +530,7 @@ Then restart tmux. If passthrough is not available (tmux < 3.3), set
 
 **Focus tracking not working:**
 Some terminals do not report focus events. If `condition = "unfocused"` never
-fires, try `condition = "always"` as a fallback. Grok supports focus tracking
+fires, try `condition = "always"` as a fallback. Doit supports focus tracking
 in every detected terminal except Apple Terminal and unrecognized terminals.
 
 **Sleep prevention not taking effect:**
@@ -556,7 +556,7 @@ mixpanel_enabled = false                                  # disable Mixpanel pro
 trace_upload = false                                      # disable session/trace uploads (inherits the telemetry toggle when unset)
 ```
 
-Set these only to point telemetry at your own infrastructure or to turn parts of it off. The built-in endpoint and credentials are managed by Grok; leave them unset to use the defaults.
+Set these only to point telemetry at your own infrastructure or to turn parts of it off. The built-in endpoint and credentials are managed by Doit; leave them unset to use the defaults.
 
 The same `[telemetry]` table also configures the **external OpenTelemetry stream** — an independent opt-in (it does not require the telemetry toggle above) that ships a curated, content-free usage schema to your *own* OTLP collector. Collector auth is supplied via `OTEL_EXPORTER_OTLP_HEADERS` and is never stored on disk. See [Monitoring & Usage](24-monitoring-usage.md) for the full schema, env vars, and privacy model.
 
@@ -590,7 +590,7 @@ default = "company-grok"
 [model.company-grok]
 model = "grok-build"
 base_url = "https://grok-proxy.acme.com/"
-name = "Grok Build Latest (Proxy)"
+name = "Doit Latest (Proxy)"
 context_window = 128000
 
 [features]
@@ -601,7 +601,7 @@ telemetry = false
 
 ## pager.toml (Appearance Configuration)
 
-Location: `~/.grok/pager.toml`
+Location: `~/.config/doit/pager.toml`
 
 Controls the visual appearance and behavior of the TUI. Changes are applied on restart.
 
@@ -765,7 +765,7 @@ Key environment variables. See the README for the complete list.
 
 | Variable | Description |
 |----------|-------------|
-| `GROK_HOME` | Override config directory (default: `~/.grok`) |
+| `GROK_HOME` | Override config directory (default: `~/.config/doit`) |
 | `GROK_RESPECT_GITIGNORE` | Force gitignore filtering on (`1`) or off (`0`); overrides `[tools] respect_gitignore` |
 
 ### Telemetry
@@ -782,37 +782,37 @@ Key environment variables. See the README for the complete list.
 
 | Path | Description |
 |------|-------------|
-| `~/.grok/config.toml` | Main configuration file |
-| `~/.grok/pager.toml` | TUI appearance configuration |
-| `~/.grok/auth.json` | Authentication credentials (auto-managed) |
-| `~/.grok/sessions/` | Persisted sessions (organized by working directory) |
-| `~/.grok/memory/` | Cross-session memory files and index |
-| `~/.grok/skills/` | User-scoped skill definitions |
-| `~/.grok/plugins/` | User-scoped plugins |
-| `~/.grok/agents/` | User-scoped agent definitions |
-| `~/.grok/lsp.json` | LSP server configuration (user-scoped) |
-| `~/.grok/logs/` | Internal log files (for example `unified.jsonl`, MCP server logs) |
-| `.grok/config.toml` | Project-scoped MCP servers, plugins, and permission rules |
-| `.grok/skills/` | Project-scoped skill definitions |
-| `.grok/plugins/` | Project-scoped plugins |
-| `.grok/agents/` | Project-scoped agent definitions |
-| `.grok/hooks/` | Project-scoped hooks |
-| `.grok/lsp.json` | LSP server configuration |
+| `~/.config/doit/config.toml` | Main configuration file |
+| `~/.config/doit/pager.toml` | TUI appearance configuration |
+| `~/.config/doit/auth.json` | Authentication credentials (auto-managed) |
+| `~/.config/doit/sessions/` | Persisted sessions (organized by working directory) |
+| `~/.config/doit/memory/` | Cross-session memory files and index |
+| `~/.config/doit/skills/` | User-scoped skill definitions |
+| `~/.config/doit/plugins/` | User-scoped plugins |
+| `~/.config/doit/agents/` | User-scoped agent definitions |
+| `~/.config/doit/lsp.json` | LSP server configuration (user-scoped) |
+| `~/.config/doit/logs/` | Internal log files (for example `unified.jsonl`, MCP server logs) |
+| `.doit/config.toml` | Project-scoped MCP servers, plugins, and permission rules |
+| `.doit/skills/` | Project-scoped skill definitions |
+| `.doit/plugins/` | Project-scoped plugins |
+| `.doit/agents/` | Project-scoped agent definitions |
+| `.doit/hooks/` | Project-scoped hooks |
+| `.doit/lsp.json` | LSP server configuration |
 
 ---
 
 ## Project-Scoped Configuration
 
-Some configuration can be set per-project by placing files in `.grok/` within your repository:
+Some configuration can be set per-project by placing files in `.doit/` within your repository:
 
 | File | What it configures |
 |------|--------------------|
-| `.grok/config.toml` | MCP servers, plugins, permission rules, and the `[mcp] max_output_bytes` tool-result cap (other sections load only from `~/.grok/config.toml`) |
-| `.grok/skills/` | Project-specific skills |
-| `.grok/hooks/` | Project-specific lifecycle hooks |
-| `.grok/agents/` | Project-specific agent definitions |
-| `.grok/lsp.json` | LSP server configuration |
-| `.grok/sandbox.toml` | Custom sandbox profiles |
+| `.doit/config.toml` | MCP servers, plugins, permission rules, and the `[mcp] max_output_bytes` tool-result cap (other sections load only from `~/.config/doit/config.toml`) |
+| `.doit/skills/` | Project-specific skills |
+| `.doit/hooks/` | Project-specific lifecycle hooks |
+| `.doit/agents/` | Project-specific agent definitions |
+| `.doit/lsp.json` | LSP server configuration |
+| `.doit/sandbox.toml` | Custom sandbox profiles |
 | `AGENTS.md` | Project instructions (system prompt) |
 
 Project-scoped MCP servers override global ones with the same name (full replacement, not merge).
@@ -825,14 +825,14 @@ Language servers power passive diagnostics and the optional `lsp` tool (see the 
 
 | Source | Location | Scope |
 |--------|----------|-------|
-| User | `~/.grok/lsp.json` | All projects |
-| Project | `.grok/lsp.json` | Current repository |
+| User | `~/.config/doit/lsp.json` | All projects |
+| Project | `.doit/lsp.json` | Current repository |
 | Plugin | A trusted plugin's `.lsp.json` file, or an inline `lspServers` block in its `plugin.json` | Wherever the plugin is enabled |
 
 When the same server name is defined by more than one source, it is resolved in this order (highest priority first):
 
-1. **Project** -- `.grok/lsp.json`
-2. **User** -- `~/.grok/lsp.json`
+1. **Project** -- `.doit/lsp.json`
+2. **User** -- `~/.config/doit/lsp.json`
 3. **Plugins** -- file-based `.lsp.json`, then inline `lspServers`, in plugin load order
 
 Project and user entries replace lower-priority ones with the same name. Plugin entries only add servers whose names are not already defined by a local file, so a local `lsp.json` always wins over a plugin. Plugin LSP servers load only after the plugin is trusted (see [Plugins](09-plugins.md)).

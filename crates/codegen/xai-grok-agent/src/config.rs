@@ -1461,47 +1461,47 @@ impl AgentDefinition {
     pub fn default_grok_build() -> Self {
         Self::base(
             BuiltinAgentName::GrokBuild,
-            "Grok Build agent for software engineering tasks.",
+            "Doit agent for software engineering tasks.",
         )
     }
-    /// Grok Build Concise agent definition — concise output format for SFT/RL.
+    /// Doit Concise agent definition — concise output format for SFT/RL.
     pub fn grok_build_concise() -> Self {
         Self {
             tool_config: grok_build_concise_toolset(),
             agents_md: false,
             ..Self::base(
                 BuiltinAgentName::GrokBuildConcise,
-                "Grok Build agent with concise output format.",
+                "Doit agent with concise output format.",
             )
         }
     }
-    /// Grok Build agent with plan mode tools.
+    /// Doit agent with plan mode tools.
     pub fn grok_build_plan() -> Self {
         Self {
             tool_config: grok_build_plan_toolset(),
             ..Self::base(
                 BuiltinAgentName::GrokBuildPlan,
-                "Grok Build agent with plan mode support.",
+                "Doit agent with plan mode support.",
             )
         }
     }
-    /// Grok Build + plan mode WITHOUT subagent tools.
+    /// Doit + plan mode WITHOUT subagent tools.
     pub fn grok_build_plan_no_subagents() -> Self {
         Self {
             tool_config: grok_build_plan_no_subagents_toolset(),
             ..Self::base(
                 BuiltinAgentName::GrokBuildPlanNoSubagents,
-                "Grok Build agent with plan mode (no subagents).",
+                "Doit agent with plan mode (no subagents).",
             )
         }
     }
-    /// Default Grok Build agent with the `ask_user_question` tool.
+    /// Default Doit agent with the `ask_user_question` tool.
     pub fn grok_build_ask_user() -> Self {
         Self {
             tool_config: grok_build_ask_user_toolset(),
             ..Self::base(
                 BuiltinAgentName::GrokBuildAskUser,
-                "Grok Build agent with ask-user-question tool.",
+                "Doit agent with ask-user-question tool.",
             )
         }
     }

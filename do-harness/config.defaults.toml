@@ -36,6 +36,9 @@ yolo = false
 # Discovery loads do-harness/agents via project .doit/agents or ~/.config/doit/agents.
 [agent]
 name = "intake"
+# System-prompt identity (`You are <label>…`). Override per-model or via
+# GROK_SYSTEM_PROMPT_LABEL for provider-adapted names later (Codex / Claude / …).
+system_prompt_label = "Doit"
 
 # Drop video tools when API key is present (prepare_video_gen_config path).
 [tools]
