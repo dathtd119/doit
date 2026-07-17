@@ -164,6 +164,8 @@ jobs:
         shell: bash
         run: cargo install dotslash --locked
 
+      # Windows MSVC: full debuginfo + this binary size hits LNK1318 (PDB LIMIT).
+      # Strip symbols on Windows release only; Linux/mac keep default release info.
       - name: Build release binary
         shell: bash
         env:
@@ -171,6 +173,11 @@ jobs:
           GROK_VERSION: ${{ steps.product_version.outputs.version }}
         run: |
           set -euo pipefail
+          # Avoid MSVC LNK1318 PDB size limit on large Windows binaries.
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            export CARGO_PROFILE_RELEASE_DEBUG=0
+            export CARGO_PROFILE_RELEASE_STRIP=symbols
+          fi
           cargo build -p "${PACKAGE}" --release --target "${{ matrix.target }}"
 
       - name: Package artifact
