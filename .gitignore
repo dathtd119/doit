@@ -53,6 +53,7 @@ plans/
 .pi/
 .grok/
 .doit/
+.serena/
 
 # Local overrides
 *.local
