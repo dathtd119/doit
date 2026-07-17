@@ -76,6 +76,8 @@ mod tests {
         let mut buf = Buffer::empty(area);
         let mut prompt = PromptWidget::new();
         let info = PromptInfo {
+            role: None,
+            role_color: None,
             model_name: "test",
             flags: &[],
             multiline: false,

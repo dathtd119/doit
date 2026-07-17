@@ -15,7 +15,7 @@
 | **M0** | Limitations, inventory, proof extension | L10, L13 template, L6/L8 proof | Human can read docs, smoke build, run discovery verify |
 | **M1** | Harness control v1 — roles, prompts, model assignment | **L1**, **L13 wire**, L2, L9, start L4 | Role cycle + lock ships; YAML assignment applies; L0–L6 map documented and partially wired |
 | **M2** | Continuity & safety | **L5**, **L6 harden**, L4 | Continuation priority lanes; guided blocks product-wide |
-| **M3** | Native power tools | **L7**, hashline default, L3 as needed | CodeGraph agent surface; hashline default policy |
+| **M3** | Native power tools | **L7**, file toolset, L3 as needed | CodeGraph agent surface; standard file tools + hashline opt-in (policy flip 2026-07-16) |
 
 **Binding product rules (already documented in M0 — implement on schedule):**
 
@@ -123,9 +123,9 @@ Canonical six-step seed (keep in sync with [prompt-system.md](./prompt-system.md
 
 ## M3 — Native power tools
 
-**Goal:** Productize high-leverage navigation and edit defaults: **CodeGraph** agent surface, **hashline default** policy; fill always-on harness via tool packs only where plugins fail.
+**Goal:** Productize high-leverage navigation and edit defaults: **CodeGraph** agent surface, **file toolset** policy (hashline native surface; product default later flipped to standard); fill always-on harness via tool packs only where plugins fail.
 
-**Matrix slice:** L7 CodeGraph; hashline default; L3 tool packs as needed.  
+**Matrix slice:** L7 CodeGraph; file toolset / hashline; L3 tool packs as needed.  
 **Placement default:** MCP / plugin wrapping existing `xai-codebase-graph` first; `tool_pack` if in-process required; hashline via `FileToolset` / config policy — do not reinvent hashline grammar.
 
 ### Ordered work items
@@ -134,8 +134,8 @@ Canonical six-step seed (keep in sync with [prompt-system.md](./prompt-system.md
 |------:|----|-----------|----|------|------------|------------------------|
 | 1 | **M3-CG01** | **CodeGraph product surface design** — lean explore/impact tools vs MCP; cite existing crate | L7 | design + [capability-map](./capability-map.md) | M0 inventory | **Done** — MCP-first in [codegraph.md](./codegraph.md); maps to `xai-codebase-graph` |
 | 2 | **M3-CG02** | **Ship lean agent tools or MCP server** — explore / impact (or equivalent) usable from agent session | L7 | `plugin` / MCP / optional `tool_pack` | M3-CG01 | **Done** — `do-harness/codegraph/` MCP + fixture + `verify-codegraph.sh` (VAL-M3-CG-001) |
-| 3 | **M3-H01** | **Hashline as default edit mode policy** — product default prefers hashline namespace over plain Standard where safe | hashline product | `config` + docs; toolset selection | native hashline exists | **Done** — [hashline.md](./hashline.md) + `do-harness/config.toolset.toml`; rollback `file_toolset = "standard"` |
-| 4 | **M3-H02** | **Hashline workflow docs + role floors** — when to use hashline_read/edit/grep; worker role defaults | — | docs + `agent` | M3-H01 | **Done** — worker/orchestrator + L1 + floors; `verify-hashline.sh` VAL-M3-HASH-001 |
+| 3 | **M3-H01** | **Hashline edit mode policy** — native GrokBuildHashline surface + product config (M3 sealed hashline default; **policy flip 2026-07-16** → product default `file_toolset = "standard"`, hashline **opt-in**) | hashline product | `config` + docs; toolset selection | native hashline exists | **Done** (flip) — [hashline.md](./hashline.md) + `do-harness/config.toolset.toml` (`file_toolset = "standard"`); opt-in `file_toolset = "hashline"` |
+| 4 | **M3-H02** | **File-toolset workflow docs + role floors** — worker prefers standard tools; hashline opt-in path documented | — | docs + `agent` | M3-H01 | **Done** (flip) — worker/orchestrator + L1 + floors prefer standard; media deny; `verify-hashline.sh` VAL-M3-HASH-001 |
 | 5 | **M3-T01** | **Always-on harness via tool packs (as needed)** — re-express remaining pi-ness always-on modules that hooks cannot cover | L3 | `tool_pack` | M1–M2 surfaces | Each pack registered **before** first `ToolRegistryBuilder::new()`; no double-register; patch-matrix if crate touch |
 | 6 | **M3-L01** | **LSP-driven workflows (optional)** — first-class refactors using existing `lsp` tool, not a new language stack | — | skill/workflow | M3-CG02 optional | Documented workflows only unless gap proven |
 
@@ -149,7 +149,7 @@ Canonical six-step seed (keep in sync with [prompt-system.md](./prompt-system.md
 ### M3 exit criteria
 
 - [x] CodeGraph (or MCP) usable as default power navigation path (`verify-codegraph.sh` / VAL-M3-CG-001 / `7a55c75`)  
-- [x] Hashline is product default edit policy with override (`verify-hashline.sh` / VAL-M3-HASH-001 / `ef06622`)  
+- [x] File toolset policy sealed + override path (`verify-hashline.sh` / VAL-M3-HASH-001 / `ef06622`; **policy flip 2026-07-16** → standard default, hashline opt-in)  
 - [x] Any new tool packs documented; no silent crate sprawl (**none required** — MCP-first CodeGraph; hashline via config/agent overlay; no crate tool_pack this milestone)  
 - [x] Docs + CHANGELOGS + commit with `commitId` / `repoPath` (**F-M3-SHIP** / VAL-M3-SHIP-001)
 
@@ -176,7 +176,7 @@ M0 sealed
   ├─► M2-G01..G03 guided blocks (builds on F-EXT-002)
   ├─► M2-S02 progressive catalog
   │
-  └─► M3-CG* CodeGraph ──► M3-H* hashline default ──► M3-T01 tool packs
+  └─► M3-CG* CodeGraph ──► M3-H* file toolset / hashline ──► M3-T01 tool packs
 ```
 
 ---
@@ -219,4 +219,4 @@ Parked in [future-plan.md](./future-plan.md) — promote into a milestone only w
 
 | Assertion | Claim |
 |-----------|--------|
-| **VAL-BACK-001** | This file lists ordered backlog for roles/prompt layers (**including multi-model role→model wiring from do YAML** and **M1 Tab/Shift+Tab role cycle with post-first-message lock**), continuation/safety, and native power tools (codegraph, hashline default). |
+| **VAL-BACK-001** | This file lists ordered backlog for roles/prompt layers (**including multi-model role→model wiring from do YAML** and **M1 Tab/Shift+Tab role cycle with post-first-message lock**), continuation/safety, and native power tools (codegraph, file toolset / hashline opt-in). |

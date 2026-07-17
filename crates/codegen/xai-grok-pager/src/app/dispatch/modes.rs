@@ -562,6 +562,12 @@ pub(super) fn dispatch_cycle_product_role(app: &mut AppView, forward: bool) -> V
         RoleCycleGate::Apply { next_role } => {
             agent.session_agent_name = Some(next_role.to_string());
             agent.show_mode_switch_banner(next_role);
+            // Optimistic model chrome from product pin (shell also re-pins
+            // on set_mode while unlocked). Strip follows role before ACP ack.
+            if let Some(model_id) = crate::role_accent::product_role_model_pin(next_role) {
+                let mid = acp::ModelId::new(std::sync::Arc::<str>::from(model_id.as_str()));
+                agent.session.models.set_current(mid, None);
+            }
             let Some(session_id) = agent.session.session_id.clone() else {
                 // Pre-session: optimistic local name only; first prompt /
                 // session create can pick up session_agent_name.

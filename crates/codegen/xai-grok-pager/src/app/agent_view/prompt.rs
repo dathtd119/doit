@@ -501,11 +501,12 @@ impl AgentView {
             }
         }
 
-        // Product role cycle (do L1): pre-message Tab / Shift+Tab cycle
-        // product roles. After lock, bare Tab falls through (completion /
-        // focus); Shift+Tab falls through to CycleMode (plan/yolo ring).
-        // Must run before the ActionRegistry lookup so we can choose role
-        // vs mode for the shared Shift+Tab chord.
+        // Product role cycle (do L1 / D1): Tab / Shift+Tab = roles only while
+        // unlocked. After lock: toast on role-cycle attempt; Shift+Tab does
+        // NOT fall through to CycleMode (policy ring). Policy via /plan,
+        // settings, Ctrl+O — not Tab.
+        // Must run before the ActionRegistry lookup so Shift+Tab never hits
+        // CycleMode while this product gate is active.
         if !self.prompt.slash_open()
             && !self.prompt.file_search_visible()
             && !self.prompt.completion_dropdown_open()
@@ -515,16 +516,20 @@ impl AgentView {
             let turn_count = self.scrollback.turn_count() as u32;
             let has_user = scrollback_has_user_messages(&self.scrollback);
             let switch_ok = role_switch_allowed(turn_count, has_user);
+            let is_shift_tab = crate::input::key::shift_tab_keys()
+                .iter()
+                .any(|k| k.matches(key));
+            let is_plain_tab = key!(Tab).matches(key) && key.modifiers.is_empty();
             if switch_ok {
-                if key!(Tab).matches(key) && key.modifiers.is_empty() {
+                if is_plain_tab {
                     return InputOutcome::Action(Action::CycleProductRole);
                 }
-                if crate::input::key::shift_tab_keys()
-                    .iter()
-                    .any(|k| k.matches(key))
-                {
+                if is_shift_tab {
                     return InputOutcome::Action(Action::CycleProductRolePrev);
                 }
+            } else if is_shift_tab {
+                // D1: locked Shift+Tab is not policy cycle — toast + consume.
+                return InputOutcome::Action(Action::CycleProductRolePrev);
             }
         }
 
@@ -1023,30 +1028,30 @@ mod shift_tab_cycle_mode_tests {
     use crate::input::key::shift_tab_keys;
     use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
-    /// Guards the full routed path, not just registry resolution.
+    /// D1: pre-message Shift+Tab cycles product roles (not policy ring).
     #[test]
-    fn shift_tab_emits_cycle_mode_through_prompt_key_routing() {
+    fn shift_tab_emits_product_role_prev_when_unlocked() {
         for shortcut in shift_tab_keys() {
             let mut agent = super::test_fixtures::make_agent();
             let outcome = agent.handle_prompt_key_for_test(&shortcut.to_key_event());
             assert!(
-                matches!(outcome, InputOutcome::Action(Action::CycleMode)),
-                "{shortcut:?} must resolve to Action::CycleMode, got {outcome:?}",
+                matches!(outcome, InputOutcome::Action(Action::CycleProductRolePrev)),
+                "{shortcut:?} must resolve to Action::CycleProductRolePrev, got {outcome:?}",
             );
         }
     }
 
     /// `is_mod_enter` must not treat Shift+Tab as send when multiline is on.
     #[test]
-    fn multiline_shift_tab_still_cycles_mode_with_non_empty_draft() {
+    fn multiline_shift_tab_still_cycles_role_with_non_empty_draft() {
         for shortcut in shift_tab_keys() {
             let mut agent = super::test_fixtures::make_agent();
             agent.multiline_mode = true;
             agent.prompt.set_text("draft text");
             let outcome = agent.handle_prompt_key_for_test(&shortcut.to_key_event());
             assert!(
-                matches!(outcome, InputOutcome::Action(Action::CycleMode)),
-                "multiline + {shortcut:?} must CycleMode, not send, got {outcome:?}",
+                matches!(outcome, InputOutcome::Action(Action::CycleProductRolePrev)),
+                "multiline + {shortcut:?} must CycleProductRolePrev, not send, got {outcome:?}",
             );
             assert_eq!(
                 agent.prompt.text(),
@@ -1056,14 +1061,15 @@ mod shift_tab_cycle_mode_tests {
         }
     }
 
+    /// D1: unlocked plain Tab cycles product role forward.
     #[test]
-    fn plain_tab_does_not_cycle_mode() {
+    fn plain_tab_cycles_product_role_when_unlocked() {
         let mut agent = super::test_fixtures::make_agent();
         let outcome =
             agent.handle_prompt_key_for_test(&KeyEvent::new(KeyCode::Tab, KeyModifiers::NONE));
         assert!(
-            matches!(outcome, InputOutcome::Action(Action::FocusScrollback)),
-            "plain Tab must focus scrollback, got {outcome:?}",
+            matches!(outcome, InputOutcome::Action(Action::CycleProductRole)),
+            "plain Tab must CycleProductRole when unlocked, got {outcome:?}",
         );
     }
 }

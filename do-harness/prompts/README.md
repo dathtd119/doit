@@ -1,50 +1,64 @@
-# do-harness prompts (L0–L1 fragments)
+# do-harness prompts
 
-Product prompt fragments for **do**. These are the **named L0/L1 layers** in
-[`docs/prompt-system.md`](../../docs/prompt-system.md). Runtime discovery still
-loads agent profiles from `do-harness/agents/` (install onto `.grok/agents/`).
+Product-owned system stack for **do**. Source of truth is **this directory**
+(repo). Do not customize prompts under `~/.config/doit` — home holds runtime
+**config** only (`scripts/sync-user-config.sh`).
 
-## Layout
-
-| Path | Layer | Role |
-|------|-------|------|
-| `l0-kernel.md` | **L0** | Identity + guided-gate + role-lock rules (session-stable) |
-| `gates.md` | L0/L1 ref | Named gate catalog (`[GATE: id]`) |
-| `roles/*.md` | **L1** | Per-role contracts (swap target pre-message only) |
-
-## Relationship to agents/
-
-| Surface | Path | Purpose |
-|---------|------|---------|
-| **Agent profile** | `do-harness/agents/<role>.md` | YAML frontmatter (model, tools, permissionMode) + body; **discovery** |
-| **L1 fragment** | `do-harness/prompts/roles/<role>.md` | Canonical role contract text for layer map + freeze policy |
-
-Keep agent body and L1 fragment **aligned**. Prefer editing both when role
-mission or gate guidance changes.
-
-## Role lifecycle
-
-Tab/Shift+Tab may swap L1 **only pre-message**. After first user message, L1 is
-frozen for the session. See `docs/prompt-system.md` Role lifecycle.
-
-## Gates
-
-All do-owned denials use:
+## Assembly
 
 ```text
-[GATE: <id>] <blocked>
-Do this instead:
-1. ...
+l0-system.md
+  ├── ${l0_general}   ← l0-general.md   (stock general)
+  ├── ${l0_kernel}    ← l0-kernel.md    (harness rules + gates, once)
+  ├── Identity        ← ${agent} ${role} ${policy}   (no model)
+  ├── ${role_body}    ← roles/<stem>.md (mission / workflow / style)
+  └── Session         ← ${date} ${cwd} ${os} ${shell}
 ```
 
-Named ids: [`gates.md`](./gates.md). Hook implementation:
-`do-harness/hooks/bin/guided-dangerous-shell.py`.
+Placeholder names match file stems (`l0_general` ↔ `l0-general.md`). Catalog:
+[`placeholders.md`](./placeholders.md).
 
-## Install
+## Who owns what
 
-Fragments are **docs + source of truth** for L0/L1 text. They are not auto-scanned
-by stock grok as a separate registry (L2 gap). Product identity for the model
-still enters via agent profiles + AGENTS.md + hooks.
+| File | Owns | Does not |
+|------|------|----------|
+| `l0-general.md` | Stock safety, tools, output style | Product gates, role mission |
+| `l0-kernel.md` | Harness rules, gates, continuum priority, role-lock | Role-specific workflow |
+| Identity (in shell) | Agent / role / policy | Model id |
+| `roles/*.md` | Static role: identity, can/cannot, workflow, style, DO/DON'T | Gates catalog, skills dump, model id |
+| Session (in shell) | date, cwd, os, shell | — |
 
-Optional: operators may copy/symlink L0 into a custom system overlay when a
-future inject path exists; M1 does not require a second discovery root.
+**Identity path:** stock general opening + Identity block (agent/role/policy) + role Mission.
+Roles **may** open Mission with one line `You are **{Role}** — …` and negative identity
+(`You are not …`). Roles do **not** re-list the gate catalog or embed skill firehoses.
+
+**Role body shape (recommended):** Mission (You are / are not) → Can/Cannot → Should/
+Should not → Workflow → Output shape / examples → Behavioral checklist → DO/DON'T.
+Orchestrator also carries a specialist **routing catalog** (delegate when / don’t / rule of thumb).
+
+**Skills:** not embedded here. Progressive skill inject is a separate system path
+(future plan — do not port claudekit/omo skill dumps into role bodies).
+
+## Config (separate)
+
+| Surface | Path |
+|---------|------|
+| Role tools / model / color / policy | `../config.roles.toml` |
+| User merge | `../scripts/sync-user-config.sh --apply` |
+
+```sh
+bash do-harness/scripts/apply-role-contracts.sh --apply   # agents bridge
+bash do-harness/scripts/sync-user-config.sh --apply       # ~/.config/doit config only
+```
+
+## Sync stock general
+
+```sh
+bash do-harness/scripts/sync-l0-general.sh
+```
+
+## Runtime today
+
+Crate still uses `base_template()` + `agents/*.md` until product L0 expander
+lands. Edit prompts **here**; agent bodies come from `prompts/roles/` via
+`apply-role-contracts.sh --apply`.

@@ -1,15 +1,16 @@
-# Hashline default edit policy (F-M3-HASH / VAL-M3-HASH-001)
+# Hashline edit policy (F-M3-HASH / VAL-M3-HASH-001)
 
-**Status:** M3 product policy **shipped** (2026-07-16).  
-**Purpose:** Prefer native **GrokBuildHashline** file tools over Standard for product sessions **where safe**, without reinventing hashline grammar.  
+**Status:** Available as **opt-in** (product default is **standard** as of 2026-07-16).  
+**Purpose:** Document native **GrokBuildHashline** file tools and how to enable them without reinventing hashline grammar.  
 **Native surface:** `GrokBuildHashline:hashline_read|hashline_edit|hashline_grep` via stock `FileToolset::Hashline` (`crates/codegen/xai-grok-shell/src/tools/config.rs`).
 
 ## Decision
 
 | Option | Choice | Why |
 |--------|--------|-----|
-| **Product default** | `file_toolset = "hashline"` | Anchor-based edit is safer against line-number drift; native namespace already complete |
-| **Stock Rust default** | Remains `FileToolset::Standard` | Binary/stock Default is unchanged; product installs overlay TOML + agent floors |
+| **Product default** | `file_toolset = "standard"` | Shorter tool defs (`read_file` / `search_replace` / `grep`); less prompt cost; simpler agent surface |
+| **Stock Rust default** | `FileToolset::Standard` | Binary/stock Default matches product |
+| **Hashline** | **Opt-in** | Set `file_toolset = "hashline"` when anchor-based edit is preferred |
 | **Grammar rewrite** | **Rejected** | Do not invent a second hashline dialect — use native scheme (`chunk` / `content_only`) |
 
 **Placement:** config + agent guidance (extension) — **no crate patch**. Runtime selection stays stock `resolve_file_toolset` / `override_file_tools`.
@@ -18,25 +19,30 @@
 
 | Layer | Source | Effect |
 |-------|--------|--------|
-| Session file toolset | `[toolset] file_toolset` in `~/.config/doit/config.toml` or project `.doit/config.toml` | `"hashline"` swaps read/edit/search to hashline triple; `"standard"` keeps `read_file` / `search_replace` / `grep` |
-| Scheme knobs | `[toolset.hashline]` | `scheme`, `hash_len`, `chunk_size` (validated by stock) |
-| Mutual exclusivity | Shell finalization | Hashline and Standard file triples do not ship side-by-side in the active tool server config when override applies |
-| Role floors | Agent `tools` / `disallowedTools` | Still filter the finalized set — non-workers never gain `hashline_edit` |
+| Session file toolset | `[toolset] file_toolset` in `~/.config/doit/config.toml` (primary) | `"hashline"` swaps read/edit/search to hashline triple; `"standard"` keeps `read_file` / `search_replace` / `grep` |
+| Scheme knobs | `[toolset.hashline]` | `scheme`, `hash_len`, `chunk_size` (validated by stock; ignored when not hashline) |
+| Mutual exclusivity | Shell finalization | Hashline and Standard file triples do not ship side-by-side when override applies |
+| Role floors | Agent `tools` / `disallowedTools` | Filter the finalized set |
 
 Evidence: `ShellToolsetConfig::resolve_file_toolset`, `FileToolset::tool_configs`, `agent_ops` / subagent `override_file_tools`.
 
-## Product default (where safe)
+**Note:** Product agent config for toolset is loaded from user effective config (`~/.config/doit/config.toml`). After changing SoT, run `python3 do-harness/scripts/sync-user-config.py --apply` and **restart the session**.
 
-**Where safe =** product **worker** implementation path (and any session that has chosen hashline via config). Non-implementer roles still **deny** `hashline_edit` (and the rest of the edit surface).
-
-### Enablement (operator)
-
-1. Merge recommended fragment into user or project TOML:
+## Product default
 
 ```toml
-# Prefer product fragment: do-harness/config.toolset.toml
-# (copy/link keys into ~/.config/doit/config.toml or .doit/config.toml)
+# do-harness/config.toolset.toml (merged by sync-user-config)
+[toolset]
+file_toolset = "standard"
+```
 
+Worker prefers `search_replace` / `write`. Hashline tools are **not** on the worker allowlist by default.
+
+### Opt-in to hashline (operator)
+
+1. Set in `~/.config/doit/config.toml` (or change SoT `config.toolset.toml` then sync):
+
+```toml
 [toolset]
 file_toolset = "hashline"
 
@@ -46,74 +52,59 @@ hash_len = 3
 chunk_size = 8
 ```
 
-Source of truth fragment: [`do-harness/config.toolset.toml`](../do-harness/config.toolset.toml).
+2. Optionally add `hashline_read` / `hashline_edit` / `hashline_grep` to worker `tools` in `config.roles.toml` and re-run `apply-role-contracts.sh --apply`.
 
-2. Install/link product agents (worker already prefers hashline tools in floor + body).
+3. Restart the session.
 
-3. New sessions load the toolset after config merge. Existing sessions keep the toolset they started with until restart.
+### Agent / role guidance (standard default)
 
-### Agent / role guidance
+| Role | File edit policy |
+|------|------------------|
+| **worker** | Primary editor: `read_file` / `search_replace` / `write` / `grep` |
+| **orchestrator** | No bulk edit (`write` / `search_replace` denied) |
+| **explorer / intake / oracle** | Read-only floors |
 
-| Role | Hashline policy |
-|------|-----------------|
-| **worker** | **Primary editor.** Prefer `hashline_read` → plan anchors → `hashline_edit` → `hashline_grep`. When `file_toolset = "hashline"`, do **not** thrash with Standard IDs if they are absent. Fallback: `write` for new files / whole-file create only. |
-| **orchestrator** | Does **not** bulk-edit; keeps `hashline_edit` / `search_replace` / `write` on deny floor. May note “worker uses hashline” in plans. |
-| **explorer / intake / oracle** | Read-only floors: may use read/search (hashline or standard depending on toolset). **Never** `hashline_edit`. |
+## Workflow (standard tools)
 
-Worker profile + L1: `do-harness/agents/worker.md`, `do-harness/prompts/roles/worker.md`.  
-Permission floors: [role-permissions.md](./role-permissions.md), `do-harness/config.permissions.yaml`.
+1. **Read** — `read_file` (offset/limit for large files).  
+2. **Locate** — `grep` or CodeGraph.  
+3. **Edit** — `search_replace` or `write`.  
+4. **Verify** — tests / `lsp` as needed.
 
-## Workflow (native tools only)
+### Hashline workflow (when opt-in)
 
-1. **Read with anchors** — `hashline_read` on the target path (region when known).  
-2. **Locate** — `hashline_grep` or CodeGraph for symbol → path, then hashline read.  
-3. **Edit** — `hashline_edit` with anchors from the latest read (do not invent hashes).  
-4. **Verify** — targeted tests / harness scripts / `lsp` as needed.  
-5. **Do not** reimplement anchor schemes, custom patch DSLs, or dual write via Standard + Hashline in one turn.
+1. **Read with anchors** — `hashline_read`.  
+2. **Locate** — `hashline_grep`.  
+3. **Edit** — `hashline_edit` with anchors from the latest read.  
+4. Do not invent hashes or dual-write Standard + Hashline in one turn.
 
-Native docs: [native-tools.md](./grok-build/native-tools.md) (GrokBuildHashline), [patterns.md](./grok-build/patterns.md).
+Native docs: [native-tools.md](./grok-build/native-tools.md), [patterns.md](./grok-build/patterns.md).
 
-## Rollback path
-
-Operators may leave product hashline **at any time** without code changes:
+## Rollback / switch
 
 | Goal | Action |
 |------|--------|
-| **Session / install rollback** | Set `[toolset] file_toolset = "standard"` (or remove the key so stock Default = Standard) in user or project TOML |
-| **Scheme only** | Keep `file_toolset = "hashline"`; change `[toolset.hashline]` scheme / sizes |
-| **Agent guidance only** | Worker body still “prefers hashline when active”; with Standard toolset, stock `read_file` / `search_replace` / `grep` return |
-| **Role edit deny** | Non-worker `disallowedTools` still block `hashline_edit` under either toolset |
-
-Restart the session after TOML change. Documented verification:
+| **Use standard (product default)** | `file_toolset = "standard"` (or remove key) + restart |
+| **Use hashline** | `file_toolset = "hashline"` + restart |
+| **Scheme only** | Keep hashline; change `[toolset.hashline]` knobs |
 
 ```sh
 bash do-harness/scripts/verify-hashline.sh
-# expect: exit 0 and "VAL-M3-HASH-001: PASS"
+# documents native surface + opt-in path; exit 0 = contract OK
 ```
 
 ## Safety boundaries
 
 - Hashline is **not** a substitute for guided gates (`path-policy-*`, `dangerous-shell-*`, `env-expose-*`).  
 - Only **worker** holds the full edit surface floor.  
-- Invalid `[toolset.hashline]` fails stock validation (do not ship broken scheme knobs).  
+- Invalid `[toolset.hashline]` fails stock validation.  
 - No new grammar, no crate patch for this feature, no second edit registry.
-
-## Verify
-
-```sh
-bash do-harness/scripts/verify-hashline.sh
-```
-
-Checks policy doc, toolset fragment default, worker/orchestrator guidance, role floor alignment, native namespace citations, and explicit rollback instructions. Exit 0 is contract evidence for **VAL-M3-HASH-001**.
 
 ## Related
 
 | Doc / path | Role |
 |------------|------|
 | [native-tools.md](./grok-build/native-tools.md) | Hashline namespace inventory |
-| [role-permissions.md](./role-permissions.md) | Edit-surface floors (hashline_edit deny) |
-| [codegraph.md](./codegraph.md) | Prefer graph before thrashy search; then hashline edit |
-| [capability-map.md](./capability-map.md) | pi-ness hashline → GrokBuildHashline |
-| [backlog-m1-m3.md](./backlog-m1-m3.md) | M3-H01 / M3-H02 |
-| `do-harness/config.toolset.toml` | Product recommended `[toolset]` fragment |
-| `do-harness/scripts/verify-hashline.sh` | VAL-M3-HASH-001 evidence |
+| [role-permissions.md](./role-permissions.md) | Edit-surface floors |
+| `do-harness/config.toolset.toml` | Product `[toolset]` fragment (standard default) |
+| `do-harness/scripts/verify-hashline.sh` | Native surface + policy checks |

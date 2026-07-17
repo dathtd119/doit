@@ -37,7 +37,7 @@ Spawn surface: `TaskTool` (`implementations/grok_build/task/`).
 | Pattern | Evidence | Adopt how |
 |---------|----------|-----------|
 | Hashline namespace | `ToolNamespace::GrokBuildHashline`, `implementations/grok_build_hashline/` | Prefer hashline for precise multi-hunk edits when enabled |
-| Config switch | `FileToolset::{Standard, Hashline}` in shell `tools/config.rs`; default **Standard** | Product default policy is M3 backlog — document first, then enable |
+| Config switch | `FileToolset::{Standard, Hashline}` in shell `tools/config.rs`; default **Standard** | Product default is **standard**; hashline is **opt-in** via `file_toolset = "hashline"` ([hashline.md](../hashline.md)) |
 | Mutual exclusivity | Standard and Hashline toolsets are mutually exclusive for read/edit/grep | Do not enable both in one toolset |
 | FQ IDs | `GrokBuildHashline:hashline_read` / `hashline_edit` / `hashline_grep` | Use exact IDs in `ToolServerConfig` |
 | Scheme params | `[toolset.hashline]` — `scheme`, `hash_len`, `chunk_size` | Validate via `HashlineSchemeConfig::validate` |

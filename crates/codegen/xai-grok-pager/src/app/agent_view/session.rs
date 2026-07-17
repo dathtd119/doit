@@ -253,7 +253,10 @@ impl AgentView {
             rewind_points: None,
             inline_edit: None,
             pending_inline_resubmit: None,
-            session_agent_name: None,
+            // D1: cold-start product role from config `[roles].default`
+            // (else product intake / PRODUCT_ROSTER[0]). Shell session/info
+            // overwrites once ACP reports the resolved agentName.
+            session_agent_name: Some(crate::role_accent::default_product_role()),
             subagent_sessions: HashMap::new(),
             subagent_views: HashMap::new(),
             active_subagent: None,

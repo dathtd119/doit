@@ -251,8 +251,20 @@ impl AgentView {
     /// Triggered on Shift+Tab mode cycles.
     /// Renders at full visibility for 2 s, then fades out over the final 0.3 s.
     pub fn show_mode_switch_banner(&mut self, mode_name: &str) {
-        let msg = format!("Switched to mode: {}", mode_name);
+        // Role cycle uses product stems; policy modes use Plan/Auto/etc.
+        let msg = if xai_grok_shell::session::role_switch::is_product_role(mode_name) {
+            format!("Switched to role: {mode_name}")
+        } else {
+            format!("Switched to mode: {mode_name}")
+        };
         self.mode_switch_banner = Some((msg, MODE_BANNER_TOTAL_TICKS));
+    }
+
+    /// Role accent for chrome (name slot + border). Product table + optional
+    /// TOML color name when stored on the view later.
+    pub fn role_chrome_accent(&self) -> Option<ratatui::style::Color> {
+        let role = self.session_agent_name.as_deref()?;
+        crate::role_accent::resolve_role_accent(Some(role), None)
     }
 
     /// Tick the mode-switch banner timer. Returns true if redraw needed

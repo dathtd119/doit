@@ -93,7 +93,7 @@ pub enum ActionId {
     /// Cycle primary-session product role forward (Tab) while `role_switch_allowed`.
     CycleProductRole,
     /// Cycle primary-session product role backward (Shift+Tab) while allowed.
-    /// When locked, Shift+Tab falls through to [`Self::CycleMode`] (plan/yolo ring).
+    /// When locked, still emitted for toast — does **not** cycle policy (D1).
     CycleProductRolePrev,
     BashMode,
 

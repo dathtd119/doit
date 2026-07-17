@@ -58,6 +58,9 @@ jobs:
       - name: Large file detection
         run: bash scripts/check-large-files.sh
 
+      - name: No telemetry gate (storage / upload domains)
+        run: bash scripts/check-exfil-surfaces.sh
+
       - name: Tech debt markers
         run: bash scripts/check-tech-debt.sh
 

@@ -34,6 +34,12 @@ repos:
         language: system
         pass_filenames: false
 
+      - id: no-telemetry-gate
+        name: No telemetry gate (storage / upload domains)
+        entry: scripts/check-exfil-surfaces.sh
+        language: system
+        pass_filenames: false
+
       - id: tech-debt-markers
         name: Linked TODO/FIXME enforcement
         entry: scripts/check-tech-debt.sh

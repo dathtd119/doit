@@ -1,0 +1,40 @@
+# No-telemetry gate: inventory + regression check for Grok Build CLI
+# codebase-upload / storage surfaces (P-NOTEL / Cereblab mid-July 2026).
+#
+# Blocks regressions that re-introduce or expand:
+#   - POST /v1/storage (cli-chat-proxy storage channel)
+#   - cli-chat-proxy.grok.com
+#   - storage.googleapis.com / *.googleapis.com
+#   - grok-code-session-traces (critical bucket name)
+# Also verifies fail-closed product gates (is_trace_upload_enabled → false).
+name: No telemetry gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: no-telemetry-gate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    name: Storage / upload surface scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: No telemetry gate check
+        run: bash scripts/check-exfil-surfaces.sh
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: no-telemetry-gate-report
+          path: .quality/exfil-surfaces.txt
+          if-no-files-found: ignore
+          retention-days: 30

@@ -8,14 +8,20 @@
 
 pi-ness-style **layered prompt assembly** so operators and implementers can reason about what the model sees, without inventing a second prompt runtime. **do** maps L0–L6 onto stock grok inject points; product text lives under `do-harness/`.
 
+**Model-facing vs operator:** the model must learn the **harness** (tools, gates, continuum, role mission) — not the prompt *system* (layer maps, wire checklists, phase ids). L0–L6 numbering is **operator documentation only**; never inject it into `l0-*.md` / `roles/*.md` as self-description.
+
+**Prompts SoT:** `do-harness/prompts/` in the repo. Home config is **config-only** (`scripts/sync-user-config.sh` → `~/.config/doit/config.toml`). Do not sync prompts into `~/.config/doit`.
+
 **Numbering:** This document uses **do’s L0–L6** (role = **L1**, freeze target). pi-ness uses a different number for “role body” (their L4). Map by **purpose**, not number — see [capability-map.md](./capability-map.md) §3.
+
+**pi-ness construction (learned):** shell `SYSTEM.md` + `SYSTEM_GENERAL` via env + `${role_body}` + sequential `${}` replace in patched `system-prompt.js`; role tools/model in role-config, not prompt YAML. Report: [`plans/reports/2026-07-16-piness-prompt-construction.md`](../plans/reports/2026-07-16-piness-prompt-construction.md).
 
 | Layer | Working name | Purpose | Product home |
 |-------|--------------|---------|--------------|
-| **L0** | Kernel / safety | Non-negotiable identity + guided-gate rules | `do-harness/prompts/l0-kernel.md` + hard constraints in root `AGENTS.md` |
-| **L1** | Role | Active role contract (who acts now) | `do-harness/prompts/roles/*` + `do-harness/agents/*.md` bodies |
+| **L0** | Kernel / safety | Stock general + product harness (once) | **Live today:** crate `templates/prompt.md` via `base_template()`. **Product SoT:** `l0-general.md` (`${l0_general}`), `l0-kernel.md` (`${l0_kernel}`), shell `l0-system.md`. Catalog: `placeholders.md` |
+| **L1** | Role | Role-static identity / can-cannot / workflow / style | `do-harness/prompts/roles/*` — one `You are **Role**` line OK; no gate catalog, no skills dump; tools/model from `[roles.*]` |
 | **L2** | Workspace / project | Project AGENTS, docs, continuum pointers | Project `AGENTS.md` via `agentsMd: true`; [workspace.md](./workspace.md) |
-| **L3** | Tools | Tool catalog / contracts (when / when-not) | Stock tool descriptions in registry; role `tools` / `disallowedTools` floors |
+| **L3** | Tools | Tool catalog / contracts (when / when-not) | Stock tool descriptions; **TOML** `[roles.<stem>].tools` / `disallowed_tools` (D2) |
 | **L4** | Skills | Skill list or progressive skill surface | Skill discovery + reminders; progressive/curated default (M2 advanced) |
 | **L5** | Session | Goal / plan / todo pointers (not full bodies) | Native continuum tools; short injects / reminders |
 | **L6** | Turn | Ephemeral: gate results, user message framing, mode notices | PreToolUse deny reasons, plan-mode tool hints, user turn |
@@ -28,32 +34,85 @@ Exact stock assembly is **system + agent prompts + skills + plugins + reminders*
 
 | Layer | Grok inject surface (fork evidence) | do product text / config | Byte-budget target (soft) | M1 wire state |
 |-------|-------------------------------------|--------------------------|---------------------------|---------------|
-| **L0** | Default system / base agent stack; permission + hooks always-on | `do-harness/prompts/l0-kernel.md`; root `AGENTS.md` Hard Constraints | ≤ **4 KiB** always-on product kernel (prefer short) | **Docs + fragment** — not a separate crate registry |
-| **L1** | Agent profile markdown body after YAML frontmatter; `promptMode: extend` appends role body onto base | `do-harness/agents/<role>.md` (discovery) + `do-harness/prompts/roles/<role>.md` (canonical L1 fragment) | ≤ **12 KiB** per role body | **Roster shipped**; pre-message cycle swaps agent → L1; freeze on lock (F-M1-LOCK) |
-| **L2** | `agentsMd: true` → project `AGENTS.md` (and nested) into context (`xai-grok-agent` prompt `agents_md`) | Root `/home/datht/code/do/AGENTS.md` + `docs/` | Prefer pointer + short rules; full AGENTS as discovered | **Mapped** — keep product rules compact in root AGENTS |
-| **L3** | Tool `description` / schema in `ToolRegistryBuilder`; role tool allow/deny lists | Agent frontmatter `tools` / `disallowedTools` + [role-permissions.md](./role-permissions.md) / `do-harness/config.permissions.yaml` (F-M2-PERM) | Per-tool: keep descriptions lean | **M2 floors** — allow/deny applied on five agents; guided gates Layer B |
+| **L0** | `base_template()` today; target = render `l0-system.md` with `${}` expand | Product SoT: `l0-general.md` + `l0-kernel.md` + `l0-system.md`; placeholders in `placeholders.md` | general ~4.6 KiB; product rules ≤ ~4 KiB | **Stock live**; product stack **extracted**, wire phase 02 |
+| **L1** | Agent `prompt_body` **appended** after stock base (`promptMode: extend`) | Body: `prompts/roles/<role>.md`; contract: `config.toml` `[roles.<role>]` (seed `config.roles.toml`) | ≤ **12 KiB** per role body | **Roster + lock shipped**; swap body + TOML SoT in plan 260716-2010; **never Full for roster** |
+| **L2** | `agentsMd: true` → project `AGENTS.md` (and nested) into context (`xai-grok-agent` prompt `agents_md`) | Root `AGENTS.md` + `docs/` | Prefer pointer + short rules; full AGENTS as discovered | **Mapped** — keep product rules compact in root AGENTS |
+| **L3** | Tool `description` / schema; role tool allow/deny | **`[roles.*].tools` / `disallowed_tools`** in config.toml + [role-permissions.md](./role-permissions.md); bridge still in agent frontmatter until strict schema filter (phase 03) | Per-tool: keep descriptions lean | **M2 floors** + **TOML SoT (D2)**; strict visibility gap → plan phase 03 |
 | **L4** | Skill tool listing + `SkillDiscoveryReminder` | [progressive-skills.md](./progressive-skills.md) + `do-harness/config.skills.yaml` + agent `discoverSkills` (M2-S02) | Avoid full skill dump; progressive/curated default | **M2 advanced** — all five roles progressive/curated; firehose opt-in; MCP `search_tool`/`use_tool` |
 | **L5** | Goal/plan/todo tool results + session state; reminders | Native `update_goal`, plan mode, `todo_write`; [workspace.md](./workspace.md) | **Pointers only** in system; re-read disk/session — no full plan paste | **Mapped tools**; unified continuation = M2 |
 | **L6** | Hook deny `reason`, plan enter/exit tool output, user message wrappers | Guided hooks (`[GATE: …]`); turn framing | Gate deny: short + **Do this instead** | **M0 proof hook**; product-wide pack M2 |
 
 ### Assembly sketch (primary session)
 
+**Current (stock + product bridge):**
+
 ```
-Stock base system
-  + L0 product kernel (identity, guided-gate rule, role-lock rule)
-  + L1 active role body          ← swapped only while role_switch_allowed
-  + L2 AGENTS.md section         ← agentsMd
-  + L3 tool list / floors        ← registry + agent tools fields
-  + L4 skill surface             ← discovery / reminders (progressive)
-  + L5 continuum pointers        ← goal/plan/todo tools & session files
-  + L6 turn injects              ← gate results, user turn, mode notices
+base_template()  = templates/prompt.md     ← LIVE core ("You are Grok…")
+  + prompt_body  =
+      Identity block (product roles only — active role / policy / mission pointer)
+      + agent.md / roles/<stem>.md body    ← role mission; swap pre-message (Extend)
+  # product l0-system.md / l0-kernel.md extracted — full expander still phase 02
+  + L2–L6 as today
 ```
+
+**Cold-start agent (config-driven):** `config.toml` `[agent] name` → else
+`[roles].default` (product seed: `intake`; set any roster stem) when discoverable
+under `.doit/agents` or `~/.config/doit/agents` → else stock `grok-build-plan`.
+Pager chrome seeds from the same `[roles].default`. Change default without code:
+
+```toml
+[roles]
+default = "worker"   # or intake | orchestrator | explorer | oracle
+
+[agent]
+name = "worker"      # optional; sync-user-config aligns with roles.default
+```
+
+Identity is injected at session create and on Tab `set_mode` via
+`ensure_product_role_identity` so the model can name its role.
+
+**Target (pi-ness stack / plan 260716-2010):**
+
+```
+render(l0-system.md) with:
+  ${l0_general}   ← l0-general.md   (stock general)
+  ${l0_kernel}    ← l0-kernel.md    (harness rules + gates, once)
+  Identity: ${agent} ${role} ${policy}   (no model)
+  ${role_body}    ← prompts/roles/<stem>.md
+  Session: ${date} ${cwd} ${os} ${shell}
+  + MiniJinja ${{ tools.by_kind.* }} inside general
+  + tools/model/color from config.toml [roles.<stem>]
+  + tool schemas ⊆ allowlist
+  + L2 AGENTS + L4 skills (separate inject) + L5/L6 as today
+```
+
+Product customizes **`l0-general.md`**, not the encrypted crate blob. Sync from
+upstream with `bash do-harness/scripts/sync-l0-general.sh`. Placeholder catalog:
+[`do-harness/prompts/placeholders.md`](../do-harness/prompts/placeholders.md).
+
+**Ownership (no duplication):**
+
+| Layer | Owns |
+|-------|------|
+| l0-general | Stock safety / tools / style — one “You are …” stock opening |
+| l0-kernel | Product gates + continuum rules + role-lock |
+| Identity | agent / role / policy only |
+| role_body | You are / are not, can-cannot, workflow, style, routing (orch) — **not** gates or skills |
+| Session | date / cwd / os / shell |
 
 **Rules:**
 
 1. **Do not** dump full L5/L6 continuum bodies into always-on system text — tools and disk re-read exist for that ([workspace.md](./workspace.md)).
-2. **Do not** invent a second multi-model registry for prompts — model pins come from assignment YAML → agent frontmatter ([models-and-config.md](./models-and-config.md)).
-3. **Fragment registry / hard maxBytes** = future crate only if extension budgets fail (L2 gap). Soft budgets above are authoring discipline.
+2. **Do not** invent a second multi-model registry — pins from `[roles.*].model` / `[model.*]` ([models-and-config.md](./models-and-config.md)).
+3. **Do not** put tools/model/color in prompt markdown YAML headers — **TOML only** (D2).
+4. **Do not** replace stock `prompt.md` with an invented product kernel. Product L0 is append-or-deliberate-template-patch only.
+5. **Do not** use `promptMode: full` for product roster (drops stock base).
+6. **Do not** re-list gate catalog or skill firehoses inside role bodies. One Mission identity line (`You are **role**`) is allowed; Identity block still names agent/role/policy.
+7. **Do not** inject skill dumps into role bodies — progressive skills are a later system inject.
+8. **Fragment registry / hard maxBytes** = future crate only if extension budgets fail (L2 gap). Soft budgets above are authoring discipline.
+
+**Parity matrix:** [`plans/260716-2010-piness-role-kernel-parity/research/piness-do-parity-matrix.md`](../plans/260716-2010-piness-role-kernel-parity/research/piness-do-parity-matrix.md).  
+**System prompt truth:** [`plans/260716-2010-piness-role-kernel-parity/research/system-prompt-truth.md`](../plans/260716-2010-piness-role-kernel-parity/research/system-prompt-truth.md) · [code-analysis/system-prompt-assembly.md](../code-analysis/system-prompt-assembly.md).
 
 ### Stock grok today (evidence)
 
@@ -111,20 +170,21 @@ Related gaps: **L1** (primary-session role machine), **L13** (role→model assig
 
 ## Product roster (L1 roles)
 
-Five primary-session roles. Discovery: `do-harness/agents/` → project `.doit/agents/` (see `do-harness/README.md`).  
-Canonical **L1 fragments** (swap targets): `do-harness/prompts/roles/`.
+Five primary-session roles.
 
-| Role | Agent profile | L1 fragment | Mission (one line) |
-|------|---------------|-------------|--------------------|
-| **intake** | `agents/intake.md` | `prompts/roles/intake.md` | Clarify intent; Intent Pack; no implementation |
-| **orchestrator** | `agents/orchestrator.md` | `prompts/roles/orchestrator.md` | Own goal/plan/todo; spawn specialists |
-| **explorer** | `agents/explorer.md` | `prompts/roles/explorer.md` | Scout maps / citations; read-only |
-| **worker** | `agents/worker.md` | `prompts/roles/worker.md` | Implement + verify within scope |
-| **oracle** | `agents/oracle.md` | `prompts/roles/oracle.md` | Architecture / hard decisions; no bulk edit |
+| Role | Contract (TOML) | Body (L1) | Bridge agent | Mission (one line) |
+|------|-----------------|-----------|--------------|--------------------|
+| **intake** | `[roles.intake]` | `prompts/roles/intake.md` | `agents/intake.md` | Clarify intent; Intent Pack; no implementation |
+| **orchestrator** | `[roles.orchestrator]` | `prompts/roles/orchestrator.md` | `agents/orchestrator.md` | Own goal/plan/todo; spawn specialists |
+| **explorer** | `[roles.explorer]` | `prompts/roles/explorer.md` | `agents/explorer.md` | Scout maps / citations; read-only |
+| **worker** | `[roles.worker]` | `prompts/roles/worker.md` | `agents/worker.md` | Implement + verify within scope |
+| **oracle** | `[roles.oracle]` | `prompts/roles/oracle.md` | `agents/oracle.md` | Architecture / hard decisions; no bulk edit |
 
-**Co-evolution rule:** Agent profile body and `prompts/roles/<role>.md` stay aligned. Discovery load path remains the agent file; fragments are the named L1 layer for docs, freeze policy, and future inject control.
+**Authoring rule (D2):** edit **`config.roles.toml` / `[roles.*]`** for tools/model/color; edit **`prompts/roles/*.md`** for mission text; run `apply-role-contracts.sh --apply` so agent frontmatter stays a faithful bridge. Do not put product config YAML on prompt files.
 
-Pre-message role switch → load matching agent profile → L1 content changes → model pin from `assignment.<role>` while switch allowed.
+Pre-message role switch → load matching role → body + contract change → model re-pin from `[roles.<role>].model` while switch allowed.
+
+**Control (D1 / D1b):** Tab/Shift+Tab = **roles only** (never policy ring). Permission default = **ask**; full auto-accept = **`--yolo`**.
 
 ---
 
@@ -154,9 +214,12 @@ L0 and every L1 role fragment **must** reference the guided-block shape and poin
 
 ```
 do-harness/prompts/
-  README.md           # install + layer map
-  l0-kernel.md        # L0 fragment
-  gates.md            # named gate catalog
+  README.md           # install + ownership map
+  placeholders.md     # operator ${} catalog
+  l0-system.md        # shell: ${l0_general} → ${l0_kernel} → Identity → ${role_body} → Session
+  l0-general.md       # stock general (${l0_general})
+  l0-kernel.md        # harness rules + gates (${l0_kernel})
+  gates.md            # named gate catalog (operator)
   roles/
     intake.md
     orchestrator.md
@@ -165,7 +228,7 @@ do-harness/prompts/
     oracle.md
 ```
 
-Agents under `do-harness/agents/` remain the **runtime discovery** profiles (`promptMode: extend`, tool floors, model pin). Role fragments under `prompts/roles/` are the **L1 contract** text for assembly reasoning and freeze policy.
+Agents under `do-harness/agents/` remain the **runtime discovery bridge** (frontmatter regenerated from TOML). Role fragments under `prompts/roles/` are **body-only** mission / workflow / style — no gate catalog, no skills dump. Floors/model/color: [`docs/models-and-config.md`](./models-and-config.md) § Role contracts + [`role-permissions.md`](./role-permissions.md) (F-M2-PERM).
 
 ---
 

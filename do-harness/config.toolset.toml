@@ -1,24 +1,19 @@
-# Product recommended toolset overlay (F-M3-HASH / VAL-M3-HASH-001).
+# Product recommended toolset overlay.
 # Source of truth fragment for operators: merge into ~/.config/doit/config.toml
-# and/or project .doit/config.toml. Stock Rust Default remains Standard until
-# this key is set — product policy is "install hashline by default".
+# and/or project .doit/config.toml. Stock Rust Default remains Standard.
 #
-# Does NOT invent a second tool registry or hashline grammar.
 # Runtime: ShellToolsetConfig.file_toolset + FileToolset::tool_configs
 # (crates/codegen/xai-grok-shell/src/tools/config.rs).
-
-# Policy metadata (comments only; stock TOML ignores unknown sections under
-# [toolset] only for known keys — keep product keys limited to stock schema).
+#
+# Policy: product default is standard read_file / search_replace / grep
+# (not hashline_*). Rollback to hashline: set file_toolset = "hashline".
 
 [toolset]
-# Product default edit mode: native GrokBuildHashline namespace.
-# Rollback: set "standard" (or remove key to restore stock Default).
-file_toolset = "hashline"
+# Standard file tools: read_file, search_replace, grep.
+file_toolset = "standard"
 
+# Hashline knobs kept for optional opt-in (ignored when file_toolset != hashline).
 [toolset.hashline]
-# Native schemes only: "chunk" (default) or "content_only".
 scheme = "chunk"
-# Anchor hash length (1-4); stock validates.
 hash_len = 3
-# Chunk size for scheme = "chunk".
 chunk_size = 8

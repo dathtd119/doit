@@ -32,13 +32,9 @@ const PLANNING_KEYWORDS: &[&str] = &[
     "strategy",
 ];
 
-/// Plan-mode chord for the tip copy: always `shift+tab`. Derived from the real
-/// `CycleMode` binding (not a literal) — `shift_tab_keys()[0]` is one of the
-/// encodings [`crate::input::key::is_shift_tab`] accepts — so it can't drift.
-fn plan_chord_label() -> String {
-    crate::input::key::shift_tab_keys()[0]
-        .display()
-        .to_ascii_lowercase()
+/// Product D1: plan mode is via `/plan`, not Shift+Tab (roles only).
+fn plan_chord_label() -> &'static str {
+    "/plan"
 }
 
 /// Build the "Planning? Check out plan mode via {chord}" tip, seen-gated to

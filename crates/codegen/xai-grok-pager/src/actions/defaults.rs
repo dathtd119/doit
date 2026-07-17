@@ -473,25 +473,26 @@ pub fn default_actions(mouse_reporting_toggle_enabled: bool) -> Vec<ActionDef> {
         ActionDef {
             id: ActionId::CycleMode,
             label: "mode",
-            description: "Cycle mode (Normal / Plan / Always-approve)",
-            // All Shift+Tab encodings — see `input::key::shift_tab_keys()`.
-            // Pre-message: product role cycle claims Shift+Tab first
-            // (`CycleProductRolePrev`); after lock, this arm owns the chord.
-            default_key: crate::input::key::shift_tab_keys()[0],
-            alt_keys: crate::input::key::shift_tab_keys()[1..].to_vec(),
+            description: "Cycle mode (Normal / Plan / Always-approve) — use /plan or Ctrl+O in product TUI",
+            // Product D1: Tab/Shift+Tab are roles-only in the agent prompt.
+            // CycleMode remains for dashboard / non-product surfaces; agent
+            // prompt handler never falls through Shift+Tab to this arm.
+            // No Shift+Tab in agent prompt (D1 roles-only). Dashboard keeps
+            // DashboardCycleMode. Invoke via /plan, Ctrl+O, settings.
+            default_key: key!(Null),
+            alt_keys: vec![],
             category: Category::GettingStarted,
             context: When::PromptFocused,
             hint_priority: None,
-            hint_key_display: Some("Shift+Tab"),
+            hint_key_display: None,
             requires_confirmation: false,
             long_help: Some(
-                "Steps the session mode: Normal -> Plan -> Always-Approve -> Normal.\nPlan keeps the agent planning first and writes no files; Always-Approve runs every tool call without asking.\nCtrl+O toggles auto-approve directly.\nBefore the first user message, Shift+Tab cycles product roles instead (see role cycle).",
+                "Steps session permission/plan mode when bound (dashboard).\nIn the product agent chat: Tab cycles roles (pre-message only); policy via /plan, settings, or Ctrl+O.\nDefault permission is ask; launch with --yolo for full auto-accept (Codex-like).",
             ),
         },
         // CycleProductRole / CycleProductRolePrev: no ActionDef keybinds.
-        // Prompt handler emits Action::CycleProductRole{,Prev} only while
-        // role_switch_allowed (Tab / Shift+Tab). After lock, Tab is completion
-        // and Shift+Tab is CycleMode.
+        // Prompt handler emits Action::CycleProductRole{,Prev} for Tab /
+        // Shift+Tab (unlocked cycle; locked toast). Policy is not on Tab.
         // ── Panes (agent-level — toggle side panes) ─────────────────
         ActionDef {
             id: ActionId::ToggleTodos,

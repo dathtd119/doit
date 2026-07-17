@@ -122,14 +122,17 @@ impl SessionActor {
                 return;
             }
         }
-        let agent_def = match mode_id {
+        let mut agent_def = match mode_id {
             "browser_use" => Some(AgentDefinition::browser_use()),
             name => {
                 let cwd = self.tool_context.cwd.as_path();
-                xai_grok_agent::discovery::by_name_in_cwd(name, cwd)
+                crate::session::product_role::resolve_product_role_in_cwd(name, cwd)
+                    .or_else(|| xai_grok_agent::discovery::by_name_in_cwd(name, cwd))
             }
         };
-        if let Some(ref def) = agent_def {
+        if let Some(ref mut def) = agent_def {
+            // Product L1: inject Identity so model knows active role after Tab.
+            crate::session::role_switch::ensure_product_role_identity(def);
             tracing::info!(
                 session_id = % self.session_info.id.0, agent_name = % def.name,
                 agent_scope = % def.scope, prompt_mode = ? def.prompt_mode,

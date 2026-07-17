@@ -206,8 +206,30 @@ sys.exit(0 if r and r.lower() != "permission denied" and "[GATE:" in r else 1)
 done
 
 # ---------------------------------------------------------------------------
-section "5. Gate names in role prompts"
+section "5. Gate catalog once (l0-kernel) — not re-listed in every role"
 # ---------------------------------------------------------------------------
+
+# Product rule: gate families live in l0-kernel only. Roles are mission/workflow.
+KERNEL="$HARNESS_DIR/prompts/l0-kernel.md"
+if [[ -f "$KERNEL" ]]; then
+  missing_k=0
+  for family in "dangerous-shell" "path-policy" "env-expose"; do
+    if ! grep -qF "$family" "$KERNEL"; then
+      fail "l0-kernel missing gate family: $family"
+      missing_k=1
+    fi
+  done
+  if [[ "$missing_k" -eq 0 ]]; then
+    ok "l0-kernel names dangerous-shell + path-policy + env-expose"
+  fi
+  if grep -q 'Do this instead' "$KERNEL" && grep -q '\[GATE:' "$KERNEL"; then
+    ok "l0-kernel has guided shape ([GATE:] + Do this instead)"
+  else
+    fail "l0-kernel should document [GATE: …] + Do this instead"
+  fi
+else
+  fail "missing $KERNEL"
+fi
 
 ROLE_DIR="$HARNESS_DIR/prompts/roles"
 for role in intake orchestrator explorer worker oracle; do
@@ -216,20 +238,11 @@ for role in intake orchestrator explorer worker oracle; do
     fail "missing role prompt $f"
     continue
   fi
-  missing=0
-  for family in "dangerous-shell" "path-policy" "env-expose"; do
-    if ! grep -qF "$family" "$f"; then
-      fail "role $role missing gate family mention: $family"
-      missing=1
-    fi
-  done
-  if [[ "$missing" -eq 0 ]]; then
-    ok "role $role names dangerous-shell + path-policy + env-expose"
-  fi
-  if grep -q 'Do this instead' "$f" || grep -q '\[GATE:' "$f"; then
-    ok "role $role references guided shape / GATE"
+  # Roles must not re-own the full gate catalog (duplication).
+  if grep -qE 'dangerous-shell-\*|path-policy-\*|env-expose-\*' "$f"; then
+    fail "role $role re-lists gate families (keep catalog in l0-kernel only)"
   else
-    fail "role $role should mention [GATE: …] or Do this instead"
+    ok "role $role does not re-list gate catalog"
   fi
 done
 

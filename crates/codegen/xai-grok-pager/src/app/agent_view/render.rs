@@ -738,14 +738,20 @@ impl AgentView {
             chrome_pad_left: layout_cfg.block_pad_left,
             chrome_pad_right: layout_cfg.block_pad_right,
             bg_override: None,
+            // D3: role accent owns border/accent when a product role is known.
+            // Plan mode is a neutral policy flag only — no plan-gold border.
             accent_color_override: if let Some(c) = self.prompt_input_mode.accent_color(&theme) {
                 Some(c)
-            } else if effective_plan || casual_commenting {
+            } else if let Some(role_accent) = self.role_chrome_accent() {
+                Some(role_accent)
+            } else if casual_commenting {
                 Some(theme.accent_plan)
             } else {
                 None
             },
-            border_color_override: if effective_plan || casual_commenting {
+            border_color_override: if let Some(role_accent) = self.role_chrome_accent() {
+                crate::render::color::blend_color(theme.bg_base, role_accent, 0.4)
+            } else if casual_commenting {
                 crate::render::color::blend_color(theme.bg_base, theme.accent_plan, 0.4)
             } else {
                 None
@@ -2009,9 +2015,10 @@ impl AgentView {
             } else {
                 "plan"
             };
+            // D3: policy labels neutral (no plan-gold on the strip).
             mode_flags_vec.push(PromptFlag {
                 text: plan_label,
-                color: Some(theme.accent_plan),
+                color: None,
                 bold: false,
             });
         }
@@ -2025,7 +2032,7 @@ impl AgentView {
         if self.auto_flag_visible(effective_plan) {
             mode_flags_vec.push(PromptFlag {
                 text: "auto",
-                color: Some(theme.accent_system),
+                color: None,
                 bold: false,
             });
         }
@@ -2052,8 +2059,12 @@ impl AgentView {
             Some(eff) => format!("{model_id} ({eff})"),
             None => model_id,
         };
+        let role_label = self.session_agent_name.as_deref().filter(|s| !s.is_empty());
+        let role_color = self.role_chrome_accent();
         let info = match &self.prompt_mode {
             PromptMode::Normal => PromptInfo {
+                role: role_label,
+                role_color,
                 model_name: &model_label,
                 flags: mode_flags,
                 multiline,
@@ -2064,6 +2075,8 @@ impl AgentView {
                 let pos = self.session.queue_position(*id).map(|i| i + 1).unwrap_or(1);
                 editing_label = format!("editing queued #{pos}");
                 PromptInfo {
+                    role: role_label,
+                    role_color,
                     model_name: &editing_label,
                     flags: mode_flags,
                     multiline,
@@ -2074,6 +2087,8 @@ impl AgentView {
         };
         let info = if let Some(label) = self.prompt_input_mode.prompt_info_override() {
             PromptInfo {
+                role: None,
+                role_color: None,
                 model_name: label,
                 flags: &[],
                 multiline: false,

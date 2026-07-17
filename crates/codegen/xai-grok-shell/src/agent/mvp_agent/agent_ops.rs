@@ -2696,7 +2696,9 @@ impl MvpAgent {
     /// 3. `agent_profile_path` from CLI `--agent-profile`.
     /// 4. `agent_config` from config.toml `[agent]`.
     /// 5. `GROK_AGENT` env var.
-    /// 6. Built-in default agent.
+    /// 6. Product default role from `config.toml` `[roles].default` when
+    ///    discoverable (any stem the user configures; product seed is `intake`).
+    /// 7. Built-in stock default (`grok-build-plan`).
     ///
     /// `GROK_AGENT` and an explicit `[agent] name` bypass step 1.
     /// Strict-harness classification is structural — see
@@ -2704,12 +2706,16 @@ impl MvpAgent {
     ///
     /// Harness inheritance for a profile that pins its own model is applied by
     /// the caller via [`inherited_harness_template`], not here.
+    ///
+    /// `product_default_role`: stem from `config.toml` `[roles].default`
+    /// (user-configurable). Used when no explicit agent is selected.
     pub fn resolve_agent_definition(
         cwd: &std::path::Path,
         agent_profile_path: Option<&std::path::Path>,
         agent_config: &config::AgentSelectionConfig,
         acp_agent_profile: Option<xai_grok_agent::AgentDefinition>,
         model_agent_type: Option<&str>,
+        product_default_role: Option<&str>,
     ) -> xai_grok_agent::AgentDefinition {
         use xai_grok_agent::AgentDefinition;
         let grok_agent_env_set = std::env::var("GROK_AGENT")
@@ -2772,6 +2778,11 @@ impl MvpAgent {
                 agent_name = % name,
                 "Resolving agent definition from config.toml [agent] name"
             );
+            if let Some(def) =
+                crate::session::product_role::resolve_product_role_in_cwd(name, cwd)
+            {
+                return def;
+            }
             if let Some(def) = xai_grok_agent::discovery::by_name_in_cwd(name, cwd) {
                 return def;
             }
@@ -2780,6 +2791,29 @@ impl MvpAgent {
                 "Agent '{}' not found via discovery, falling through to next source",
                 name
             );
+            // Product roster: try roles.default before stock grok-build-plan.
+            if crate::session::role_switch::is_product_role(name) {
+                if let Some(role) = product_default_role.filter(|r| *r != name.as_str()) {
+                    if let Some(def) =
+                        crate::session::product_role::resolve_product_role_in_cwd(role, cwd)
+                    {
+                        tracing::info!(
+                            agent_name = % def.name,
+                            wanted = % name,
+                            "Falling back to roles.default after [agent] name miss"
+                        );
+                        return def;
+                    }
+                    if let Some(def) = xai_grok_agent::discovery::by_name_in_cwd(role, cwd) {
+                        tracing::info!(
+                            agent_name = % def.name,
+                            wanted = % name,
+                            "Falling back to roles.default after [agent] name miss"
+                        );
+                        return def;
+                    }
+                }
+            }
         }
         let agent_name = std::env::var("GROK_AGENT").ok();
         let resolved = match agent_name.as_deref() {
@@ -2795,15 +2829,16 @@ impl MvpAgent {
                             path = path, error = % e,
                             "Failed to load agent definition from file, falling back to default"
                         );
-                        AgentDefinition::grok_build_plan()
+                        Self::resolve_product_or_stock_default(cwd, product_default_role)
                     }
                 }
             }
-            Some(name) => {
-                xai_grok_agent::discovery::by_name_in_cwd(name, cwd)
-                    .unwrap_or_else(AgentDefinition::grok_build_plan)
-            }
-            None => AgentDefinition::grok_build_plan(),
+            Some(name) => crate::session::product_role::resolve_product_role_in_cwd(name, cwd)
+                .or_else(|| xai_grok_agent::discovery::by_name_in_cwd(name, cwd))
+                .unwrap_or_else(|| {
+                    Self::resolve_product_or_stock_default(cwd, product_default_role)
+                }),
+            None => Self::resolve_product_or_stock_default(cwd, product_default_role),
         };
         if !grok_agent_env_set && !config_agent_explicitly_set
             && model_requires_strict_harness && let Some(required) = model_agent_type
@@ -2824,6 +2859,40 @@ impl MvpAgent {
             );
         }
         resolved
+    }
+
+    /// Product cold-start default: `roles.default` (typically `intake`) when
+    /// the caller passes a stem and discovery finds it; else stock
+    /// `grok-build-plan`. Call sites with product config always pass
+    /// `Some(cfg.roles.default_role())`.
+    fn resolve_product_or_stock_default(
+        cwd: &std::path::Path,
+        product_default_role: Option<&str>,
+    ) -> xai_grok_agent::AgentDefinition {
+        if let Some(role) = product_default_role.filter(|r| !r.is_empty()) {
+            if let Some(def) =
+                crate::session::product_role::resolve_product_role_in_cwd(role, cwd)
+            {
+                tracing::info!(
+                    agent_name = % def.name,
+                    "Using product default role (prompts/roles + contract)"
+                );
+                return def;
+            }
+            // Legacy: optional user agent file already tried inside product_role.
+            if let Some(def) = xai_grok_agent::discovery::by_name_in_cwd(role, cwd) {
+                tracing::info!(
+                    agent_name = % def.name,
+                    "Using product default role agent definition (discovery)"
+                );
+                return def;
+            }
+            tracing::warn!(
+                wanted = % role,
+                "Product default role not resolvable; using stock default agent"
+            );
+        }
+        xai_grok_agent::AgentDefinition::grok_build_plan()
     }
     /// Extract per-client terminal/fs capabilities from request `_meta`
     /// (injected by the leader). Falls back to the shared `init` OnceCell.
@@ -3178,8 +3247,10 @@ impl MvpAgent {
                 &cfg.agent,
                 acp_agent_profile,
                 model_agent_type,
+                Some(cfg.roles.default_role()),
             )
         };
+        crate::session::role_switch::ensure_product_role_identity(&mut agent_definition);
         {
             let cfg = self.cfg.borrow();
             let overrides = &cfg.cli_agent_overrides;

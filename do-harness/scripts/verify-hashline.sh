@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
-# F-M3-HASH / VAL-M3-HASH-001: hashline default edit policy.
+# F-M3-HASH / VAL-M3-HASH-001: hashline opt-in / standard default policy.
 #
 # Checks:
-#   1. Policy doc (docs/hashline.md) — default + rollback + no reinvent grammar
-#   2. Product toolset fragment defaults to hashline + native scheme knobs
-#   3. Worker prefers hashline tools; orchestrator keeps edit deny including hashline_edit
-#   4. L1 worker fragment references hashline; floors config includes hashline tools
-#   5. Native namespace / FileToolset citations (no second grammar)
-#   6. README enablement / verify pointer
-#   7. docs/index links hashline policy
+#   1. Policy doc (docs/hashline.md) — standard default + hashline opt-in + rollback
+#   2. Product toolset fragment defaults to standard; hashline knobs remain for opt-in
+#   3. Worker prefers standard tools; orchestrator denies bulk edit
+#   4. Media tools denied on all product roles (config.roles.toml)
+#   5. Native GrokBuildHashline citations (opt-in path exists; no second grammar)
+#   6. README + index + capability-map enablement language
 #
 # Exit 0 only when all checks pass.
 
@@ -37,7 +36,7 @@ section() {
 }
 
 # ---------------------------------------------------------------------------
-section "1. Policy documentation (default + rollback)"
+section "1. Policy documentation (standard default + hashline opt-in)"
 # ---------------------------------------------------------------------------
 
 DOC="$REPO_ROOT/docs/hashline.md"
@@ -54,6 +53,7 @@ if [[ -f "$DOC" ]]; then
     "file_toolset" \
     "hashline" \
     "standard" \
+    "opt-in" \
     "Rollback" \
     "GrokBuildHashline" \
     "hashline_read" \
@@ -69,10 +69,22 @@ if [[ -f "$DOC" ]]; then
       fail "policy missing mention: $needle"
     fi
   done
+  if grep -qiE 'product default.*(is |=\s*")?standard|file_toolset\s*=\s*"standard"' "$DOC"; then
+    ok "policy states standard as product default"
+  else
+    fail "policy must state product default is standard / file_toolset = \"standard\""
+  fi
+  # Must not claim hashline is still the product default.
+  if grep -qiE 'product default.*hashline|hashline is (the )?product default|file_toolset = "hashline".*product default' "$DOC" \
+    && ! grep -qiE 'opt-in|product default is \*\*standard\*\*|product default.*standard' "$DOC"; then
+    fail "policy still claims hashline is product default without standard flip"
+  else
+    ok "policy does not assert hashline as sole product default"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
-section "2. Product toolset fragment (default hashline)"
+section "2. Product toolset fragment (default standard; hashline opt-in knobs)"
 # ---------------------------------------------------------------------------
 
 CFG="$HARNESS_DIR/config.toolset.toml"
@@ -83,20 +95,40 @@ else
 fi
 
 if [[ -f "$CFG" ]]; then
-  if grep -qE 'file_toolset\s*=\s*"hashline"' "$CFG"; then
-    ok 'config.toolset.toml sets file_toolset = "hashline"'
+  if grep -qE 'file_toolset\s*=\s*"standard"' "$CFG"; then
+    ok 'config.toolset.toml sets file_toolset = "standard"'
   else
-    fail 'config.toolset.toml must set file_toolset = "hashline" as product default'
+    fail 'config.toolset.toml must set file_toolset = "standard" as product default'
+  fi
+  # Only active (non-comment) assignment under [toolset] may set file_toolset.
+  # Comments documenting opt-in may still mention file_toolset = "hashline".
+  active_ft=$(awk '
+    /^[[:space:]]*#/ { next }
+    /^\[toolset\]/ { in_ts=1; next }
+    /^\[/ { in_ts=0 }
+    in_ts && /^[[:space:]]*file_toolset[[:space:]]*=/ {
+      print; exit
+    }
+  ' "$CFG")
+  if printf '%s' "$active_ft" | grep -qE 'file_toolset\s*=\s*"standard"'; then
+    ok 'active [toolset] file_toolset is standard (not hashline)'
+  elif printf '%s' "$active_ft" | grep -qE 'file_toolset\s*=\s*"hashline"'; then
+    fail 'config.toolset.toml must not set active file_toolset = "hashline" as product default'
+  else
+    fail 'could not find active non-comment file_toolset under [toolset]'
   fi
   for needle in scheme hash_len chunk_size; do
-    if grep -qE "^${needle}\\s*=" "$CFG" || grep -qE "^${needle}\\s*=" "$CFG"; then
-      ok "toolset.hashline has $needle"
-    elif grep -qE "${needle}\\s*=" "$CFG"; then
-      ok "toolset.hashline has $needle"
+    if grep -qE "${needle}\\s*=" "$CFG"; then
+      ok "toolset.hashline opt-in knob present: $needle"
     else
-      fail "config.toolset.toml missing hashline knob: $needle"
+      fail "config.toolset.toml missing hashline opt-in knob: $needle"
     fi
   done
+  if grep -qiE 'opt-in|optional|Rollback to hashline|set file_toolset = "hashline"' "$CFG"; then
+    ok "toolset fragment documents hashline opt-in path"
+  else
+    fail "toolset fragment should document hashline opt-in / rollback path"
+  fi
   # Must not invent a second tool registry or grammar section name.
   if grep -qiE '^(grammar|dsl|custom_hashline)' "$CFG"; then
     fail "config.toolset.toml must not invent custom hashline grammar keys"
@@ -106,7 +138,7 @@ if [[ -f "$CFG" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-section "3. Worker + orchestrator agent guidance and floors"
+section "3. Worker prefers standard tools; orchestrator denies bulk edit"
 # ---------------------------------------------------------------------------
 
 WORKER="$HARNESS_DIR/agents/worker.md"
@@ -114,23 +146,29 @@ ORCH="$HARNESS_DIR/agents/orchestrator.md"
 
 if [[ -f "$WORKER" ]]; then
   ok "worker agent exists"
-  for needle in hashline_read hashline_edit hashline_grep hashline; do
-    if grep -qiF "$needle" "$WORKER"; then
-      ok "worker references: $needle"
+  for needle in read_file search_replace write grep; do
+    if grep -qE "^[[:space:]]*-[[:space:]]*${needle}[[:space:]]*$" "$WORKER" \
+      || grep -A40 '^tools:' "$WORKER" | grep -qE "^[[:space:]]*-[[:space:]]*${needle}[[:space:]]*$"; then
+      ok "worker tools include: $needle"
     else
-      fail "worker missing: $needle"
+      # tools may be listed under tools: block
+      if awk '/^tools:/{p=1;next} /^[a-zA-Z]/{p=0} p' "$WORKER" | grep -qE "^[[:space:]]*-[[:space:]]*${needle}[[:space:]]*$"; then
+        ok "worker tools include: $needle"
+      else
+        fail "worker missing standard tool: $needle"
+      fi
     fi
   done
-  # Prefer hashline language is active (not "until M3").
-  if grep -qiE 'prefer.*hashline|hashline.*(default|prefer|primary)|primary.*hashline' "$WORKER"; then
-    ok "worker states hashline preference as active policy"
+  if grep -qiE 'prefer.*(search_replace|write)|standard file toolset|search_replace.*/.*write' "$WORKER"; then
+    ok "worker states standard edit preference"
   else
-    fail "worker body must state active hashline prefer/primary policy"
+    fail "worker body must prefer search_replace/write (standard toolset)"
   fi
-  if grep -qE 'hashline_edit' "$WORKER" && ! grep -A20 'disallowedTools:' "$WORKER" | grep -q 'hashline_edit'; then
-    ok "worker allows hashline_edit (not on disallowedTools)"
+  # Hashline must not be primary preference language.
+  if grep -qiE 'prefer.*hashline|hashline.*(default|primary)|primary.*hashline' "$WORKER"; then
+    fail "worker must not prefer hashline as primary (standard is default)"
   else
-    fail "worker must not deny hashline_edit (implementer floor)"
+    ok "worker does not prefer hashline as primary"
   fi
 else
   fail "missing $WORKER"
@@ -138,88 +176,120 @@ fi
 
 if [[ -f "$ORCH" ]]; then
   ok "orchestrator agent exists"
-  if grep -A30 'disallowedTools:' "$ORCH" | grep -q 'hashline_edit'; then
-    ok "orchestrator disallows hashline_edit"
+  if grep -A40 'disallowedTools:' "$ORCH" | grep -qE '^[[:space:]]*-[[:space:]]*write[[:space:]]*$'; then
+    ok "orchestrator disallows write"
   else
-    fail "orchestrator must keep hashline_edit on disallowedTools"
+    fail "orchestrator must deny write (bulk edit floor)"
   fi
-  if grep -qiE 'hashline|worker' "$ORCH"; then
-    ok "orchestrator body references hashline or worker edit handoff"
+  if grep -A40 'disallowedTools:' "$ORCH" | grep -qE '^[[:space:]]*-[[:space:]]*search_replace[[:space:]]*$'; then
+    ok "orchestrator disallows search_replace"
   else
-    fail "orchestrator should reference hashline or worker for edits"
+    fail "orchestrator must deny search_replace (bulk edit floor)"
+  fi
+  # hashline_edit: if mentioned in deny list, fine; if absent, also fine under standard default
+  # (hashline tools not in session when file_toolset=standard). Prefer explicit deny if present.
+  if grep -A40 'disallowedTools:' "$ORCH" | grep -q 'hashline_edit'; then
+    ok "orchestrator disallows hashline_edit (defense in depth)"
+  else
+    ok "orchestrator bulk-edit deny covers write/search_replace (hashline_edit N/A under standard default)"
   fi
 else
   fail "missing $ORCH"
 fi
 
-# Non-worker implement deny for hashline_edit on remaining roster
+# Non-worker roles: deny bulk edit (write / search_replace)
 for role in intake explorer oracle; do
   f="$HARNESS_DIR/agents/${role}.md"
-  if [[ -f "$f" ]] && grep -A40 'disallowedTools:' "$f" | grep -q 'hashline_edit'; then
-    ok "$role disallows hashline_edit"
+  if [[ ! -f "$f" ]]; then
+    fail "missing $f"
+    continue
+  fi
+  if grep -A40 'disallowedTools:' "$f" | grep -qE '^[[:space:]]*-[[:space:]]*write[[:space:]]*$' \
+    && grep -A40 'disallowedTools:' "$f" | grep -qE '^[[:space:]]*-[[:space:]]*search_replace[[:space:]]*$'; then
+    ok "$role disallows write + search_replace"
   else
-    fail "$role must disallow hashline_edit"
+    fail "$role must disallow write and search_replace"
   fi
 done
 
 # ---------------------------------------------------------------------------
-section "4. L1 worker fragment + permissions overlay"
+section "4. Media tools denied on all product roles"
 # ---------------------------------------------------------------------------
 
-L1="$HARNESS_DIR/prompts/roles/worker.md"
-if [[ -f "$L1" ]]; then
-  ok "L1 worker fragment exists"
-  if grep -qiF 'hashline' "$L1"; then
-    ok "L1 worker mentions hashline"
-  else
-    fail "L1 worker fragment should mention hashline"
-  fi
-  if grep -qiE 'until then|when product default is active \(M3\)' "$L1"; then
-    fail "L1 worker still has provisional 'until M3' language — policy is shipped"
-  else
-    ok "L1 worker uses shipped hashline policy language"
-  fi
+ROLES_CFG="$HARNESS_DIR/config.roles.toml"
+if [[ -f "$ROLES_CFG" ]]; then
+  ok "do-harness/config.roles.toml exists"
 else
-  fail "missing $L1"
+  fail "missing $ROLES_CFG"
 fi
 
-PERM="$HARNESS_DIR/config.permissions.yaml"
-if [[ -f "$PERM" ]]; then
-  ok "config.permissions.yaml exists"
-  for t in hashline_read hashline_edit hashline_grep; do
-    if grep -qF "$t" "$PERM"; then
-      ok "permissions overlay lists $t"
+MEDIA_TOOLS=(image_gen image_edit image_to_video reference_to_video)
+PRODUCT_ROLES=(intake orchestrator explorer worker oracle)
+
+if [[ -f "$ROLES_CFG" ]]; then
+  for role in "${PRODUCT_ROLES[@]}"; do
+    # Extract disallowed_tools block for [roles.<role>] until next [roles. or EOF
+    block=$(awk -v r="roles.${role}" '
+      $0 ~ "^\\[" r "\\]" {p=1; next}
+      p && $0 ~ /^\[roles\./ {exit}
+      p {print}
+    ' "$ROLES_CFG")
+    if [[ -z "$block" ]]; then
+      fail "config.roles.toml missing [roles.${role}]"
+      continue
+    fi
+    for t in "${MEDIA_TOOLS[@]}"; do
+      if printf '%s\n' "$block" | grep -qE "\"${t}\""; then
+        ok "roles.${role} denies $t"
+      else
+        fail "roles.${role} must deny media tool: $t"
+      fi
+    done
+  done
+fi
+
+# Agent frontmatter should also deny media (regenerated from roles SoT)
+for role in "${PRODUCT_ROLES[@]}"; do
+  f="$HARNESS_DIR/agents/${role}.md"
+  [[ -f "$f" ]] || continue
+  for t in image_gen image_edit; do
+    if grep -A30 'disallowedTools:' "$f" | grep -qE "^[[:space:]]*-[[:space:]]*${t}[[:space:]]*$"; then
+      ok "agents/${role}.md disallows $t"
     else
-      fail "config.permissions.yaml missing $t"
+      fail "agents/${role}.md must disallow $t"
     fi
   done
-else
-  fail "missing $PERM"
-fi
+done
 
 # ---------------------------------------------------------------------------
-section "5. Native namespace (no reinvent) — fork + docs"
+section "5. Native namespace (opt-in path exists; no reinvent)"
 # ---------------------------------------------------------------------------
 
 NATIVE="$REPO_ROOT/docs/grok-build/native-tools.md"
 if [[ -f "$NATIVE" ]] && grep -qF 'GrokBuildHashline' "$NATIVE" && grep -qF 'FileToolset' "$NATIVE"; then
-  ok "native-tools.md documents GrokBuildHashline + FileToolset"
+  ok "native-tools.md documents GrokBuildHashline + FileToolset (opt-in path)"
 else
   fail "docs/grok-build/native-tools.md should document GrokBuildHashline and FileToolset"
 fi
 
+# Prefer citing fork config if present; do not require crate edits for this policy.
 CFG_RS="$REPO_ROOT/crates/codegen/xai-grok-shell/src/tools/config.rs"
 if [[ -f "$CFG_RS" ]] \
   && grep -qF 'FileToolset' "$CFG_RS" \
-  && grep -qF 'GrokBuildHashline:hashline_edit' "$CFG_RS"
+  && grep -qF 'GrokBuildHashline' "$CFG_RS"
 then
-  ok "fork tools/config.rs owns FileToolset::Hashline IDs"
+  ok "fork tools/config.rs owns FileToolset / GrokBuildHashline (native path)"
 else
-  fail "missing stock FileToolset / GrokBuildHashline ids in tools/config.rs"
+  # Extension-only policy: native docs + product overlay are enough if crate path missing in tree.
+  if [[ -f "$NATIVE" ]] && grep -qF 'hashline_edit' "$NATIVE"; then
+    ok "native docs cite hashline_edit (crate path optional in this check)"
+  else
+    fail "missing native FileToolset / GrokBuildHashline citations"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
-section "6. README + index enablement"
+section "6. README + index + capability-map (standard default language)"
 # ---------------------------------------------------------------------------
 
 README="$HARNESS_DIR/README.md"
@@ -229,11 +299,34 @@ else
   fail "do-harness/README.md should document F-M3-HASH / verify-hashline"
 fi
 
+if [[ -f "$README" ]]; then
+  if grep -qE 'file_toolset\s*=\s*"standard"|standard.*default|default.*standard' "$README"; then
+    ok "README states standard file_toolset default"
+  else
+    fail "README must state file_toolset = \"standard\" as product default"
+  fi
+  # Stale: product default prefers hashline without flip language
+  if grep -qiE 'Product \*\*default\*\* prefers native \*\*GrokBuildHashline\*\*|file_toolset = "hashline".*product default|defaults? to hashline' "$README" \
+    && ! grep -qiE 'opt-in|standard.*default|default.*standard' "$README"; then
+    fail "README still claims hashline as product default without standard flip"
+  else
+    ok "README hashline section aligned with standard default / opt-in"
+  fi
+fi
+
 INDEX="$REPO_ROOT/docs/index.md"
 if [[ -f "$INDEX" ]] && grep -qE 'hashline\.md|F-M3-HASH|VAL-M3-HASH' "$INDEX"; then
   ok "docs/index.md links hashline policy"
 else
   fail "docs/index.md should link docs/hashline.md / F-M3-HASH"
+fi
+
+if [[ -f "$INDEX" ]]; then
+  if grep -qiE 'hashline\.md.*standard|standard.*hashline|hashline.*opt-in|file_toolset = "standard"' "$INDEX"; then
+    ok "docs/index.md hashline blurb reflects standard default / opt-in"
+  else
+    fail "docs/index.md hashline blurb must not claim hashline product default only"
+  fi
 fi
 
 CAP="$REPO_ROOT/docs/capability-map.md"
@@ -243,13 +336,39 @@ else
   fail "docs/capability-map.md should mention hashline product surface"
 fi
 
+if [[ -f "$CAP" ]]; then
+  if grep -qiE 'opt-in|standard default|file_toolset = "standard"|Mapped \(opt-in\)|product default.*standard' "$CAP"; then
+    ok "capability-map hashline row reflects standard default / opt-in"
+  else
+    fail "capability-map must not leave hashline as sole product default without flip note"
+  fi
+fi
+
+# L1 worker fragment: standard preference language
+L1="$HARNESS_DIR/prompts/roles/worker.md"
+if [[ -f "$L1" ]]; then
+  ok "L1 worker fragment exists"
+  if grep -qiE 'search_replace|write|standard' "$L1"; then
+    ok "L1 worker mentions standard edit tools"
+  else
+    fail "L1 worker fragment should mention standard edit tools"
+  fi
+  if grep -qiE 'prefer.*hashline|hashline.*primary' "$L1"; then
+    fail "L1 worker must not prefer hashline as primary"
+  else
+    ok "L1 worker does not prefer hashline as primary"
+  fi
+else
+  fail "missing $L1"
+fi
+
 # ---------------------------------------------------------------------------
 section "Summary"
 # ---------------------------------------------------------------------------
 
 printf '\npassed=%s failed=%s\n' "$PASS" "$FAIL"
 if [[ "$FAIL" -eq 0 ]]; then
-  printf 'VAL-M3-HASH-001: PASS\n'
+  printf 'VAL-M3-HASH-001: PASS (standard default / hashline opt-in)\n'
   exit 0
 fi
 printf 'VAL-M3-HASH-001: FAIL\n' >&2

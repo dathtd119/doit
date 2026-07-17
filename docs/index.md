@@ -50,7 +50,7 @@ Read **before crate work**. Evidence-backed map of the forked Grok Build base: p
 | [progressive-skills.md](./progressive-skills.md) | L4 progressive skill / MCP catalog: progressive/curated default; firehose opt-in (**M2**) |
 | [role-permissions.md](./role-permissions.md) | L1/L3 role tool allow/deny floors + guided-gate alignment (**M2** F-M2-PERM) |
 | [codegraph.md](./codegraph.md) | L7 CodeGraph product surface: MCP-first wrapping `xai-codebase-graph` explore/impact (**M3** F-M3-CG / VAL-M3-CG-001) |
-| [hashline.md](./hashline.md) | Hashline default edit policy: product `file_toolset = "hashline"`, agent floors, rollback (**M3** F-M3-HASH / VAL-M3-HASH-001) |
+| [hashline.md](./hashline.md) | File toolset policy: product default `file_toolset = "standard"`; hashline **opt-in**; agent floors; rollback (**M3** F-M3-HASH / VAL-M3-HASH-001) |
 
 ## Agent readiness / quality
 

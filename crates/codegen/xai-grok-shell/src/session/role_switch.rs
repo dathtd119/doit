@@ -148,6 +148,85 @@ pub fn gate_role_model_repin(
     }
 }
 
+/// Marker so identity can be re-applied on Tab without stacking.
+const PRODUCT_ROLE_IDENTITY_MARKER: &str = "<!-- do-product-role-identity -->";
+
+/// Map agent permission mode to the Identity policy label.
+pub fn product_policy_label(permission_mode: &xai_grok_agent::config::PermissionMode) -> &'static str {
+    use xai_grok_agent::config::PermissionMode;
+    match permission_mode {
+        PermissionMode::Default => "default",
+        PermissionMode::AcceptEdits => "accept-edits",
+        PermissionMode::Auto => "auto",
+        PermissionMode::DontAsk => "dont-ask",
+        PermissionMode::BypassPermissions => "bypass",
+        PermissionMode::Plan => "plan",
+    }
+}
+
+/// Strip a previously injected product Identity block (if any).
+fn strip_product_role_identity(body: &str) -> &str {
+    let trimmed = body.trim_start();
+    if let Some(rest) = trimmed.strip_prefix(PRODUCT_ROLE_IDENTITY_MARKER) {
+        // Drop through the first horizontal rule after the marker block.
+        if let Some(idx) = rest.find("\n---\n") {
+            return rest[idx + "\n---\n".len()..].trim_start();
+        }
+        return rest.trim_start();
+    }
+    body
+}
+
+/// Build the model-facing Identity + role kernel prefix for a product roster role.
+///
+/// Stock `base_template()` still opens with "You are Grok…". This block is
+/// appended via `prompt_body` so the model can answer "what is your role?"
+/// without reading chrome. Phase 02 full L0 expander may replace this later.
+pub fn product_role_identity_block(
+    role: &str,
+    policy: &str,
+    description: &str,
+) -> String {
+    let desc = description.trim();
+    let desc_line = if desc.is_empty() {
+        String::new()
+    } else {
+        format!("- Description: {desc}\n")
+    };
+    format!(
+        "{PRODUCT_ROLE_IDENTITY_MARKER}\n\
+         ## Identity\n\
+         - Product agent: **do**\n\
+         - Active role: **{role}**\n\
+         - Policy: **{policy}**\n\
+         {desc_line}\n\
+         You are the **{role}** role for this session. Follow the mission, \
+         workflow, and DO/DON'T below. Do not claim a different product role.\n\
+         Role may change only before the first user message; after conversation \
+         content exists, this role is fixed for the session.\n\
+         ---\n"
+    )
+}
+
+/// Ensure a product-role `AgentDefinition` carries a clear Identity block in
+/// `prompt_body` so Extend assembly (stock base + body) names the role.
+///
+/// No-op for non-product agents. Safe to call repeatedly (replaces prior block).
+pub fn ensure_product_role_identity(def: &mut xai_grok_agent::AgentDefinition) {
+    if !is_product_role(&def.name) {
+        return;
+    }
+    let policy = product_policy_label(&def.permission_mode);
+    let mission = def
+        .prompt_body
+        .as_deref()
+        .map(strip_product_role_identity)
+        .unwrap_or("")
+        .to_string();
+    let prefix = product_role_identity_block(&def.name, policy, &def.description);
+    def.prompt_body = Some(format!("{prefix}{mission}"));
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -158,6 +237,55 @@ mod tests {
         assert!(!role_switch_allowed(1, false));
         assert!(!role_switch_allowed(0, true));
         assert!(!role_switch_allowed(3, true));
+    }
+
+    #[test]
+    fn product_role_identity_names_role() {
+        let block = product_role_identity_block(
+            "orchestrator",
+            "default",
+            "do product orchestrator — continuum + spawn specialists",
+        );
+        assert!(block.contains("Active role: **orchestrator**"));
+        assert!(block.contains("Policy: **default**"));
+        assert!(block.contains("You are the **orchestrator** role"));
+        assert!(block.contains(PRODUCT_ROLE_IDENTITY_MARKER));
+    }
+
+    #[test]
+    fn ensure_product_role_identity_is_idempotent() {
+        let mut def = xai_grok_agent::AgentDefinition::from_json(&serde_json::json!({
+            "name": "orchestrator",
+            "description": "test orchestrator",
+            "promptBody": "## Mission\n\nOwn the continuum.\n",
+            "permissionMode": "default",
+        }))
+        .expect("parse");
+        ensure_product_role_identity(&mut def);
+        let first = def.prompt_body.clone().unwrap();
+        ensure_product_role_identity(&mut def);
+        let second = def.prompt_body.clone().unwrap();
+        assert_eq!(first, second, "identity inject must not stack");
+        assert_eq!(
+            first.matches(PRODUCT_ROLE_IDENTITY_MARKER).count(),
+            1,
+            "exactly one identity marker"
+        );
+        assert!(first.contains("Active role: **orchestrator**"));
+        assert!(first.contains("## Mission"));
+        assert!(first.contains("Own the continuum"));
+    }
+
+    #[test]
+    fn ensure_product_role_identity_skips_non_product() {
+        let mut def = xai_grok_agent::AgentDefinition::from_json(&serde_json::json!({
+            "name": "grok-build-plan",
+            "description": "stock",
+            "promptBody": "hello",
+        }))
+        .expect("parse");
+        ensure_product_role_identity(&mut def);
+        assert_eq!(def.prompt_body.as_deref(), Some("hello"));
     }
 
     #[test]

@@ -3,8 +3,7 @@
 # agent + guided PreToolUse hook.
 #
 # Confirms proof assets sit on the **real** paths stock grok discovers:
-#   agents: <project>/.doit/agents/*.md
-#           (crates/codegen/xai-grok-agent/src/discovery.rs — PROJECT_AGENT_SUBDIRS; .doit/agents)
+#   roles:  do-harness/prompts/roles/*.md (runtime product_role; no agents install)
 #   hooks:  <git-root>/.doit/hooks/*.json
 #           (crates/codegen/xai-grok-shell/src/util/hooks.rs — discover_hook_source_paths;
 #            crates/codegen/xai-grok-hooks/src/discovery.rs — HookSource::Directory)
@@ -60,14 +59,14 @@ resolve() {
 section "1. Source of truth (do-harness/)"
 # ---------------------------------------------------------------------------
 
-AGENT_SRC="$HARNESS_DIR/agents/intake.md"
+ROLE_SRC="$HARNESS_DIR/prompts/roles/intake.md"
 HOOK_JSON_SRC="$HARNESS_DIR/hooks/guided-dangerous-shell.json"
 HOOK_BIN_SRC="$HARNESS_DIR/hooks/bin/guided-dangerous-shell.py"
 
-if [[ -f "$AGENT_SRC" ]]; then
-  ok "do-harness/agents/intake.md exists"
+if [[ -f "$ROLE_SRC" ]]; then
+  ok "do-harness/prompts/roles/intake.md exists"
 else
-  fail "missing $AGENT_SRC"
+  fail "missing $ROLE_SRC"
 fi
 
 if [[ -f "$HOOK_JSON_SRC" ]]; then
@@ -88,29 +87,16 @@ fi
 # ---------------------------------------------------------------------------
 section "2. Project discovery path (product .doit/ locations)"
 # ---------------------------------------------------------------------------
-# Agents: cwd→git-root walk of .doit/agents (discovery.rs PROJECT_AGENT_SUBDIRS; .doit/agents)
+# Product roles: prompts/roles (no .doit/agents install required).
 # Hooks:  <git_root>/.doit/hooks (util/hooks.rs project.push(...join("hooks")))
 
-AGENT_DISC="$REPO_ROOT/.doit/agents/intake.md"
 HOOK_JSON_DISC="$REPO_ROOT/.doit/hooks/guided-dangerous-shell.json"
 HOOK_BIN_DISC="$REPO_ROOT/.doit/hooks/bin/guided-dangerous-shell.py"
 
-if [[ -e "$AGENT_DISC" ]]; then
-  ok "project agent on discovery path: .doit/agents/intake.md"
-  if [[ -L "$AGENT_DISC" ]]; then
-    target="$(resolve "$AGENT_DISC")"
-    expected="$(resolve "$AGENT_SRC")"
-    if [[ -n "$target" && -n "$expected" && "$target" == "$expected" ]]; then
-      ok "agent symlink resolves to do-harness source ($target)"
-    else
-      fail "agent symlink target mismatch: got='$target' expected='$expected'"
-    fi
-  else
-    # Still valid if copied; warn so operators know SoT is do-harness
-    warn "agent discovery path is not a symlink (prefer ln -s to do-harness)"
-  fi
+if [[ -e "$REPO_ROOT/.doit/agents/intake.md" ]]; then
+  warn ".doit/agents/intake.md present (user override OK; product does not require it)"
 else
-  fail "agent not on discovery path: $AGENT_DISC"
+  ok "no stock .doit/agents/intake.md (product default)"
 fi
 
 if [[ -e "$HOOK_JSON_DISC" ]]; then
@@ -137,43 +123,27 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-section "3. Agent frontmatter shape (grok AgentDefinition contract)"
+section "3. Role body shape (prompts/roles — body only, no product YAML)"
 # ---------------------------------------------------------------------------
 
-python3 - "$AGENT_SRC" <<'PY'
-import re, sys, pathlib
+python3 - "$ROLE_SRC" <<'PY'
+import sys, pathlib
 
 path = pathlib.Path(sys.argv[1])
 text = path.read_text(encoding="utf-8")
-if not text.lstrip().startswith("---"):
-    print("  FAIL agent missing YAML frontmatter delimiters", file=sys.stderr)
+if text.lstrip().startswith("---"):
+    print("  FAIL role body must not have product YAML frontmatter", file=sys.stderr)
     sys.exit(1)
-parts = re.split(r"^---\s*$", text, maxsplit=2, flags=re.M)
-if len(parts) < 3:
-    print("  FAIL agent frontmatter not closed", file=sys.stderr)
+if "## Mission" not in text:
+    print("  FAIL role body missing ## Mission", file=sys.stderr)
     sys.exit(1)
-yaml = parts[1]
-# Minimal parse without requiring PyYAML: required keys as line patterns
-checks = [
-    (r"(?m)^name:\s*intake\s*$", "name: intake"),
-    (r"(?m)^description:\s*", "description present"),
-    (r"(?m)^permissionMode:\s*plan\s*$", "permissionMode: plan"),
-    (r"(?m)^model:\s*", "model present"),
-]
-failed = []
-for pat, label in checks:
-    if not re.search(pat, yaml):
-        failed.append(label)
-body = parts[2].strip()
-if not body:
-    failed.append("non-empty prompt body")
-if failed:
-    print("  FAIL agent frontmatter:", ", ".join(failed), file=sys.stderr)
+if "Intake" not in text and "intake" not in text.lower():
+    print("  FAIL intake role body missing identity", file=sys.stderr)
     sys.exit(1)
-print("  ok  agent frontmatter: name=intake, permissionMode=plan, body non-empty")
+print("  ok  role body: ## Mission present, no frontmatter")
 sys.exit(0)
 PY
-ok "agent frontmatter parse checks passed"
+ok "role body parse checks passed"
 
 # ---------------------------------------------------------------------------
 section "4. Hook JSON shape (xai-grok-hooks parse_hook_file contract)"
@@ -340,7 +310,7 @@ section "Summary"
 
 printf '\npassed=%s failed=%s warnings=%s\n' "$PASS" "$FAIL" "$WARN"
 printf 'repo_root=%s\n' "$REPO_ROOT"
-printf 'agent_discovery=%s\n' "$AGENT_DISC"
+printf 'role_body_sot=%s\n' "$ROLE_SRC"
 printf 'hook_discovery=%s\n' "$HOOK_JSON_DISC"
 
 if [[ "$FAIL" -gt 0 ]]; then

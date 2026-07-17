@@ -689,6 +689,8 @@ pub fn render_welcome(
             let menu = [("l", login_text.as_str()), ("q", "Quit")];
             let msg = error.as_deref().map(|e| (e, theme.accent_error));
             let info = PromptInfo {
+                role: None,
+                role_color: None,
                 model_name: params.model_name,
                 flags: params.flags,
                 multiline: false,
@@ -2083,6 +2085,8 @@ fn render_welcome_done(
             None => (None, false),
         };
         let usage_info = PromptInfo {
+            role: None,
+            role_color: None,
             model_name: p.model_name,
             flags: p.flags,
             multiline: false,

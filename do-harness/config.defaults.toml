@@ -11,7 +11,36 @@
 
 [features]
 telemetry = false
+# Video tools: product default off. Image tools still need GROK_IMAGE_GEN=0
+# / GROK_IMAGE_EDIT=0 (env-only gates) plus role disallowed_tools.
+video_gen = false
 
 [telemetry]
 trace_upload = false
 mixpanel_enabled = false
+
+# ---------------------------------------------------------------------------
+# Permission default (D1b): ask. Full auto-accept via CLI --yolo (Codex-like).
+# Do not set ui.permission_mode = "always-approve" as product default.
+# Role contracts: see config.roles.toml → merge [roles.*] into this file or
+# ~/.config/doit/config.toml. Apply agent bridge:
+#   bash do-harness/scripts/apply-role-contracts.sh --apply
+# ---------------------------------------------------------------------------
+
+[ui]
+# Product cold-start default: ask for tool permission (not yolo / always-approve).
+yolo = false
+# permission_mode = "ask"   # stock alias; omit or set ask — not always-approve
+
+# Primary session agent: product default role (must match [roles].default).
+# Discovery loads do-harness/agents via project .doit/agents or ~/.config/doit/agents.
+[agent]
+name = "intake"
+
+# Drop video tools when API key is present (prepare_video_gen_config path).
+[tools]
+disable_zdr_incompatible_tools = true
+
+# [roles] tables: merge via:
+#   bash do-harness/scripts/sync-user-config.sh --apply
+# (config only — never copies prompts; prompts SoT = do-harness/prompts/)

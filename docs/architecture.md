@@ -170,5 +170,5 @@ User
 | CFG (historical) | User home **`~/.config/do`**; project discovery **`.do/`** — superseded by CFG-DOIT |
 | **CFG-DOIT** | User home **`~/.config/doit`**; project discovery **`.doit/`**; share `~/.local/share/doit`; MCP `doit-codegraph` (**sealed**) |
 | M2 | Continuation coordinator + guided-block safety |
-| M3 | Native power tools (CodeGraph, hashline default policy) |
+| M3 | Native power tools (CodeGraph, file toolset / hashline opt-in) |
 | ORIGIN / UPSTREAM | GitHub `dathtd119/doit`; merge `upstream/main` with patch-matrix review |

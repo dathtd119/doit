@@ -343,7 +343,7 @@ P-AUTH-01 path log still refers historically to `xai-grok-pager-bin` `main.rs`; 
 | **PRIV** | P-NOTEL-01..06 fail-closed SpaceXAI telemetry; P-AUTH-01 BYOK skip forced OAuth (**applied**, 2026-07-16) |
 | **CFG** | P-CFG-HOME user home `~/.config/do` (**applied**); P-CFG-PROJECT project `.do/` discovery (**applied**); P-CFG-FIXTURES test drift cleanup (**applied**) |
 | **M2** | L5 continuation; L6 harden; L4 progressive catalog; L11 only if explicit |
-| **M3** | L7 CodeGraph product surface; L3 tool packs as needed; hashline default policy (backlog) |
+| **M3** | L7 CodeGraph product surface; L3 tool packs as needed; file toolset standard default + hashline opt-in |
 | **Upstream sync** | `8adf901` merge into product history (F-UPSTREAM-MERGE); preserve PRIV/CFG/role-lock; map pager-bin→`doit` |
 
 ---

@@ -2655,6 +2655,8 @@ fn paint_dispatch_config_badge(
     }
 
     let info = PromptInfo {
+        role: None,
+        role_color: None,
         model_name: &model_label,
         flags: &flags,
         multiline: state.multiline_mode,

@@ -82,7 +82,7 @@ M2 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full
 | Surface | Evidence |
 |---------|----------|
 | CodeGraph MCP product surface | `7a55c75` — MCP-first `doit-codegraph` wrapping `xai-codebase-graph`; explore/impact/stats; [codegraph.md](./codegraph.md); `verify-codegraph.sh` VAL-M3-CG-001 |
-| Hashline default edit policy | `ef06622` — product `file_toolset = "hashline"` overlay; worker floors/guidance; rollback to `"standard"`; [hashline.md](./hashline.md); `verify-hashline.sh` VAL-M3-HASH-001 |
+| File toolset + hashline opt-in | M3 sealed hashline default (`ef06622`); **policy flip 2026-07-16** → product `file_toolset = "standard"`; hashline opt-in; worker prefers `search_replace`/`write`; media tools denied; [hashline.md](./hashline.md); `verify-hashline.sh` VAL-M3-HASH-001 |
 | Tool packs | None required M3 — no silent crate sprawl; MCP + config placement documented |
 | Docs / capability map | [capability-map.md](./capability-map.md) refreshed post-M3; backlog exit criteria all checked |
 
@@ -120,7 +120,7 @@ M3 exit criteria in [backlog-m1-m3.md](./backlog-m1-m3.md) are **checked**. Full
 - Guided denials for do-owned gates: **`[GATE: …]` + Do this instead**
 - Continuation nudges re-surface **one** highest open lane (no continuum dump thrash)
 - Power nav: prefer CodeGraph MCP explore/impact before full-repo grep thrash
-- Product edit default: hashline namespace when `file_toolset = "hashline"` (stock Default still Standard until TOML merge)
+- Product edit default: **standard** (`file_toolset = "standard"` → `read_file` / `search_replace` / `grep`); hashline is **opt-in**
 - SpaceXAI telemetry fail-closed; external OTEL optional
 - BYOK / `preferred_method=api_key` does not force grok.com OAuth
 - Commit every milestone; handoff needs `commitId` + `repoPath=/home/datht/code/doit`

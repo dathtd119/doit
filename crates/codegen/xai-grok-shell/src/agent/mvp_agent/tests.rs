@@ -649,7 +649,8 @@ async fn upload_harness_trace_turns_build_per_turn_manifest() {
     );
     assert_eq!(m1.artifacts.len(), 2, "no cross-turn contamination");
 }
-/// With no overrides and model_agent_type = None, the default agent is used.
+/// With no overrides and model_agent_type = None, the stock default agent is
+/// used when no product role is discoverable in cwd.
 #[test]
 #[serial_test::serial]
 fn resolve_agent_definition_defaults_to_grok_build() {
@@ -664,8 +665,73 @@ fn resolve_agent_definition_defaults_to_grok_build() {
         &config::AgentSelectionConfig::default(),
         None,
         None,
+        None,
     );
     assert_eq!(def.name, config::DEFAULT_AGENT_TYPE);
+    if let Some(v) = prev {
+        unsafe { std::env::set_var("GROK_AGENT", v) }
+    }
+}
+
+/// Product cold start: `roles.default` resolves from prompts/roles + contract
+/// without any `.doit/agents` install.
+#[test]
+#[serial_test::serial]
+fn resolve_agent_definition_prefers_product_default_role() {
+    let prev = std::env::var("GROK_AGENT").ok();
+    unsafe {
+        std::env::remove_var("GROK_AGENT");
+    }
+    let tmp = tempfile::tempdir().unwrap();
+    // No agents dir — product roles load from bundled prompts/roles.
+    let def = MvpAgent::resolve_agent_definition(
+        tmp.path(),
+        None,
+        &config::AgentSelectionConfig::default(),
+        None,
+        None,
+        Some("intake"),
+    );
+    assert_eq!(def.name, "intake");
+    assert!(
+        def.prompt_body
+            .as_deref()
+            .is_some_and(|b| b.contains("Intake") || b.contains("Intent Pack")),
+        "intake body must load from prompts/roles"
+    );
+    if let Some(v) = prev {
+        unsafe { std::env::set_var("GROK_AGENT", v) }
+    }
+}
+
+/// `roles.default` is dynamic: any product roster stem (not only intake) wins.
+#[test]
+#[serial_test::serial]
+fn resolve_agent_definition_honors_custom_roles_default() {
+    let prev = std::env::var("GROK_AGENT").ok();
+    unsafe {
+        std::env::remove_var("GROK_AGENT");
+    }
+    let tmp = tempfile::tempdir().unwrap();
+    // No agents files — resolution follows product_default_role via product_role.
+    let def = MvpAgent::resolve_agent_definition(
+        tmp.path(),
+        None,
+        &config::AgentSelectionConfig::default(),
+        None,
+        None,
+        Some("worker"),
+    );
+    assert_eq!(
+        def.name, "worker",
+        "custom roles.default=worker must resolve without agents install"
+    );
+    assert!(
+        def.prompt_body
+            .as_deref()
+            .is_some_and(|b| b.contains("Worker") || b.contains("implement")),
+        "worker body from prompts/roles"
+    );
     if let Some(v) = prev {
         unsafe { std::env::set_var("GROK_AGENT", v) }
     }
@@ -686,6 +752,7 @@ fn resolve_agent_definition_model_agent_type_overrides_default() {
         &config::AgentSelectionConfig::default(),
         None,
         Some("codex"),
+        None,
     );
     assert_eq!(def.name, "codex");
     if let Some(v) = prev {
@@ -708,6 +775,7 @@ fn resolve_agent_definition_none_agent_type_does_not_override() {
         tmp.path(),
         None,
         &config::AgentSelectionConfig::default(),
+        None,
         None,
         None,
     );
@@ -738,6 +806,7 @@ fn resolve_agent_definition_acp_profile_wins_when_model_agent_type_is_default() 
         &config::AgentSelectionConfig::default(),
         Some(acp_profile),
         Some(config::DEFAULT_AGENT_TYPE),
+        None,
     );
     assert_eq!(
         def.name, "custom-devbox-profile",
@@ -772,6 +841,7 @@ fn resolve_agent_definition_acp_profile_wins_for_explicit_grok_build_family() {
             &config::AgentSelectionConfig::default(),
             Some(acp_profile.clone()),
             Some(family_variant),
+            None,
         );
         assert_eq!(
             def.name, "custom-devbox-profile",
@@ -828,6 +898,7 @@ fn resolve_agent_definition_cli_agent_profile_wins_when_model_agent_type_is_defa
         &config::AgentSelectionConfig::default(),
         None,
         Some(config::DEFAULT_AGENT_TYPE),
+        None,
     );
     assert_eq!(def.name, "cli-profile");
     if let Some(v) = prev {
@@ -855,7 +926,7 @@ fn resolve_agent_definition_agent_profile_with_model_override() {
         definition: None,
         system_prompt_label: None,
     };
-    let def = MvpAgent::resolve_agent_definition(tmp.path(), None, &agent_config, None, None);
+    let def = MvpAgent::resolve_agent_definition(tmp.path(), None, &agent_config, None, None, None);
     assert_eq!(def.name, "test-architect");
     assert_eq!(
         def.model,
@@ -1048,6 +1119,7 @@ async fn file_toolset_override_e2e_to_finalized_toolset() {
         tmp.path(),
         None,
         &config::AgentSelectionConfig::default(),
+        None,
         None,
         None,
     );

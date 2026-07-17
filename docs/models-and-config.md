@@ -102,7 +102,75 @@ Spawn overrides for subagents are unchanged and independent of primary-session r
 ### What this means for do
 
 - Keep **reading and writing** stock `~/.config/doit/config.toml` (or `$GROK_HOME/config.toml`) for native multi-model — do not invent a second runtime registry that the binary ignores
-- Product work focuses on **ergonomics**, **role assignment policy**, and optional **YAML → TOML / agent frontmatter** mapping
+- Product work focuses on **ergonomics**, **role assignment policy**, and **role contracts in TOML** (not prompt YAML headers)
+
+## Role contracts in `config.toml` (D2 — sealed)
+
+**Product rule:** tools, disallowed tools, model pin, color, and default role live under **`[roles]`** in the same stock config file operators already edit. Prompt markdown files are **body only** (mission / DO-DON’T) — no product config YAML frontmatter on `prompts/roles/*.md`.
+
+**System assembly (not this file’s job, but do not mis-document):** core system stays stock `templates/prompt.md` (`base_template()` + `promptMode: extend`). Role body is **appended**, never a Full-mode replace of the stock core. See [prompt-system.md](./prompt-system.md) and [system-prompt-truth](../plans/260716-2010-piness-role-kernel-parity/research/system-prompt-truth.md).
+
+| Surface | Path | Authority |
+|---------|------|-----------|
+| **Role contract (SoT)** | `~/.config/doit/config.toml` `[roles.*]` | Runtime parse (`Config.roles`); seed: `do-harness/config.roles.toml` |
+| **Role body** | `prompts/roles/<stem>.md` (project / user / bundled) | Mission text only — Extend `prompt_body` |
+| **Agent bridge** | `do-harness/agents/<stem>.md` frontmatter | Stock discovery until full role-as-system; **regenerate** from TOML |
+
+### Schema
+
+```toml
+[roles]
+default = "intake"
+
+[roles.intake]
+description = "clarify intent; no implementation"
+model = "combo-small"          # registry name in [model.*] / assignment
+color = "cyan"                 # chrome role slot + border (D3)
+permission_mode = "plan"       # agent permissionMode
+discover_skills = false
+tools = ["read_file", "list_dir", "grep", "run_terminal_cmd", "ask_user_question", "Agent(explore)"]
+disallowed_tools = ["search_replace", "write", "hashline_edit", "enter_plan_mode", "exit_plan_mode", "update_goal", "todo_write"]
+
+[roles.worker]
+model = "combo-big"
+color = "yellow"
+permission_mode = "default"
+tools = ["read_file", "search_replace", "hashline_edit", "..."]
+disallowed_tools = ["Agent(oracle)", "Agent(orchestrator)"]
+```
+
+**Colors:** stock `AgentColor` enum — `red|blue|green|yellow|purple|orange|pink|cyan` (use `purple` not `magenta`).
+
+### Apply / verify
+
+```bash
+# Merge seed into user config (manual or copy [roles] block):
+#   cat do-harness/config.roles.toml >> ~/.config/doit/config.toml   # or merge carefully
+
+# Bridge: rewrite agent frontmatter from TOML (stock discovery still needs agents/*.md)
+bash do-harness/scripts/apply-role-contracts.sh --apply
+bash do-harness/scripts/apply-role-contracts.sh --validate
+bash do-harness/scripts/verify-role-contracts.sh
+```
+
+### Permission default (D1b)
+
+| Mode | How |
+|------|-----|
+| **ask** (product cold start) | Default — do **not** set `ui.permission_mode = "always-approve"` / `ui.yolo = true` as product default |
+| **Full auto-accept** | CLI **`--yolo`** (Codex-like); optional mid-session toggles remain |
+
+Legacy `config.models.yaml` `assignment.<role>` still maps → agent `model:` via `apply-models.sh`. Prefer editing **`[roles.<role>].model`** in TOML going forward; keep YAML assignment in sync or re-run both apply scripts after model renames.
+
+### Relationship to older overlays
+
+| Overlay | Status after D2 |
+|---------|-----------------|
+| `config.roles.toml` | **Canonical seed** for `[roles.*]` |
+| `agents/*.md` YAML tools/model/color | **Generated bridge** — do not hand-edit floors; edit TOML + `--apply` |
+| `config.permissions.yaml` | Policy checklist / verify script; must match TOML tools |
+| `config.models.yaml` assignment | Still useful for multi-model registry ergonomics; role model pin → TOML preferred |
+| `prompts/roles/*.md` frontmatter | **Forbidden** for product config (body only) |
 
 ## What OpenCode does better (learn, don’t clone wholesale)
 

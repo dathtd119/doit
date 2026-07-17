@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
-"""Map do-harness/config.models.yaml assignment into agent frontmatter model pins.
+"""Map do-harness/config.models.yaml assignment into role contract model pins.
 
 VAL-M1-MODEL-001 / F-M1-MODEL-APPLY
 
 - Reads product YAML (registry + assignment) — not a second runtime registry.
 - --dry-run (default): print role → model (+ effort) map; no writes.
-- --validate: exit non-zero on missing registry names, broken assignment, or
-  missing agent files for assigned roles.
-- --apply: write model (and optional effort) into do-harness/agents/<role>.md
-  frontmatter. Always validates first.
+- --validate: exit non-zero on missing registry names or broken assignment.
+- --apply: write model (and optional effort) into do-harness/config.roles.toml
+  [roles.<stem>]. Always validates first.
 
 Stock ~/.config/doit/config.toml remains the runtime multi-model source of truth.
-This script only pins agent frontmatter model: / effort: from the YAML policy.
+Product roles no longer use do-harness/agents/*.md.
 """
 
 from __future__ import annotations
@@ -157,11 +156,11 @@ def parse_assignments(data: dict[str, Any]) -> list[Pin]:
 
 def validate(
     data: dict[str, Any],
-    agents_dir: Path,
+    _agents_dir: Path | None = None,
     *,
     require_roster: bool = True,
 ) -> tuple[list[Pin], list[str]]:
-    """Validate config and agent paths. Returns (pins, error messages)."""
+    """Validate registry/assignment. Returns (pins, error messages)."""
     errors: list[str] = []
     try:
         names = registry_names(data)
@@ -188,15 +187,6 @@ def validate(
             errors.append(
                 f"assignment.{pin.role}: model '{pin.model}' is not in "
                 f"models.registry (known: {sorted(names)})"
-            )
-        agent_path = agents_dir / f"{pin.role}.md"
-        if not agent_path.is_file():
-            errors.append(
-                f"assignment.{pin.role}: agent file missing: {agent_path}"
-            )
-        elif not read_frontmatter(agent_path)[0]:
-            errors.append(
-                f"assignment.{pin.role}: no YAML frontmatter in {agent_path}"
             )
 
     if require_roster:
@@ -261,8 +251,46 @@ def set_frontmatter_field(fm: str, key: str, value: str) -> str:
     raise ValueError(f"unsupported frontmatter key: {key}")
 
 
+def apply_pin_to_roles_toml(path: Path, pin: Pin, *, dry_run: bool) -> str:
+    """Update [roles.<stem>].model (and optional effort) in config.roles.toml."""
+    if not path.is_file():
+        raise ValueError(f"roles toml missing: {path}")
+    text = path.read_text(encoding="utf-8")
+    header = f"[roles.{pin.role}]"
+    if header not in text:
+        raise ValueError(f"missing {header} in {path}")
+    start = text.index(header)
+    rest = text[start + len(header) :]
+    m_next = re.search(r"\n\[roles\.", rest)
+    end_rel = m_next.start() if m_next else len(rest)
+    section = rest[:end_rel]
+    after = rest[end_rel:]
+
+    def set_scalar(block: str, key: str, value: str) -> str:
+        line_re = re.compile(rf"^{key}\s*=\s*.*$", re.MULTILINE)
+        if line_re.search(block):
+            return line_re.sub(f'{key} = "{value}"', block, count=1)
+        return f'\n{key} = "{value}"' + block
+
+    new_section = set_scalar(section, "model", pin.model)
+    if pin.effort is not None:
+        new_section = set_scalar(new_section, "effort", pin.effort)
+
+    if new_section == section:
+        return f"{pin.role}: unchanged (already model: {pin.model}" + (
+            f", effort: {pin.effort})" if pin.effort else ")"
+        )
+
+    new_text = text[: start + len(header)] + new_section + after
+    if not dry_run:
+        path.write_text(new_text, encoding="utf-8")
+    action = "would write" if dry_run else "wrote"
+    effort_bit = f", effort: {pin.effort}" if pin.effort else ""
+    return f"{pin.role}: {action} model: {pin.model}{effort_bit} → {path}"
+
+
 def apply_pin_to_agent(path: Path, pin: Pin, *, dry_run: bool) -> str:
-    """Update agent frontmatter. Returns a one-line status description."""
+    """Deprecated: agent bridge removed; kept for tests that still call it."""
     fm, text = read_frontmatter(path)
     if fm is None:
         raise ValueError(f"no frontmatter: {path}")
@@ -278,7 +306,6 @@ def apply_pin_to_agent(path: Path, pin: Pin, *, dry_run: bool) -> str:
 
     match = FRONTMATTER_RE.match(text)
     assert match is not None
-    # Rebuild with same closing --- style as original (LF).
     new_text = f"---\n{new_fm}\n---\n" + text[match.end() :]
     if not dry_run:
         path.write_text(new_text, encoding="utf-8")

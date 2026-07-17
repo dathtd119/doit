@@ -9,3 +9,8 @@ if command -v doit >/dev/null 2>&1; then
   # Optional short mnemonic (bang avoids keyword confusion in some shells)
   alias 'do!'='doit'
 fi
+
+# Product: disable media generation tools.
+# image_gen / image_edit are env-gated only (GROK_IMAGE_*); not [features].
+export GROK_IMAGE_GEN=0
+export GROK_IMAGE_EDIT=0

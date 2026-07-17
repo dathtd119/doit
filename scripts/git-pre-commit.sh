@@ -11,6 +11,7 @@ export GIT_OPTIONAL_LOCKS=0
 
 echo "[pre-commit] product quality gates"
 bash scripts/check-large-files.sh
+bash scripts/check-exfil-surfaces.sh
 bash scripts/check-tech-debt.sh
 bash scripts/validate-agents-md.sh
 

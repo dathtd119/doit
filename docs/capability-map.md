@@ -1,6 +1,6 @@
 # Capability map: pi-ness → grok-build / do
 
-**Status:** M0 inventory **sealed** (F-DOC-003 / VAL-DOC-003). **M1–M3 product surfaces applied** (role lock, L0–L6, progressive skills, guided blocks, continuation, CodeGraph MCP, hashline default) — refresh sealed under **F-M3-SHIP** / VAL-M3-SHIP-001 (2026-07-16).  
+**Status:** M0 inventory **sealed** (F-DOC-003 / VAL-DOC-003). **M1–M3 product surfaces applied** (role lock, L0–L6, progressive skills, guided blocks, continuation, CodeGraph MCP, standard file tools + hashline opt-in) — refresh sealed under **F-M3-SHIP** / VAL-M3-SHIP-001 (2026-07-16); file-toolset policy flip 2026-07-16 (standard default).  
 **Purpose:** Map pi-ness harness modules, L0–L6 prompt layers, roles, continuum concepts, and **model assignment** surfaces onto forked grok-build tools / APIs / plugins / hooks / config — or **`"gap"`**.
 
 **How to use:** Prefer existing grok surfaces; do not reinvent. For gaps, follow [patch-matrix.md](./patch-matrix.md) path/order and [limitations.md](./limitations.md). Base inventory: [grok-build/](./grok-build/).
@@ -58,7 +58,7 @@ Source group table: `/home/datht/code/pi-ness/packages/piness-core/src/native/RE
 | **mcp-client** | `native/mcp-client/` | Cap enabled tools; discover then call | `SearchTool` / `UseTool`; `xai-grok-mcp/`; bridge `xai-grok-tools/src/bridge.rs` | **Mapped** — use progressive MCP ([patterns](./grok-build/patterns.md) § MCP) |
 | **tool-alias** | `native/tool-alias/` | Alias names → canonical tools | OpenCode/Codex namespaces + `ToolServerConfig` name overrides | **Partial** — multi-namespace IDs; no pi alias layer |
 | **unified-read** | `native/unified-read/` | Single read surface (file/dir limits) | `ReadFileTool`, `ListDirTool`, concise variants | **Mapped** — use GrokBuild read/list |
-| **hashline** | `native/hashline/` | Hash-anchored edit grammar | `GrokBuildHashline:*` (`hashline_read/edit/grep`); `FileToolset::Hashline`; product default via `do-harness/config.toolset.toml` + [hashline.md](./hashline.md) | **Mapped (product default)** — M3 **sealed** F-M3-HASH / VAL-M3-HASH-001; stock Rust Default still Standard until TOML overlay; rollback `file_toolset = "standard"` |
+| **hashline** | `native/hashline/` | Hash-anchored edit grammar | `GrokBuildHashline:*` (`hashline_read/edit/grep`); `FileToolset::Hashline`; **opt-in** via `file_toolset = "hashline"` ([hashline.md](./hashline.md)); product default `file_toolset = "standard"` in `do-harness/config.toolset.toml` | **Mapped (opt-in)** — M3 sealed F-M3-HASH; **policy flip 2026-07-16**: standard is product default; hashline knobs kept for opt-in |
 | **ask-user** | `native/ask-user/` | Structured user questions | `AskUserQuestionTool` (`ToolKind::AskUser`) | **Mapped** |
 | **lsp** | `native/lsp/` | Language server client | `LspTool` (`ToolKind::Lsp`) | **Mapped** |
 | **codegraph** (ext) | `packages/piness-ext-codegraph/` | Lean explore/impact tools | Crate `xai-codebase-graph/` + MCP server `do-harness/codegraph/` (`codegraph_explore` / `codegraph_impact`); [codegraph.md](./codegraph.md) | **Mapped (MCP)** (L7 / VAL-M3-CG-001) |
@@ -106,7 +106,7 @@ Source group table: `/home/datht/code/pi-ness/packages/piness-core/src/native/RE
 
 | Concept | pi-ness home | Grok / do surface | Status |
 |---------|--------------|-------------------|--------|
-| **Roles (main session)** | `packages/piness-core/src/roles.ts`, `session-role.ts`, `prompts/roles/` | Agent discovery; subagent roles/personas; primary Tab cycle | **Partial** — L1; lock policy documented M0, implement M1 |
+| **Roles (main session)** | `packages/piness-core/src/roles.ts`, `session-role.ts`, `prompts/roles/` | Agent discovery; subagent roles/personas; primary Tab cycle; TOML `[roles.*]` | **Partial** — L1 lock **shipped** (M1); contracts seed `config.roles.toml` (D2); role-as-system = Extend + body swap ([plan 260716-2010](../plans/260716-2010-piness-role-kernel-parity/plan.md), [matrix](../plans/260716-2010-piness-role-kernel-parity/research/piness-do-parity-matrix.md)) |
 | **Role routing** | `role-routing.ts` | Subagent type/role model pools; do `assignment:` | **Partial** — L13 wire M1 |
 | **Side-ask** | `docs/side-ask.md`, TUI | No dual-stream product | **`"gap"`** (L8) |
 | **CodeGraph package** | `piness-ext-codegraph` | `xai-codebase-graph` + MCP `doit-codegraph` ([codegraph.md](./codegraph.md)) | **Mapped (MCP)** (L7) |
@@ -120,11 +120,11 @@ pi-ness L0–L6 (from `/home/datht/code/pi-ness/docs/prompt-system.md` and do [p
 
 | Layer purpose | pi-ness (typical) | Grok inject / surface | do product home | Status |
 |---------------|-------------------|----------------------|-----------------|--------|
-| Identity / kernel safety | L0 `SYSTEM.md` / factories | System prompt + permission + hooks | `do-harness/prompts/`, hard AGENTS constraints | **Partial** — no L0 registry |
+| Identity / kernel safety | L0 `SYSTEM.md` / factories | **Live:** `templates/prompt.md` via `base_template()` | Product `l0-kernel.md` = docs / optional Extend append only — never base replace ([system-prompt-truth](../plans/260716-2010-piness-role-kernel-parity/research/system-prompt-truth.md)) | **Partial** — stock core live; product fragment not wired |
 | Tool contracts | L1 tool `registerTool` snippets | Tool descriptions in registry; `ToolKind` filters | Prefer stock tool docs; avoid rewrite | **Mapped** |
 | Project brief | L2 `AGENTS.md` context | Project files / workspace context discovery | Root `AGENTS.md` + `docs/` | **Mapped** |
 | Progressive catalogs | L3 skill-catalog dynamic | Skills listing + reminders; MCP search | Config ignore + L4 work | **Partial** |
-| Role body | L4 `${role_body}` / roles/* | Agent profile body / role `prompt_file` | `do-harness/agents/`, roles | **Partial** — primary role machine L1 |
+| Role body | L4 `${role_body}` / roles/* | Agent `prompt_body` append under **Extend** | `do-harness/prompts/roles/*` + agents bridge; meta `[roles.*]` TOML | **Partial** — lock shipped; body SoT + tools filter in plan 260716-2010 |
 | Mode injects | L5 `before_agent_start` fragments | Plugins, hooks, plan-mode tool hints | Hooks + plan tools | **Partial** |
 | Disk state (re-read) | L6 `.piness/` | Session plan/goal files on disk | Map `.grok` session layout (L9) | **Map** — do not paste full bodies |
 | Fragment maxBytes | `prompt-fragments/` + budget sentinel | No first-class budget registry | Optional crate later | **`"gap"`** (L2) |
@@ -137,9 +137,10 @@ pi-ness L0–L6 (from `/home/datht/code/pi-ness/docs/prompt-system.md` and do [p
 
 | Concept | pi-ness | Grok | do | Status |
 |---------|---------|------|-----|--------|
-| Role as primary session control | `getActiveMainRole` / `setActiveMainRole` | Subagent roles strong; primary + Tab lock | Product Tab cycle + lock (M1 sealed) | **Mapped** primary machine (pre-message only) |
-| Role bodies | `prompts/roles/*` | Agent markdown / role TOML `prompt_file` | `do-harness/agents/`, prompts | **Mapped** path |
-| Tool/skill deny floors | Role routing + permission | Permissions + agent toolsets + hooks | do-harness + permission rules | **Partial** |
+| Role as primary session control | `getActiveMainRole` / `setActiveMainRole` | Subagent roles strong; primary + Tab lock | Product Tab cycle + lock (M1 sealed); Tab=roles only target D1 | **Mapped** primary machine (pre-message only) |
+| Role bodies | `prompts/roles/*` | Agent markdown / role TOML `prompt_file` | Body: `prompts/roles/*`; bridge: `agents/*`; contract: `config.roles.toml` | **Mapped** path; SoT split D2 in progress |
+| Role contracts (tools/model/color) | `config_roles.jsonc` | — | `~/.config/doit/config.toml` `[roles.*]`; seed `do-harness/config.roles.toml` | **Partial** — parse + seed + apply bridge (phase 05) |
+| Tool/skill deny floors | Role routing + permission | Permissions + agent toolsets + hooks | TOML `tools`/`disallowed_tools` + hooks | **Partial** — strict schema filter phase 03 |
 | Subagent spawn | Role-aware spawn | `TaskTool` + `xai-grok-subagent-resolution` | Use stock; pin models via L13 | **Mapped** |
 | Personas | pi session personas | `.doit/personas/`, `[subagents.personas.*]` | Optional product personas | **Mapped** |
 | Intake default | intake role + intent packs | Agent profile proof (F-EXT-001) | do-harness intake | **Pending proof** |
@@ -231,19 +232,23 @@ Full namespace/kind tables: [native-tools.md](./grok-build/native-tools.md).
 
 ---
 
-## 9. Explicit `"gap"` register (remaining after M3 seal)
+## 9. Explicit `"gap"` register (remaining after M3 seal + 2026-07-17 recheck)
 
-Shipped gaps removed from this register live under [backlog-m1-m3.md](./backlog-m1-m3.md) exit criteria and [CHANGELOGS.md](../CHANGELOGS.md).
+Shipped gaps removed from this register live under [backlog-m1-m3.md](./backlog-m1-m3.md) exit criteria and [CHANGELOGS.md](../CHANGELOGS.md). **Prioritized residual narrative** (what pi-ness still does better): [future-plan.md](./future-plan.md) § pi-ness still better than doit.
 
 | Gap | L* | Status / milestone | Preferred path |
 |-----|----|--------------------|----------------|
-| Named L0–L6 fragment registry + maxBytes | L2 | Partial after M1 map | prompts + plugin; crate if needed |
+| Named L0–L6 fragment registry + maxBytes | L2 | Parking lot (S2) | prompts + plugin; crate if needed |
 | TS `NATIVE_HARNESS_EXTENSION_FACTORIES` | L3 | Never | **Cannot port** — re-express via plugin/hook/tool_pack |
-| `skill_search` / `skill_load` BM25 catalog | L4 | Parking lot (M2 progressive done without BM25) | config + skill; optional crate |
+| `skill_search` / `skill_load` BM25 catalog | L4 | Parking lot (S1; M2 progressive done without BM25) | config + skill; optional crate |
 | Full crate continuation coordinator | L5 | Optional (hooks shipped M2) | crate only if multi-lane races reappear |
 | CodeGraph in-process `tool_pack` | L7 | Deferred (MCP shipped M3) | `register_tool_pack` if MCP insufficient |
 | Side-ask dual stream UI | L8 | Parking lot | defer TUI; intake agent first |
 | OpenCode-parity permission rules YAML | — | Parking lot | after M2 floors |
+| Role-as-system body live in base stack | L1/L2 | Active plan 260716-2010 phase 02 (K1) | Extend + body swap; never Full |
+| Strict tool schemas ⊆ role allowlist | L1 | Active plan phase 03 (K2) | TOML `[roles.*].tools` ∩ registry |
+| Goal-as-mission lifecycle | L5 | Parking lot (C1) | opencode-missions semantics on grok continuum |
+| Interrupt-streak tracker | L5 | Parking lot (C2) | only if M2 hooks thrash |
 | OpenTUI / Node harness port | L11 | Never M0–M3 | defer |
 
 ---

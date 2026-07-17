@@ -599,11 +599,15 @@ pub fn delete_persona_file(path: &Path) -> Result<(), String> {
     std::fs::remove_file(path).map_err(|e| format!("Failed to delete persona file: {e}"))?;
     Ok(())
 }
-/// Load `[agent]` from effective config (merged shell + pager config layers).
-fn load_agent_selection_config() -> AgentSelectionConfig {
+/// Load effective shell config (merged layers) when available.
+fn load_shell_config() -> Option<xai_grok_shell::agent::config::Config> {
     xai_grok_shell::config::load_effective_config()
         .ok()
         .and_then(|root| xai_grok_shell::agent::config::Config::new_from_toml_cfg(&root).ok())
+}
+/// Load `[agent]` from effective config (merged shell + pager config layers).
+fn load_agent_selection_config() -> AgentSelectionConfig {
+    load_shell_config()
         .map(|cfg| cfg.agent)
         .unwrap_or_default()
 }
@@ -614,13 +618,21 @@ fn load_config_agent_name() -> Option<String> {
 /// Resolve the agent name new sessions would start with — mirrors
 /// `MvpAgent::resolve_agent_definition` in xai-grok-shell.
 pub fn resolve_default_agent_name(cwd: &Path, model_agent_type: Option<&str>) -> String {
-    let agent_config = load_agent_selection_config();
+    let shell_cfg = load_shell_config();
+    let agent_config = shell_cfg
+        .as_ref()
+        .map(|c| c.agent.clone())
+        .unwrap_or_default();
+    let product_default = shell_cfg
+        .as_ref()
+        .map(|c| c.roles.default_role().to_string());
     xai_grok_shell::agent::mvp_agent::MvpAgent::resolve_agent_definition(
         cwd,
         None,
         &agent_config,
         None,
         model_agent_type,
+        product_default.as_deref(),
     )
     .name
 }

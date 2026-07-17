@@ -517,6 +517,8 @@ fn paint_peek_config_badge(
         return;
     }
     let info = PromptInfo {
+        role: None,
+        role_color: None,
         model_name: &model_label,
         flags: &flags,
         multiline,

@@ -280,7 +280,12 @@ pub struct PromptFlag<'a> {
 
 /// Optional info line rendered below the prompt text.
 pub struct PromptInfo<'a> {
-    /// Primary label to display on the info line (left side).
+    /// Product role stem shown first: `role · model · policy` (plan D3).
+    /// When `None` / empty, the role segment is omitted (welcome/dashboard).
+    pub role: Option<&'a str>,
+    /// Optional role accent for the role name only (model/policy stay neutral).
+    pub role_color: Option<ratatui::style::Color>,
+    /// Primary model label (theme-neutral caption style).
     pub model_name: &'a str,
     /// Flags to display on the left side, joined by " · " (e.g., "plan", "always-approve").
     pub flags: &'a [PromptFlag<'a>],
@@ -3348,19 +3353,36 @@ impl PromptWidget {
             left_spans.push(Span::styled(warning.to_owned(), warning_style));
             left_spans.push(Span::styled(" · ", sep_style));
         }
-        left_spans.push(Span::styled(info.model_name, model_style));
-        for flag in info.flags {
-            left_spans.push(Span::styled(" · ", sep_style));
-            let mut style = if let Some(color) = flag.color {
-                if flag.bold {
-                    // Bold flags use full color for visibility.
-                    Style::default().fg(color).bg(bg)
+        // Order: role (accent) · model (neutral) · policy flags (neutral).
+        let mut need_sep = false;
+        if let Some(role) = info.role.filter(|r| !r.is_empty()) {
+            let role_style = if let Some(color) = info.role_color {
+                let fg = if focused {
+                    color
                 } else {
-                    let dimmed = crate::render::color::blend_color(bg, color, flag_opacity)
-                        .unwrap_or(theme.gray);
-                    Style::default().fg(dimmed).bg(bg)
-                }
-            } else if flag.bold {
+                    crate::render::color::blend_color(bg, color, flag_opacity)
+                        .unwrap_or(theme.gray)
+                };
+                Style::default().fg(fg).bg(bg).add_modifier(Modifier::BOLD)
+            } else {
+                model_style.add_modifier(Modifier::BOLD)
+            };
+            left_spans.push(Span::styled(role.to_owned(), role_style));
+            need_sep = true;
+        }
+        if !info.model_name.is_empty() {
+            if need_sep {
+                left_spans.push(Span::styled(" · ", sep_style));
+            }
+            left_spans.push(Span::styled(info.model_name, model_style));
+            need_sep = true;
+        }
+        for flag in info.flags {
+            if need_sep || !left_spans.is_empty() {
+                left_spans.push(Span::styled(" · ", sep_style));
+            }
+            // D3: policy flags are theme-neutral (ignore special plan/system hues).
+            let mut style = if flag.bold {
                 Style::default().fg(theme.text_primary).bg(bg)
             } else if focused {
                 flag_style
@@ -3373,6 +3395,7 @@ impl PromptWidget {
                 style = style.add_modifier(Modifier::BOLD);
             }
             left_spans.push(Span::styled(flag.text, style));
+            need_sep = true;
         }
         // Trailing pad mirrors the leading pad above.
         left_spans.push(Span::styled(" ", pad_style));

@@ -1563,11 +1563,17 @@ fn resolve_agent_definition(
     subagent_type: &str,
     ctx: &SubagentSpawnContext,
 ) -> Option<xai_grok_agent::config::AgentDefinition> {
-    let mut def = xai_grok_agent::discovery::by_name_in_cwd_with_plugins(
+    let mut def = crate::session::product_role::resolve_product_role_in_cwd(
         subagent_type,
         &ctx.parent_cwd,
-        ctx.plugin_registry.as_deref(),
     )
+    .or_else(|| {
+        xai_grok_agent::discovery::by_name_in_cwd_with_plugins(
+            subagent_type,
+            &ctx.parent_cwd,
+            ctx.plugin_registry.as_deref(),
+        )
+    })
     .or_else(|| {
         ctx.agent_config.as_ref().and_then(|cfg| {
             cfg.cli_agents
@@ -1602,6 +1608,7 @@ pub(crate) fn validate_subagent_type(
     ctx: &SubagentValidationContext,
 ) -> SubagentValidateTypeOutcome {
     let resolves = ctx.cli_agent_names.iter().any(|n| n == subagent_type)
+        || crate::session::role_switch::is_product_role(subagent_type)
         || xai_grok_agent::discovery::by_name_in_cwd_with_plugins(
             subagent_type,
             &ctx.parent_cwd,
@@ -1618,6 +1625,11 @@ pub(crate) fn validate_subagent_type(
         .map(|e| e.name)
         .collect();
         let mut seen: std::collections::HashSet<String> = available.iter().cloned().collect();
+        for name in crate::session::role_switch::PRODUCT_ROSTER {
+            if seen.insert((*name).to_string()) {
+                available.push((*name).to_string());
+            }
+        }
         for name in &ctx.cli_agent_names {
             if !ctx.is_subagent_enabled(name) {
                 continue;

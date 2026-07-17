@@ -8,7 +8,7 @@
 //! show.
 use ratatui::buffer::Buffer;
 use ratatui::layout::Rect;
-use ratatui::style::{Color, Style};
+use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::{Line, Span};
 use ratatui::widgets::{Clear, Widget};
 use xai_grok_pager::app::PagerTerminal;
@@ -571,6 +571,15 @@ fn render_prompt_info(
     let base = theme.primary().bg(Color::Reset);
     let sep = theme.dim().bg(Color::Reset);
     let mut segs: Vec<(String, Style)> = Vec::new();
+    // D3: role · model · policy; only role is accented.
+    if let Some(role) = agent.session_agent_name.as_deref().filter(|s| !s.is_empty()) {
+        let accent = xai_grok_pager::role_accent::resolve_role_accent(Some(role), None)
+            .unwrap_or(theme.text_secondary);
+        segs.push((
+            role.to_string(),
+            base.fg(accent).add_modifier(Modifier::BOLD),
+        ));
+    }
     if let Some(model) = agent.session.models.current_model_name() {
         let label = match agent.session.models.reasoning_effort {
             Some(eff) => format!("{model} ({eff})"),
@@ -580,17 +589,18 @@ fn render_prompt_info(
     }
     let effective_plan =
         minimal_api::plan_mode_pending(agent).unwrap_or(minimal_api::plan_mode_active(agent));
-    let mode_flag: Option<(&str, Color)> = if effective_plan {
-        Some(("plan", theme.accent_plan))
+    // Policy labels stay neutral (no plan-gold / yolo warning on the strip).
+    let mode_flag: Option<&str> = if effective_plan {
+        Some("plan")
     } else if agent.session.is_yolo() {
-        Some(("always-approve", theme.warning))
+        Some("always-approve")
     } else if agent.session.is_auto() {
-        Some(("auto", theme.accent_system))
+        Some("auto")
     } else {
         None
     };
-    if let Some((label, color)) = mode_flag {
-        segs.push((label.to_string(), base.fg(color)));
+    if let Some(label) = mode_flag {
+        segs.push((label.to_string(), base));
     }
     let used = agent.context_state.as_ref().map(|c| c.used);
     let total = agent

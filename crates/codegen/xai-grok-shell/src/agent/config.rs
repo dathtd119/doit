@@ -1302,6 +1302,11 @@ pub struct Config {
     /// is used for all sessions (unless overridden by CLI flag or ACP meta).
     #[serde(default)]
     pub agent: AgentSelectionConfig,
+    /// Product primary-session role contracts (`[roles]` / `[roles.<stem>]`).
+    /// Source of truth for tools, model, color, permission floors (plan D2).
+    /// Seed: `do-harness/config.roles.toml`. Prompt bodies stay under prompts/roles/.
+    #[serde(default)]
+    pub roles: RolesConfig,
     #[serde(default)]
     pub repo_changes_dedup: RepoChangesDedupConfig,
     /// Skills discovery configuration.
@@ -1604,6 +1609,137 @@ pub use xai_grok_agent::config::AgentDefinition;
 pub use xai_grok_agent::config::Effort;
 pub use xai_grok_agent::config::PermissionMode;
 pub use xai_grok_shared::ui_config::{ContextualHints, UiConfig};
+
+/// Product role contracts under `[roles]` in `~/.config/doit/config.toml`.
+///
+/// ```toml
+/// [roles]
+/// default = "intake"
+///
+/// [roles.intake]
+/// model = "combo-small"
+/// color = "cyan"
+/// permission_mode = "plan"
+/// tools = ["read_file", "list_dir"]
+/// disallowed_tools = ["write", "search_replace"]
+/// ```
+///
+/// Nested tables share the `roles` key with `default` (string) via a custom
+/// deserializer: string values are meta fields; tables are per-role contracts.
+#[derive(Debug, Clone, Default, Serialize, PartialEq, Eq)]
+pub struct RolesConfig {
+    /// Default primary-session role stem (product: `intake`).
+    pub default: Option<String>,
+    /// Per-role contracts keyed by stem (`intake`, `worker`, …).
+    pub contracts: std::collections::HashMap<String, RoleContract>,
+}
+
+/// One product role contract (`[roles.<stem>]`).
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(default)]
+pub struct RoleContract {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub color: Option<String>,
+    /// Agent permission mode string (`plan`, `default`, …) — maps to agent frontmatter.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub permission_mode: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub discover_skills: Option<bool>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub tools: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub disallowed_tools: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub effort: Option<String>,
+}
+
+impl RolesConfig {
+    /// Product default role when `[roles].default` is unset: `intake`.
+    ///
+    /// Users configure cold-start role in `config.toml`:
+    /// ```toml
+    /// [roles]
+    /// default = "worker"
+    /// ```
+    /// Pair with a discoverable agent under `.doit/agents/` or
+    /// `~/.config/doit/agents/` (and optionally `[agent] name`).
+    pub fn default_role(&self) -> &str {
+        self.default.as_deref().unwrap_or("intake")
+    }
+
+    pub fn get(&self, stem: &str) -> Option<&RoleContract> {
+        self.contracts.get(stem)
+    }
+
+    /// Model id pin for a role stem from `[roles.<stem>].model`, if set.
+    pub fn model_for_role(&self, stem: &str) -> Option<&str> {
+        self.get(stem)
+            .and_then(|c| c.model.as_deref())
+            .filter(|s| !s.is_empty())
+    }
+}
+
+impl<'de> Deserialize<'de> for RolesConfig {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        use serde::de::{self, MapAccess, Visitor};
+        use std::fmt;
+
+        struct RolesVisitor;
+        impl<'de> Visitor<'de> for RolesVisitor {
+            type Value = RolesConfig;
+
+            fn expecting(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                f.write_str("[roles] table with default and/or [roles.<name>] contracts")
+            }
+
+            fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
+            where
+                A: MapAccess<'de>,
+            {
+                let mut default = None;
+                let mut contracts = std::collections::HashMap::new();
+                while let Some(key) = map.next_key::<String>()? {
+                    match key.as_str() {
+                        "default" => {
+                            let v: String = map.next_value()?;
+                            default = Some(v);
+                        }
+                        other => {
+                            // Per-role table or ignore non-table unknowns softly
+                            let value: toml::Value = map.next_value()?;
+                            match value {
+                                toml::Value::Table(t) => {
+                                    let contract: RoleContract = t.try_into().map_err(|e| {
+                                        de::Error::custom(format!(
+                                            "roles.{other}: {e}"
+                                        ))
+                                    })?;
+                                    contracts.insert(other.to_string(), contract);
+                                }
+                                _ => {
+                                    return Err(de::Error::custom(format!(
+                                        "roles.{other}: expected a table (role contract)"
+                                    )));
+                                }
+                            }
+                        }
+                    }
+                }
+                Ok(RolesConfig { default, contracts })
+            }
+        }
+
+        deserializer.deserialize_map(RolesVisitor)
+    }
+}
+
 /// Configuration for selecting the agent definition.
 ///
 /// Set in `config.toml` under `[agent]`:
@@ -1714,6 +1850,7 @@ impl Default for Config {
             telemetry: TelemetryConfig::default(),
             session: SessionConfig::default(),
             agent: AgentSelectionConfig::default(),
+            roles: RolesConfig::default(),
             repo_changes_dedup: RepoChangesDedupConfig::default(),
             skills: SkillsConfig::default(),
             compat: CompatConfigToml::default(),
@@ -6427,6 +6564,59 @@ reasoning_effort = "low"
         assert!(cfg.agent.name.is_none());
         assert!(cfg.agent.definition.is_none());
     }
+    #[test]
+    fn parses_roles_contracts_from_toml() {
+        let raw: toml::Value = toml::from_str(
+            r#"
+            [roles]
+            default = "intake"
+
+            [roles.intake]
+            model = "combo-small"
+            color = "cyan"
+            permission_mode = "plan"
+            tools = ["read_file", "list_dir"]
+            disallowed_tools = ["write", "search_replace"]
+
+            [roles.worker]
+            model = "combo-big"
+            color = "yellow"
+            tools = ["read_file", "search_replace"]
+            "#,
+        )
+        .unwrap();
+        let cfg = Config::new_from_toml_cfg(&raw).expect("config should parse");
+        assert_eq!(cfg.roles.default_role(), "intake");
+        assert_eq!(cfg.roles.model_for_role("intake"), Some("combo-small"));
+        let intake = cfg.roles.get("intake").expect("intake contract");
+        assert_eq!(intake.model.as_deref(), Some("combo-small"));
+        assert_eq!(intake.color.as_deref(), Some("cyan"));
+        assert_eq!(intake.permission_mode.as_deref(), Some("plan"));
+        assert!(intake.tools.contains(&"read_file".to_string()));
+        assert!(intake.disallowed_tools.contains(&"write".to_string()));
+        let worker = cfg.roles.get("worker").expect("worker contract");
+        assert_eq!(worker.model.as_deref(), Some("combo-big"));
+        assert!(worker.tools.contains(&"search_replace".to_string()));
+    }
+
+    #[test]
+    fn roles_default_is_configurable() {
+        let raw: toml::Value = toml::from_str(
+            r#"
+            [roles]
+            default = "worker"
+
+            [roles.worker]
+            model = "combo-medium"
+            color = "yellow"
+            "#,
+        )
+        .unwrap();
+        let cfg = Config::new_from_toml_cfg(&raw).expect("config should parse");
+        assert_eq!(cfg.roles.default_role(), "worker");
+        assert_eq!(cfg.roles.model_for_role("worker"), Some("combo-medium"));
+    }
+
     #[test]
     fn parses_agent_selection_name() {
         let raw_config: toml::Value = toml::from_str(
