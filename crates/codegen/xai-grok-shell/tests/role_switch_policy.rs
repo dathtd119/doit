@@ -23,7 +23,7 @@ fn product_roster_has_five_roles() {
     assert_eq!(PRODUCT_ROSTER.len(), 5);
     assert!(is_product_role("intake"));
     assert!(is_product_role("orchestrator"));
-    assert!(is_product_role("explorer"));
+    assert!(is_product_role("explore"));
     assert!(is_product_role("worker"));
     assert!(is_product_role("oracle"));
     assert!(!is_product_role("plan"));
@@ -53,7 +53,7 @@ fn gate_role_cycle_apply_when_allowed() {
     assert_eq!(
         gate_role_cycle(0, false, Some("worker"), false),
         RoleCycleGate::Apply {
-            next_role: "explorer"
+            next_role: "explore"
         }
     );
 }
@@ -121,8 +121,8 @@ fn gate_role_model_repin_keep_post_lock_or_inherit() {
 #[test]
 fn role_switch_locked_toast_points_to_new_session() {
     // F-M1-UX: lock affordance must name new-session escape hatch.
-    let named = role_switch_locked_toast(Some("explorer"));
-    assert!(named.contains("explorer"), "{named}");
+    let named = role_switch_locked_toast(Some("explore"));
+    assert!(named.contains("explore"), "{named}");
     assert!(named.contains("new session"), "{named}");
     assert_eq!(role_switch_locked_toast(None), ROLE_SWITCH_LOCKED_HINT);
     assert!(ROLE_SWITCH_LOCKED_HINT.contains("new session"));

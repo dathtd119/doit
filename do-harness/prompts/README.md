@@ -11,7 +11,7 @@ l0-system.md
   ├── ${l0_general}   ← l0-general.md   (stock general)
   ├── ${l0_kernel}    ← l0-kernel.md    (harness rules + gates, once)
   ├── Identity        ← ${agent} ${role} ${policy}   (no model)
-  ├── ${role_body}    ← roles/<stem>.md (mission / workflow / style)
+  ├── ${agent_body} / role body    ← agents/<stem>.md (mission / workflow / style)
   └── Session         ← ${date} ${cwd} ${os} ${shell}
 ```
 
@@ -25,14 +25,14 @@ Placeholder names match file stems (`l0_general` ↔ `l0-general.md`). Catalog:
 | `l0-general.md` | Stock safety, tools, output style | Product gates, role mission |
 | `l0-kernel.md` | Harness rules, gates, continuum priority, role-lock | Role-specific workflow |
 | Identity (in shell) | Agent / role / policy | Model id |
-| `roles/*.md` | Static role: identity, can/cannot, workflow, style, DO/DON'T | Gates catalog, skills dump, model id |
+| `agents/*.md` | Static role: identity, can/cannot, workflow, style, DO/DON'T | Gates catalog, skills dump, model id |
 | Session (in shell) | date, cwd, os, shell | — |
 
 **Identity path:** stock general opening + Identity block (agent/role/policy) + role Mission.
 Roles **may** open Mission with one line `You are **{Role}** — …` and negative identity
 (`You are not …`). Roles do **not** re-list the gate catalog or embed skill firehoses.
 
-**Role body shape (recommended):** Mission (You are / are not) → Can/Cannot → Should/
+**Agent body shape (recommended):** Mission (You are / are not) → Can/Cannot → Should/
 Should not → Workflow → Output shape / examples → Behavioral checklist → DO/DON'T.
 Orchestrator also carries a specialist **routing catalog** (delegate when / don’t / rule of thumb).
 
@@ -43,7 +43,7 @@ Orchestrator also carries a specialist **routing catalog** (delegate when / don�
 
 | Surface | Path |
 |---------|------|
-| Role tools / model / color / policy | `../config.roles.toml` |
+| Role tools / model / color / policy | `../config.agents.toml` |
 | User merge | `../scripts/sync-user-config.sh --apply` |
 
 ```sh
@@ -60,5 +60,5 @@ bash do-harness/scripts/sync-l0-general.sh
 ## Runtime today
 
 Crate still uses `base_template()` + `agents/*.md` until product L0 expander
-lands. Edit prompts **here**; agent bodies come from `prompts/roles/` via
+lands. Edit prompts **here**; agent bodies come from `prompts/agents/` via
 `apply-role-contracts.sh --apply`.

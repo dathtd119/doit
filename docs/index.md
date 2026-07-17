@@ -44,6 +44,7 @@ Read **before crate work**. Evidence-backed map of the forked Grok Build base: p
 
 | Doc | Purpose |
 |-----|---------|
+| [agents-and-prompts.md](./agents-and-prompts.md) | Stock-native agents, `prompts/agents/`, dynamic roster + spawn graph |
 | [prompt-system.md](./prompt-system.md) | L0–L6 → grok inject map + role lifecycle + fragments under `do-harness/prompts/` (**M1**) |
 | [workspace.md](./workspace.md) | Continuum contract: goal / plan / todo → `.doit/` + `~/.config/doit` sessions; no dual-write (**CFG**) |
 | [continuation.md](./continuation.md) | L5 continuation priority (interrupt→streak→goal→plan→workflow→todo) + thrash-safe hooks (**M2**) |

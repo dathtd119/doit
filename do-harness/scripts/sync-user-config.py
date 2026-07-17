@@ -2,7 +2,7 @@
 """Sync product config types into ~/.config/doit/config.toml (config only).
 
 What this does
-  - Merge [roles] from do-harness/config.roles.toml (tools, model, color, policy)
+  - Merge [roles] from do-harness/config.agents.toml (tools, model, color, policy)
   - Merge [toolset] from do-harness/config.toolset.toml
   - Merge product [features]/[telemetry] privacy defaults
   - Ensure [model.<name>] exists for every role model pin (clone from default
@@ -15,7 +15,7 @@ What this does NOT do
   - Never overwrites api_key / base_url on existing [model.*] entries
   - Never touches sessions, skills, marketplace-cache
 
-Prompts SoT remains the repo: do-harness/prompts/roles/ (native, not customized
+Prompts SoT remains the repo: do-harness/prompts/agents/ (native, not customized
 from ~/.config/doit). Product does NOT install agents into ~/.config/doit/agents
 or .doit/agents — those dirs are user override only (empty by default).
 
@@ -254,7 +254,7 @@ def dump_config(cfg: dict[str, Any]) -> str:
 def deep_merge_roles(dst: dict[str, Any], seed: dict[str, Any]) -> dict[str, Any]:
     """Replace roles with seed contracts; keep unknown extra role stems from dst."""
     out: dict[str, Any] = {}
-    # seed is the [roles] root from config.roles.toml (includes default + stems)
+    # seed is the [roles] root from config.agents.toml (includes default + stems)
     for k, v in seed.items():
         out[k] = v
     if isinstance(dst.get("roles"), dict):
@@ -289,10 +289,10 @@ def install_user_agents(harness: Path, config_home: Path) -> list[str]:
     """No-op: product does not install roster agents.
 
     `.doit/agents/` and `~/.config/doit/agents/` are user-override only.
-    Role bodies: do-harness/prompts/roles/; contracts: config.roles.toml / [roles].
+    Role bodies: do-harness/prompts/agents/; contracts: config.agents.toml / [roles].
     """
     _ = (harness, config_home)
-    return ["agents: skip install (product roles from prompts/roles + [roles])"]
+    return ["agents: skip install (product roles from prompts/agents + [roles])"]
 
     dst_dir.mkdir(parents=True, exist_ok=True)
     for role in PRODUCT_ROLES:
@@ -377,7 +377,7 @@ def merge_config(
     # roles
     roles_root = roles_seed.get("roles", roles_seed)
     if not isinstance(roles_root, dict):
-        raise ValueError("config.roles.toml missing [roles]")
+        raise ValueError("config.agents.toml missing [roles]")
     out["roles"] = deep_merge_roles(user, roles_root)
     notes.append(f"roles: merged {sum(1 for k,v in out['roles'].items() if isinstance(v, dict))} contracts")
 
@@ -441,7 +441,7 @@ def main() -> int:
 
     harness = args.harness or harness_dir()
     target = args.target or default_user_config()
-    roles_path = harness / "config.roles.toml"
+    roles_path = harness / "config.agents.toml"
     toolset_path = harness / "config.toolset.toml"
     defaults_path = harness / "config.defaults.toml"
 
@@ -499,7 +499,7 @@ def main() -> int:
         pass
     print(f"wrote: {target}")
 
-    # Product roles load from prompts/roles + [roles] config — no agents install.
+    # Product roles load from prompts/agents + [roles] config — no agents install.
     return 0
 
 

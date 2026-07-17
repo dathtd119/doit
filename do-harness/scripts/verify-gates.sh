@@ -167,12 +167,13 @@ if [[ -f "$ENV_PY" ]]; then
 fi
 
 # Live stdin deny must not be bare Permission denied
+# Path-policy is shell-only (write tools use stock ask/auto permissions).
 STDIN_OUT="$(
-  printf '%s' '{"toolName":"write","cwd":"/tmp","toolInput":{"path":"/etc/do-gate-verify","contents":"x"}}' \
+  printf '%s' '{"toolName":"Bash","cwd":"/tmp","toolInput":{"command":"echo x > /etc/do-gate-verify"}}' \
     | python3 "$PATH_PY" 2>/dev/null || true
 )"
 STDIN_CODE=0
-printf '%s' '{"toolName":"write","cwd":"/tmp","toolInput":{"path":"/etc/do-gate-verify","contents":"x"}}' \
+printf '%s' '{"toolName":"Bash","cwd":"/tmp","toolInput":{"command":"echo x > /etc/do-gate-verify"}}' \
   | python3 "$PATH_PY" >/tmp/do-gate-path-out.json 2>/dev/null || STDIN_CODE=$?
 if [[ "$STDIN_CODE" -eq 2 ]] && grep -q '\[GATE: path-policy-write-outside\]' /tmp/do-gate-path-out.json \
   && grep -q 'Do this instead' /tmp/do-gate-path-out.json; then
@@ -231,7 +232,7 @@ else
   fail "missing $KERNEL"
 fi
 
-ROLE_DIR="$HARNESS_DIR/prompts/roles"
+ROLE_DIR="$HARNESS_DIR/prompts/agents"
 for role in intake orchestrator explorer worker oracle; do
   f="$ROLE_DIR/${role}.md"
   if [[ ! -f "$f" ]]; then

@@ -44,13 +44,18 @@ Hook JSON: `do-harness/hooks/guided-path-policy.json`
 
 | Gate id | Blocks (summary) |
 |---------|------------------|
-| `path-policy-write-outside` | Write/edit tools or shell redirects that target paths outside the session workspace (`cwd`) |
+| `path-policy-write-outside` | **Shell only** — redirects / `cp`/`mv`/… destinations into protected system/secret paths |
 
-**Allow:** writes under workspace root (relative or absolute).  
-**Deny:** absolute paths outside cwd; `..` escapes that resolve outside.  
-**Role floors (F-M2-PERM / VAL-M2-PERM-001):** pure read roles (intake / explorer /
-oracle) and orchestrator deny the edit surface via `disallowedTools`; workers still
-hit this gate for out-of-tree writes. Policy: `docs/role-permissions.md`.
+**Stance:** allow-by-default for agent work.  
+**Not gated here:** dedicated write/edit tools (`write`, `edit`, `apply_patch`,
+hashline, …) — stock permission UX (ask / auto-accept / yolo) owns those.  
+**Shell deny only (denylist):** system roots (`/etc`, `/usr`, `/bin`, `/sbin`,
+`/lib`, `/boot`, `/dev`, `/proc`, `/sys`, `/root`, …) and home secret trees
+(`~/.ssh`, `~/.gnupg`, `~/.aws`, `~/.kube`, `~/.docker/config.json`, …).  
+**Allow shell writes:** workspace, home project paths, `/tmp`, `~/.config/doit` /
+`$GROK_HOME` (sessions), and other non-denylisted paths.  
+**Role floors (F-M2-PERM / VAL-M2-PERM-001):** pure read roles still drop edit
+tools via `disallowedTools`. Policy: `docs/role-permissions.md`.
 
 ## M2 — env expose family
 

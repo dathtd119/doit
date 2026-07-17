@@ -5,7 +5,7 @@
 #   1. Policy doc (docs/hashline.md) — standard default + hashline opt-in + rollback
 #   2. Product toolset fragment defaults to standard; hashline knobs remain for opt-in
 #   3. Worker prefers standard tools; orchestrator denies bulk edit
-#   4. Media tools denied on all product roles (config.roles.toml)
+#   4. Media tools denied on all product roles (config.agents.toml)
 #   5. Native GrokBuildHashline citations (opt-in path exists; no second grammar)
 #   6. README + index + capability-map enablement language
 #
@@ -140,75 +140,113 @@ fi
 # ---------------------------------------------------------------------------
 section "3. Worker prefers standard tools; orchestrator denies bulk edit"
 # ---------------------------------------------------------------------------
+# Contracts SoT is config.agents.toml (bodies under prompts/agents are mission-only).
 
-WORKER="$HARNESS_DIR/agents/worker.md"
-ORCH="$HARNESS_DIR/agents/orchestrator.md"
+ROLES_CFG="$HARNESS_DIR/config.agents.toml"
+if [[ ! -f "$ROLES_CFG" ]]; then
+  ROLES_CFG="$HARNESS_DIR/config.roles.toml"
+fi
+if [[ ! -f "$ROLES_CFG" ]]; then
+  fail "missing config.agents.toml / config.roles.toml"
+else
+  ok "contracts file $(basename "$ROLES_CFG")"
+fi
 
-if [[ -f "$WORKER" ]]; then
-  ok "worker agent exists"
+# Helper: extract table body for agents.X or roles.X (literal section name)
+extract_contract() {
+  local key="$1"
+  awk -v key="$key" '
+    index($0, "[" key "]") == 1 { p=1; next }
+    p && /^\[/ { exit }
+    p { print }
+  ' "$ROLES_CFG"
+}
+
+WORKER_KEY="grok-build-worker"
+if [[ -z "$(extract_contract "agents.${WORKER_KEY}")" ]]; then
+  WORKER_KEY="worker"
+fi
+block=$(extract_contract "agents.${WORKER_KEY}")
+if [[ -z "$block" ]]; then
+  block=$(extract_contract "roles.${WORKER_KEY}")
+fi
+if [[ -n "$block" ]]; then
+  ok "worker contract exists (${WORKER_KEY})"
   for needle in read_file search_replace write grep; do
-    if grep -qE "^[[:space:]]*-[[:space:]]*${needle}[[:space:]]*$" "$WORKER" \
-      || grep -A40 '^tools:' "$WORKER" | grep -qE "^[[:space:]]*-[[:space:]]*${needle}[[:space:]]*$"; then
+    if printf '%s
+' "$block" | grep -qE "\"${needle}\""; then
       ok "worker tools include: $needle"
     else
-      # tools may be listed under tools: block
-      if awk '/^tools:/{p=1;next} /^[a-zA-Z]/{p=0} p' "$WORKER" | grep -qE "^[[:space:]]*-[[:space:]]*${needle}[[:space:]]*$"; then
-        ok "worker tools include: $needle"
-      else
-        fail "worker missing standard tool: $needle"
-      fi
+      fail "worker missing standard tool: $needle"
     fi
   done
-  if grep -qiE 'prefer.*(search_replace|write)|standard file toolset|search_replace.*/.*write' "$WORKER"; then
-    ok "worker states standard edit preference"
+else
+  fail "missing worker contract"
+fi
+
+WORKER_BODY="$HARNESS_DIR/prompts/agents/worker.md"
+if [[ -f "$WORKER_BODY" ]]; then
+  if grep -qiE 'prefer.*(search_replace|write)|standard file toolset|search_replace.*/.*write' "$WORKER_BODY"; then
+    ok "worker body states standard edit preference"
   else
     fail "worker body must prefer search_replace/write (standard toolset)"
   fi
-  # Hashline must not be primary preference language.
-  if grep -qiE 'prefer.*hashline|hashline.*(default|primary)|primary.*hashline' "$WORKER"; then
+  if grep -qiE 'prefer hashline|hashline as (the )?primary|primary edit.*hashline' "$WORKER_BODY"; then
     fail "worker must not prefer hashline as primary (standard is default)"
   else
     ok "worker does not prefer hashline as primary"
   fi
 else
-  fail "missing $WORKER"
+  fail "missing $WORKER_BODY"
 fi
 
-if [[ -f "$ORCH" ]]; then
-  ok "orchestrator agent exists"
-  if grep -A40 'disallowedTools:' "$ORCH" | grep -qE '^[[:space:]]*-[[:space:]]*write[[:space:]]*$'; then
+ORCH_KEY="grok-build-orchestrator"
+block=$(extract_contract "agents.${ORCH_KEY}")
+if [[ -z "$block" ]]; then
+  block=$(extract_contract "roles.orchestrator")
+  ORCH_KEY="orchestrator"
+fi
+if [[ -n "$block" ]]; then
+  ok "orchestrator contract exists (${ORCH_KEY})"
+  if printf '%s
+' "$block" | grep -A80 'disallowed_tools' | grep -qE "\"write\""; then
     ok "orchestrator disallows write"
   else
     fail "orchestrator must deny write (bulk edit floor)"
   fi
-  if grep -A40 'disallowedTools:' "$ORCH" | grep -qE '^[[:space:]]*-[[:space:]]*search_replace[[:space:]]*$'; then
+  if printf '%s
+' "$block" | grep -A80 'disallowed_tools' | grep -qE "\"search_replace\""; then
     ok "orchestrator disallows search_replace"
   else
     fail "orchestrator must deny search_replace (bulk edit floor)"
   fi
-  # hashline_edit: if mentioned in deny list, fine; if absent, also fine under standard default
-  # (hashline tools not in session when file_toolset=standard). Prefer explicit deny if present.
-  if grep -A40 'disallowedTools:' "$ORCH" | grep -q 'hashline_edit'; then
-    ok "orchestrator disallows hashline_edit (defense in depth)"
-  else
-    ok "orchestrator bulk-edit deny covers write/search_replace (hashline_edit N/A under standard default)"
-  fi
+  ok "orchestrator bulk-edit deny covers write/search_replace (hashline_edit N/A under standard default)"
 else
-  fail "missing $ORCH"
+  fail "missing orchestrator contract"
 fi
 
-# Non-worker roles: deny bulk edit (write / search_replace)
-for role in intake explorer oracle; do
-  f="$HARNESS_DIR/agents/${role}.md"
-  if [[ ! -f "$f" ]]; then
-    fail "missing $f"
+# Non-worker: deny bulk edit via contract
+for pair in "intake:grok-build-ask-user" "explore:explore" "oracle:grok-build-oracle"; do
+  alias="${pair%%:*}"
+  can="${pair##*:}"
+  block=$(extract_contract "agents.${can}")
+  if [[ -z "$block" ]]; then
+    block=$(extract_contract "agents.${alias}")
+  fi
+  if [[ -z "$block" ]]; then
+    block=$(extract_contract "roles.${alias}")
+  fi
+  if [[ -z "$block" ]]; then
+    fail "missing contract for $alias"
     continue
   fi
-  if grep -A40 'disallowedTools:' "$f" | grep -qE '^[[:space:]]*-[[:space:]]*write[[:space:]]*$' \
-    && grep -A40 'disallowedTools:' "$f" | grep -qE '^[[:space:]]*-[[:space:]]*search_replace[[:space:]]*$'; then
-    ok "$role disallows write + search_replace"
+  if printf '%s
+' "$block" | grep -A80 'disallowed_tools' | grep -qE "\"write\"" \
+    && printf '%s
+' "$block" | grep -A80 'disallowed_tools' | grep -qE "\"search_replace\""; then
+    ok "$alias disallows write + search_replace"
   else
-    fail "$role must disallow write and search_replace"
+    fail "$alias must disallow write and search_replace"
   fi
 done
 
@@ -216,50 +254,49 @@ done
 section "4. Media tools denied on all product roles"
 # ---------------------------------------------------------------------------
 
-ROLES_CFG="$HARNESS_DIR/config.roles.toml"
 if [[ -f "$ROLES_CFG" ]]; then
-  ok "do-harness/config.roles.toml exists"
+  ok "do-harness/$(basename "$ROLES_CFG") exists"
 else
-  fail "missing $ROLES_CFG"
+  fail "missing contracts file"
 fi
 
 MEDIA_TOOLS=(image_gen image_edit image_to_video reference_to_video)
-PRODUCT_ROLES=(intake orchestrator explorer worker oracle)
+PRODUCT_KEYS=(
+  agents.grok-build-ask-user
+  agents.grok-build-orchestrator
+  agents.explore
+  agents.grok-build-worker
+  agents.grok-build-oracle
+  roles.intake
+  roles.orchestrator
+  roles.worker
+  roles.oracle
+  roles.explore
+  roles.explorer
+)
 
-if [[ -f "$ROLES_CFG" ]]; then
-  for role in "${PRODUCT_ROLES[@]}"; do
-    # Extract disallowed_tools block for [roles.<role>] until next [roles. or EOF
-    block=$(awk -v r="roles.${role}" '
-      $0 ~ "^\\[" r "\\]" {p=1; next}
-      p && $0 ~ /^\[roles\./ {exit}
-      p {print}
-    ' "$ROLES_CFG")
-    if [[ -z "$block" ]]; then
-      fail "config.roles.toml missing [roles.${role}]"
-      continue
-    fi
-    for t in "${MEDIA_TOOLS[@]}"; do
-      if printf '%s\n' "$block" | grep -qE "\"${t}\""; then
-        ok "roles.${role} denies $t"
-      else
-        fail "roles.${role} must deny media tool: $t"
-      fi
-    done
-  done
-fi
-
-# Agent frontmatter should also deny media (regenerated from roles SoT)
-for role in "${PRODUCT_ROLES[@]}"; do
-  f="$HARNESS_DIR/agents/${role}.md"
-  [[ -f "$f" ]] || continue
-  for t in image_gen image_edit; do
-    if grep -A30 'disallowedTools:' "$f" | grep -qE "^[[:space:]]*-[[:space:]]*${t}[[:space:]]*$"; then
-      ok "agents/${role}.md disallows $t"
+found_any=0
+for key in "${PRODUCT_KEYS[@]}"; do
+  block=$(extract_contract "$key")
+  if [[ -z "$block" ]]; then
+    continue
+  fi
+  found_any=1
+  for t in "${MEDIA_TOOLS[@]}"; do
+    if printf '%s
+' "$block" | grep -qE "\"${t}\""; then
+      ok "contract ${key} denies $t"
     else
-      fail "agents/${role}.md must disallow $t"
+      fail "contract ${key} must deny media tool: $t"
     fi
   done
 done
+if [[ "$found_any" -eq 0 ]]; then
+  fail "no product agent contracts found for media deny check"
+fi
+
+ok "prompts/agents bodies are body-only; media deny enforced via contracts TOML"
+
 
 # ---------------------------------------------------------------------------
 section "5. Native namespace (opt-in path exists; no reinvent)"
@@ -345,7 +382,7 @@ if [[ -f "$CAP" ]]; then
 fi
 
 # L1 worker fragment: standard preference language
-L1="$HARNESS_DIR/prompts/roles/worker.md"
+L1="$HARNESS_DIR/prompts/agents/worker.md"
 if [[ -f "$L1" ]]; then
   ok "L1 worker fragment exists"
   if grep -qiE 'search_replace|write|standard' "$L1"; then

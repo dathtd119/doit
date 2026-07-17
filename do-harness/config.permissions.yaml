@@ -67,10 +67,10 @@ roles:
       - exit_plan_mode
       - task
       - Agent(explore)
-      - Agent(explorer)
-      - Agent(worker)
-      - Agent(oracle)
-      - Agent(intake)
+      - Agent(explore)
+      - Agent(grok-build-worker)
+      - Agent(grok-build-oracle)
+      - Agent(grok-build-ask-user)
     disallowedTools:
       - write
       - search_replace
@@ -99,9 +99,9 @@ roles:
       - exit_plan_mode
       - update_goal
       - todo_write
-      - Agent(worker)
-      - Agent(oracle)
-      - Agent(orchestrator)
+      - Agent(grok-build-worker)
+      - Agent(grok-build-oracle)
+      - Agent(grok-build-orchestrator)
     require_deny_families:
       - edit_surface
       - continuum
@@ -125,10 +125,10 @@ roles:
       - todo_write
       - update_goal
       - Agent(explore)
-      - Agent(explorer)
+      - Agent(explore)
     disallowedTools:
-      - Agent(oracle)
-      - Agent(orchestrator)
+      - Agent(grok-build-oracle)
+      - Agent(grok-build-orchestrator)
     require_deny_families: []
     must_name_gate_families: true
     notes: >
@@ -151,7 +151,7 @@ roles:
       - search_tool
       - use_tool
       - Agent(explore)
-      - Agent(explorer)
+      - Agent(explore)
     disallowedTools:
       - search_replace
       - write
@@ -160,8 +160,8 @@ roles:
       - exit_plan_mode
       - update_goal
       - todo_write
-      - Agent(worker)
-      - Agent(orchestrator)
+      - Agent(grok-build-worker)
+      - Agent(grok-build-orchestrator)
     require_deny_families:
       - edit_surface
       - continuum

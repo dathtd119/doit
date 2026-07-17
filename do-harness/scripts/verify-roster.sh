@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# F-M1-ROSTER / VAL-M1-ROSTER-001: five product roles from prompts + contracts.
+# F-M1-ROSTER / VAL-M1-ROSTER-001: product agents from prompts + contracts.
 #
-# Confirms roster role bodies exist under do-harness/prompts/roles/ and contracts
-# under config.roles.toml. Product does NOT require do-harness/agents or install
-# into .doit/agents / ~/.config/doit/agents (user override only).
+# Confirms roster agent bodies exist under do-harness/prompts/agents/ and contracts
+# under config.agents.toml (or legacy config.roles.toml). Product does NOT require
+# do-harness/agents or install into .doit/agents / ~/.config/doit/agents.
 #
 # Exit 0 only when all checks pass.
 
@@ -14,7 +14,8 @@ HARNESS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPO_ROOT="$(cd "$HARNESS_DIR/.." && pwd)"
 REPO_ROOT="${DO_REPO_ROOT:-$REPO_ROOT}"
 
-ROLES=(intake orchestrator explorer worker oracle)
+# Body file stems (alias form under prompts/agents/)
+BODY_STEMS=(intake orchestrator explore worker oracle)
 
 PASS=0
 FAIL=0
@@ -40,29 +41,33 @@ section() {
 }
 
 # ---------------------------------------------------------------------------
-section "1. Source of truth (do-harness/prompts/roles/)"
+section "1. Source of truth (do-harness/prompts/agents/)"
 # ---------------------------------------------------------------------------
 
-for role in "${ROLES[@]}"; do
-  src="$HARNESS_DIR/prompts/roles/${role}.md"
+for role in "${BODY_STEMS[@]}"; do
+  src="$HARNESS_DIR/prompts/agents/${role}.md"
   if [[ -f "$src" ]]; then
-    ok "prompts/roles/${role}.md exists"
+    ok "prompts/agents/${role}.md exists"
   else
     fail "missing $src"
   fi
 done
 
 # ---------------------------------------------------------------------------
-section "2. Contracts (config.roles.toml)"
+section "2. Contracts (config.agents.toml)"
 # ---------------------------------------------------------------------------
 
-if [[ -f "$HARNESS_DIR/config.roles.toml" ]]; then
-  ok "config.roles.toml exists"
+CFG="$HARNESS_DIR/config.agents.toml"
+if [[ ! -f "$CFG" ]]; then
+  CFG="$HARNESS_DIR/config.roles.toml"
+fi
+if [[ -f "$CFG" ]]; then
+  ok "$(basename "$CFG") exists"
 else
-  fail "missing config.roles.toml"
+  fail "missing config.agents.toml / config.roles.toml"
 fi
 
-python3 - "$HARNESS_DIR" "${ROLES[@]}" <<'PY'
+python3 - "$HARNESS_DIR" "$CFG" "${BODY_STEMS[@]}" <<'PY'
 import sys
 from pathlib import Path
 
@@ -72,76 +77,82 @@ except ModuleNotFoundError:
     import tomli as tomllib  # type: ignore
 
 harness = Path(sys.argv[1])
-roles = sys.argv[2:]
-data = tomllib.loads((harness / "config.roles.toml").read_text(encoding="utf-8"))
-root = data.get("roles") or {}
+cfg_path = Path(sys.argv[2])
+stems = sys.argv[3:]
+data = tomllib.loads(cfg_path.read_text(encoding="utf-8"))
+# Prefer [agents]; fall back to [roles]
+root = data.get("agents") or data.get("roles") or {}
 errors = 0
-for name in roles:
-    block = root.get(name)
-    if not isinstance(block, dict):
-        print(f"  FAIL missing [roles.{name}]", file=sys.stderr)
+
+# Map body stem -> possible contract keys
+ALIASES = {
+    "intake": ("intake", "grok-build-ask-user"),
+    "orchestrator": ("orchestrator", "grok-build-orchestrator"),
+    "explore": ("explore", "explorer"),
+    "worker": ("worker", "grok-build-worker"),
+    "oracle": ("oracle", "grok-build-oracle"),
+}
+
+for stem in stems:
+    keys = ALIASES.get(stem, (stem,))
+    block = None
+    used = None
+    for k in keys:
+        if isinstance(root.get(k), dict):
+            block = root[k]
+            used = k
+            break
+    if block is None:
+        print(f"  FAIL missing contract for {stem} (tried {keys})", file=sys.stderr)
         errors += 1
         continue
-    body = (harness / "prompts" / "roles" / f"{name}.md").read_text(encoding="utf-8")
+    body_path = harness / "prompts" / "agents" / f"{stem}.md"
+    if not body_path.is_file():
+        print(f"  FAIL missing body {body_path}", file=sys.stderr)
+        errors += 1
+        continue
+    body = body_path.read_text(encoding="utf-8")
     if "## Mission" not in body:
-        print(f"  FAIL {name}: body missing ## Mission", file=sys.stderr)
+        print(f"  FAIL {stem}: body missing ## Mission", file=sys.stderr)
         errors += 1
         continue
     if not block.get("model"):
-        print(f"  FAIL {name}: model missing", file=sys.stderr)
+        print(f"  FAIL {used}: model missing", file=sys.stderr)
         errors += 1
         continue
     tools = block.get("tools") or []
     if not tools:
-        print(f"  FAIL {name}: tools empty", file=sys.stderr)
+        print(f"  FAIL {used}: tools empty", file=sys.stderr)
         errors += 1
         continue
-    print(f"  ok  {name}: contract + body")
+    print(f"  ok  {stem}: contract [{used}] + body")
 sys.exit(1 if errors else 0)
 PY
-ok "contracts + bodies parse"
-
-# ---------------------------------------------------------------------------
-section "3. No stock agents bridge required"
-# ---------------------------------------------------------------------------
-
-AGENTS_DIR="$HARNESS_DIR/agents"
-if [[ -d "$AGENTS_DIR" ]] && compgen -G "$AGENTS_DIR"/*.md >/dev/null 2>&1; then
-  warn "do-harness/agents still has .md files (bridge retired; remove when ready)"
+py_rc=$?
+if [[ $py_rc -eq 0 ]]; then
+  ok "all body stems have contracts + ## Mission"
 else
-  ok "do-harness/agents has no stock role bridge (or absent)"
-fi
-
-DISC="$REPO_ROOT/.doit/agents"
-if [[ -d "$DISC" ]] && compgen -G "$DISC"/*.md >/dev/null 2>&1; then
-  warn ".doit/agents has files (user override OK; product does not require them)"
-else
-  ok ".doit/agents empty or absent (product default)"
+  fail "contract/body python checks"
 fi
 
 # ---------------------------------------------------------------------------
-section "4. Discovery still supports optional user agents"
+section "3. Runtime product_role path"
 # ---------------------------------------------------------------------------
 
-AGENT_DISC_RS="$REPO_ROOT/crates/codegen/xai-grok-agent/src/discovery.rs"
-if [[ -f "$AGENT_DISC_RS" ]] && grep -q '\.doit/agents' "$AGENT_DISC_RS"; then
-  ok "evidence: agent discovery still scans .doit/agents for user overrides ($AGENT_DISC_RS)"
+if [[ -f "$REPO_ROOT/crates/codegen/xai-grok-shell/src/session/product_role.rs" ]]; then
+  ok "product_role.rs present (runtime load from prompts/agents)"
 else
-  fail "cannot find .doit/agents in agent discovery.rs"
+  fail "missing product_role.rs"
 fi
 
-PRODUCT_ROLE_RS="$REPO_ROOT/crates/codegen/xai-grok-shell/src/session/product_role.rs"
-if [[ -f "$PRODUCT_ROLE_RS" ]]; then
-  ok "product_role.rs present (runtime load from prompts/roles)"
+if grep -q 'prompts/agents' "$REPO_ROOT/crates/codegen/xai-grok-shell/src/session/product_role.rs"; then
+  ok "product_role.rs references prompts/agents"
 else
-  fail "missing $PRODUCT_ROLE_RS"
+  fail "product_role.rs should reference prompts/agents"
 fi
 
-# ---------------------------------------------------------------------------
-section "summary"
-# ---------------------------------------------------------------------------
-
-printf '\npass=%s fail=%s warn=%s\n' "$PASS" "$FAIL" "$WARN"
+echo
+echo "pass=$PASS fail=$FAIL warn=$WARN"
 if [[ "$FAIL" -gt 0 ]]; then
   exit 1
 fi

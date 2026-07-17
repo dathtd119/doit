@@ -1,0 +1,25 @@
+{
+  "name": "@dathtd119/doit-win32-arm64",
+  "version": "0.0.2",
+  "description": "win32-arm64 binary for @dathtd119/doit. Do not install directly.",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/dathtd119/doit",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dathtd119/doit.git",
+    "directory": "npm/doit-win32-arm64"
+  },
+  "files": [
+    "bin/",
+    "THIRD-PARTY-NOTICES"
+  ],
+  "os": [
+    "win32"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

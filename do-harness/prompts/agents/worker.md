@@ -35,7 +35,7 @@ If context is thin, use grep/read yourself — do not re-delegate research.
 
 1. Read only what the assignment needs (paths, existing patterns).
 2. Implement the smallest change that satisfies acceptance.
-3. Prefer dedicated file tools for edits (`search_replace` / `write` / hashline tools when in use).
+3. Prefer dedicated file tools for edits (`search_replace` / `write` ).
 4. Run verification named in the assignment (or minimal build/test if unspecified).
 5. On behavior change: **direct smoke** + **indirect smoke** (or N/A for pure docs).
 6. Report with the status footer.

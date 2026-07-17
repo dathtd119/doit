@@ -1,19 +1,85 @@
-//! Primary-session role switch lock (do product L1 / VAL-M1-LOCK-001).
+//! Primary-session agent switch lock (do product L1 / VAL-M1-LOCK-001).
 //!
-//! Binding rule: Tab / Shift+Tab product-role cycle is allowed only while the
+//! Binding rule: Tab / Shift+Tab product-agent cycle is allowed only while the
 //! session has no user messages / no conversation content. After the first
-//! user message, `role_switch_allowed` is false — L1 role layer and model
-//! re-pin from role stay frozen for the remainder of the session.
+//! user message, `role_switch_allowed` is false — L1 agent layer and model
+//! re-pin from agent stay frozen for the remainder of the session.
 //!
 //! Pure policy (no I/O) so unit tests and both shell + pager call sites share
 //! one definition of the flag and product roster.
+//!
+//! Naming: short aliases (chrome / legacy) map to stock-native canonical ids
+//! (`grok-build-*`, `explore`). See `docs/agents-and-prompts.md`.
 
-/// Product roster order for primary-session role cycle (do M1).
+/// Default product roster order for primary-session cycle (aliases).
 ///
-/// Matches `do-harness/agents/` discovery names. Cycle wraps at ends.
-pub const PRODUCT_ROSTER: &[&str] = &["intake", "orchestrator", "explorer", "worker", "oracle"];
+/// Prefer dynamic `[agents].order` from config at call sites that have
+/// config. This constant is the compile-time fallback only.
+///
+/// Cycle wraps at ends. Canonical resolve: [`canonical_agent_name`].
+pub const PRODUCT_ROSTER: &[&str] = &[
+    "intake",
+    "orchestrator",
+    "explore",
+    "worker",
+    "oracle",
+];
 
-/// Session flag: whether primary-session product role switching is allowed.
+/// Alias → canonical agent id (stock-native).
+///
+/// Accepts already-canonical names and legacy stems (`explorer` → `explore`).
+pub fn canonical_agent_name(name: &str) -> &str {
+    match name {
+        "intake" | "grok-build-ask-user" => "grok-build-ask-user",
+        "orchestrator" | "grok-build-orchestrator" => "grok-build-orchestrator",
+        "explorer" | "explore" => "explore",
+        "worker" | "grok-build-worker" => "grok-build-worker",
+        "oracle" | "grok-build-oracle" => "grok-build-oracle",
+        "plan" => "plan",
+        "general-purpose" => "general-purpose",
+        "grok-build" => "grok-build",
+        other => other,
+    }
+}
+
+/// Canonical → preferred short alias for chrome / body file stem.
+pub fn agent_alias(canonical: &str) -> &str {
+    match canonical_agent_name(canonical) {
+        "grok-build-ask-user" => "intake",
+        "grok-build-orchestrator" => "orchestrator",
+        "explore" => "explore",
+        "grok-build-worker" => "worker",
+        "grok-build-oracle" => "oracle",
+        other => other,
+    }
+}
+
+/// Body file stem under `prompts/agents/<stem>.md` for a name or alias.
+pub fn agent_body_stem(name: &str) -> &str {
+    agent_alias(canonical_agent_name(name))
+}
+
+/// Whether `name` is a known product agent (alias or canonical).
+#[inline]
+pub fn is_product_agent(name: &str) -> bool {
+    matches!(
+        canonical_agent_name(name),
+        "grok-build-ask-user"
+            | "grok-build-orchestrator"
+            | "explore"
+            | "grok-build-worker"
+            | "grok-build-oracle"
+    ) || PRODUCT_ROSTER.iter().any(|r| *r == name)
+        || name == "explorer"
+}
+
+/// Legacy name for [`is_product_agent`].
+#[inline]
+pub fn is_product_role(name: &str) -> bool {
+    is_product_agent(name)
+}
+
+/// Session flag: whether primary-session product agent switching is allowed.
 ///
 /// Equivalent to product name `role_switch_allowed`.
 ///
@@ -28,54 +94,68 @@ pub fn role_switch_allowed(turn_count: u32, has_user_message_content: bool) -> b
     turn_count == 0 && !has_user_message_content
 }
 
-/// Whether `name` is a do product roster role (case-sensitive agent file stem).
-#[inline]
-pub fn is_product_role(name: &str) -> bool {
-    PRODUCT_ROSTER.iter().any(|r| *r == name)
-}
-
-/// Whether `session_mode_id` names a product role (not plan/default/ask/etc.).
+/// Whether `session_mode_id` names a product agent (not plan/default/ask/etc.).
 ///
 /// Stock ACP `session/set_mode` reuses mode ids for agent profiles when the
-/// client selects a discovered agent. Product roles must freeze after lock;
+/// client selects a discovered agent. Product agents must freeze after lock;
 /// plan/permission modes remain switchable.
 #[inline]
 pub fn is_product_role_mode_id(session_mode_id: &str) -> bool {
-    is_product_role(session_mode_id)
+    is_product_agent(session_mode_id)
 }
 
-/// Next / previous product role in roster order.
+/// Next / previous product agent in roster order (alias form).
 ///
 /// If `current` is not on the roster, starts from the first (forward) or last
 /// (backward) entry so a fresh session can enter the cycle.
 pub fn cycle_product_role(current: Option<&str>, forward: bool) -> &'static str {
-    let idx = current.and_then(|c| PRODUCT_ROSTER.iter().position(|r| *r == c));
+    cycle_product_role_in(current, forward, PRODUCT_ROSTER)
+}
+
+/// Cycle within an explicit roster (aliases or canonical; returns same form as roster entries).
+pub fn cycle_product_role_in<'a>(
+    current: Option<&str>,
+    forward: bool,
+    roster: &[&'a str],
+) -> &'a str {
+    if roster.is_empty() {
+        return "intake";
+    }
+    let idx = current.and_then(|c| {
+        let can = canonical_agent_name(c);
+        roster.iter().position(|r| {
+            *r == c || canonical_agent_name(r) == can || agent_alias(r) == agent_alias(c)
+        })
+    });
     match (idx, forward) {
-        (Some(i), true) => PRODUCT_ROSTER[(i + 1) % PRODUCT_ROSTER.len()],
+        (Some(i), true) => roster[(i + 1) % roster.len()],
         (Some(i), false) => {
-            let n = PRODUCT_ROSTER.len();
-            PRODUCT_ROSTER[(i + n - 1) % n]
+            let n = roster.len();
+            roster[(i + n - 1) % n]
         }
-        (None, true) => PRODUCT_ROSTER[0],
-        (None, false) => PRODUCT_ROSTER[PRODUCT_ROSTER.len() - 1],
+        (None, true) => roster[0],
+        (None, false) => roster[roster.len() - 1],
     }
 }
 
-/// Toast when Tab product-role cycle is denied after lock (F-M1-UX / M1-U01).
+/// Toast when Tab product-agent cycle is denied after lock (F-M1-UX / M1-U01).
 ///
 /// Points the user at a **new session** — mid-session hop is forbidden.
 pub const ROLE_SWITCH_LOCKED_HINT: &str =
-    "Role locked after first message — start a new session to switch roles";
+    "Agent locked after first message — start a new session to switch agents";
 
-/// Toast once when the first user message freezes the product role (F-M1-UX).
+/// Toast once when the first user message freezes the product agent (F-M1-UX).
 pub const ROLE_SWITCH_LOCKED_ON_FIRST_MESSAGE: &str =
-    "Role locked for this session — start a new session to change role";
+    "Agent locked for this session — start a new session to change agent";
 
-/// User-visible copy for a locked role-cycle attempt (optional role label).
+/// User-visible copy for a locked agent-cycle attempt (optional label).
 pub fn role_switch_locked_toast(current_role: Option<&str>) -> String {
     match current_role {
-        Some(role) if is_product_role(role) => {
-            format!("Role locked ({role}) — start a new session to switch roles")
+        Some(role) if is_product_agent(role) => {
+            format!(
+                "Agent locked ({}) — start a new session to switch agents",
+                agent_alias(role)
+            )
         }
         _ => ROLE_SWITCH_LOCKED_HINT.to_string(),
     }
@@ -90,9 +170,9 @@ pub enum RoleCycleGate {
     Locked,
 }
 
-/// Gate a Tab / Shift+Tab product-role cycle.
+/// Gate a Tab / Shift+Tab product-agent cycle.
 ///
-/// `forward`: Tab (true) or Shift+Tab (false) when used as role cycle.
+/// `forward`: Tab (true) or Shift+Tab (false) when used as agent cycle.
 pub fn gate_role_cycle(
     turn_count: u32,
     has_user_message_content: bool,
@@ -107,8 +187,8 @@ pub fn gate_role_cycle(
     }
 }
 
-/// Whether primary-session role switch should re-pin the model from the new
-/// role's assignment (agent frontmatter `model:` / YAML `assignment.<role>`).
+/// Whether primary-session agent switch should re-pin the model from the new
+/// agent's assignment (agent frontmatter `model:` / YAML `assignment.<role>`).
 ///
 /// Binding product rule (L13 + L1 / F-M1-MODEL-RESOLVE):
 /// - **true** only while `role_switch_allowed` — pre-message cycle re-pins
@@ -121,19 +201,19 @@ pub fn should_repin_model_from_role(turn_count: u32, has_user_message_content: b
     role_switch_allowed(turn_count, has_user_message_content)
 }
 
-/// Outcome of role→model re-resolve for a primary-session role hop.
+/// Outcome of role→model re-resolve for a primary-session agent hop.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RoleModelRepin {
-    /// Apply the role assignment pin (`AgentDefinition.model` Override).
+    /// Apply the agent assignment pin (`AgentDefinition.model` Override).
     Apply,
     /// Keep the active model stack (post-lock, or Inherit pin).
     Keep,
 }
 
-/// Gate role→model re-pin for a primary-session product role switch.
+/// Gate agent→model re-pin for a primary-session product agent switch.
 ///
 /// `assignment_model_id`: registry/catalog model id from agent frontmatter
-/// when the role pins a model; `None` means Inherit / no pin.
+/// when the agent pins a model; `None` means Inherit / no pin.
 pub fn gate_role_model_repin(
     turn_count: u32,
     has_user_message_content: bool,
@@ -177,16 +257,18 @@ fn strip_product_role_identity(body: &str) -> &str {
     body
 }
 
-/// Build the model-facing Identity + role kernel prefix for a product roster role.
+/// Build the model-facing Identity + agent kernel prefix for a product agent.
 ///
 /// Stock `base_template()` still opens with "You are Grok…". This block is
 /// appended via `prompt_body` so the model can answer "what is your role?"
-/// without reading chrome. Phase 02 full L0 expander may replace this later.
+/// without reading chrome.
 pub fn product_role_identity_block(
     role: &str,
     policy: &str,
     description: &str,
 ) -> String {
+    let alias = agent_alias(role);
+    let canonical = canonical_agent_name(role);
     let desc = description.trim();
     let desc_line = if desc.is_empty() {
         String::new()
@@ -197,13 +279,13 @@ pub fn product_role_identity_block(
         "{PRODUCT_ROLE_IDENTITY_MARKER}\n\
          ## Identity\n\
          - Product agent: **do**\n\
-         - Active role: **{role}**\n\
+         - Active agent: **{alias}** (`{canonical}`)\n\
          - Policy: **{policy}**\n\
          {desc_line}\n\
-         You are the **{role}** role for this session. Follow the mission, \
-         workflow, and DO/DON'T below. Do not claim a different product role.\n\
-         Role may change only before the first user message; after conversation \
-         content exists, this role is fixed for the session.\n\
+         You are the **{alias}** agent for this session. Follow the mission, \
+         workflow, and DO/DON'T below. Do not claim a different product agent.\n\
+         Agent may change only before the first user message; after conversation \
+         content exists, this agent is fixed for the session.\n\
          \n\
          ## Available tools\n\
          ${{toolsList}}\n\
@@ -211,12 +293,12 @@ pub fn product_role_identity_block(
     )
 }
 
-/// Ensure a product-role `AgentDefinition` carries a clear Identity block in
-/// `prompt_body` so Extend assembly (stock base + body) names the role.
+/// Ensure a product-agent `AgentDefinition` carries a clear Identity block in
+/// `prompt_body` so Extend assembly (stock base + body) names the agent.
 ///
 /// No-op for non-product agents. Safe to call repeatedly (replaces prior block).
 pub fn ensure_product_role_identity(def: &mut xai_grok_agent::AgentDefinition) {
-    if !is_product_role(&def.name) {
+    if !is_product_agent(&def.name) {
         return;
     }
     let policy = product_policy_label(&def.permission_mode);
@@ -249,9 +331,10 @@ mod tests {
             "default",
             "do product orchestrator — continuum + spawn specialists",
         );
-        assert!(block.contains("Active role: **orchestrator**"));
+        assert!(block.contains("Active agent: **orchestrator**"));
+        assert!(block.contains("`grok-build-orchestrator`"));
         assert!(block.contains("Policy: **default**"));
-        assert!(block.contains("You are the **orchestrator** role"));
+        assert!(block.contains("You are the **orchestrator** agent"));
         assert!(block.contains(PRODUCT_ROLE_IDENTITY_MARKER));
     }
 
@@ -274,7 +357,7 @@ mod tests {
             1,
             "exactly one identity marker"
         );
-        assert!(first.contains("Active role: **orchestrator**"));
+        assert!(first.contains("Active agent: **orchestrator**"));
         assert!(first.contains("## Mission"));
         assert!(first.contains("Own the continuum"));
     }
@@ -296,12 +379,26 @@ mod tests {
         assert_eq!(PRODUCT_ROSTER.len(), 5);
         assert!(is_product_role("intake"));
         assert!(is_product_role("orchestrator"));
+        assert!(is_product_role("explore"));
         assert!(is_product_role("explorer"));
         assert!(is_product_role("worker"));
         assert!(is_product_role("oracle"));
+        assert!(is_product_role("grok-build-worker"));
+        assert!(is_product_role("grok-build-ask-user"));
         assert!(!is_product_role("plan"));
         assert!(!is_product_role("default"));
         assert!(!is_product_role("browser_use"));
+    }
+
+    #[test]
+    fn canonical_agent_name_maps_aliases() {
+        assert_eq!(canonical_agent_name("worker"), "grok-build-worker");
+        assert_eq!(canonical_agent_name("intake"), "grok-build-ask-user");
+        assert_eq!(canonical_agent_name("explorer"), "explore");
+        assert_eq!(
+            canonical_agent_name("grok-build-orchestrator"),
+            "grok-build-orchestrator"
+        );
     }
 
     #[test]
@@ -314,6 +411,11 @@ mod tests {
         assert_eq!(cycle_product_role(None, false), "oracle");
         // Unknown current → enter roster from ends
         assert_eq!(cycle_product_role(Some("grok-build"), true), "intake");
+        // Canonical current still cycles
+        assert_eq!(
+            cycle_product_role(Some("grok-build-worker"), true),
+            "oracle"
+        );
     }
 
     #[test]
@@ -327,7 +429,7 @@ mod tests {
         assert_eq!(
             gate_role_cycle(0, false, Some("worker"), false),
             RoleCycleGate::Apply {
-                next_role: "explorer"
+                next_role: "explore"
             }
         );
     }
@@ -357,6 +459,7 @@ mod tests {
     #[test]
     fn is_product_role_mode_id_matches_roster_only() {
         assert!(is_product_role_mode_id("worker"));
+        assert!(is_product_role_mode_id("grok-build-worker"));
         assert!(!is_product_role_mode_id("plan"));
         assert!(!is_product_role_mode_id("default"));
         assert!(!is_product_role_mode_id("ask"));

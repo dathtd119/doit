@@ -3,6 +3,36 @@
 Append-only ship log for **doit** (historical brand **do**). Not a status essay — one entry per substantive milestone or control-plane change.
 
 ---
+## 2026-07-17 — Stock-native product agents (prompts/agents)
+
+**Scope:** agent naming + prompt inject + dynamic spawn floors  
+**Feature:** P-AGENTS-NATIVE (stock-native product agents)
+
+### What landed
+
+- **Thesis:** [docs/agents-and-prompts.md](./docs/agents-and-prompts.md) — one Grok agent system; product = bodies + contracts
+- **Bodies:** `do-harness/prompts/roles/` → **`prompts/agents/`** (user override: `~/.config/doit/prompts/agents/`)
+- **No product `do-harness/agents/`** — mission text only under prompts; full AgentDefinition dirs remain user override
+- **Canonical names (stock family):**
+  - `intake` → `grok-build-ask-user` (option A)
+  - `orchestrator` → `grok-build-orchestrator`
+  - `explore` / `explorer` → `explore`
+  - `worker` → `grok-build-worker`
+  - `oracle` → `grok-build-oracle`
+- **Contracts:** seed **`config.agents.toml`** with `order`, `allowed_subagents`, native `Agent(explore|plan|grok-build-*)` floors; legacy `[roles]` / `config.roles.toml` still accepted
+- **Runtime:** alias map + canonical resolve in `role_switch` / `product_role`; `allowed_subagent_types` from contracts; dynamic custom agents via config contract
+- **Orchestrator prompt** teaches native `subagent_type` names
+- Verify scripts updated for agents paths + TOML contracts
+
+### Evidence
+
+- `cargo test -p xai-grok-shell --lib -- role_switch product_role` — 21 ok
+- `cargo test -p xai-grok-shell --test role_switch_policy` — 10 ok
+- `bash do-harness/scripts/verify-role-contracts.sh` — pass
+- `bash do-harness/scripts/verify-roster.sh` — pass
+- `bash do-harness/scripts/verify-hashline.sh` — VAL-M3-HASH-001 pass
+
+---
 
 ## 2026-07-17 — P-VERSION product-owned VERSION
 
@@ -11,16 +41,16 @@ Append-only ship log for **doit** (historical brand **do**). Not a status essay 
 
 ### What landed
 
-- Repo-root **`VERSION`** (`0.1.0`) is product SoT (comments allowed; first non-`#` line wins)
+- Repo-root **`VERSION`** (`0.0.2`) is product SoT (comments allowed; first non-`#` line wins)
 - Build stamp precedence: `DOIT_VERSION` → `GROK_VERSION` → root `VERSION` → `CARGO_PKG_VERSION`
-- Packages `doit` + `xai-grok-version` at `0.1.0`; clap CLI name **`doit`**
+- Packages `doit` + `xai-grok-version` at `0.0.2`; clap CLI name **`doit`**
 - Release workflow: tag must match `v{VERSION}`; injects `DOIT_VERSION` into release builds; notes from **this** repo’s git history
 - Upstream monorepo crate versions (e.g. pager/shell `0.2.x`) may diverge — absorb must **not** overwrite product `VERSION`
 
 ### Evidence
 
 - `docs/patch-matrix.md` § P-VERSION
-- `cargo check -p doit` + `doit --version` → `doit 0.1.0 (<sha>)`
+- `cargo check -p doit` + `doit --version` → `doit 0.0.2 (<sha>)`
 
 ---
 

@@ -106,6 +106,8 @@ Spawn overrides for subagents are unchanged and independent of primary-session r
 
 ## Role contracts in `config.toml` (D2 — sealed)
 
+> **Update 2026-07-17:** Prefer `[agents]` / `config.agents.toml` / `prompts/agents/` (stock-native names). See [agents-and-prompts.md](./agents-and-prompts.md). `[roles]` remains a load alias during migration.
+
 **Product rule:** tools, disallowed tools, model pin, color, and default role live under **`[roles]`** in the same stock config file operators already edit. Prompt markdown files are **body only** (mission / DO-DON’T) — no product config YAML frontmatter on `prompts/roles/*.md`.
 
 **System assembly (not this file’s job, but do not mis-document):** core system stays stock `templates/prompt.md` (`base_template()` + `promptMode: extend`). Role body is **appended**, never a Full-mode replace of the stock core. See [prompt-system.md](./prompt-system.md) and [system-prompt-truth](../plans/260716-2010-piness-role-kernel-parity/research/system-prompt-truth.md).

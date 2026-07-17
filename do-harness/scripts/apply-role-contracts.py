@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Validate product role contracts (config.roles.toml + prompts/roles).
+"""Validate product role contracts (config.agents.toml + prompts/agents).
 
 Product roles no longer write do-harness/agents/*.md. Runtime loads:
-  - mission body: prompts/roles/<stem>.md (compile-time + optional user prompts override)
-  - tools/model/color: [roles.*] in config.toml (seed: config.roles.toml)
+  - mission body: prompts/agents/<stem>.md (compile-time + optional user prompts override)
+  - tools/model/color: [roles.*] in config.toml (seed: config.agents.toml)
 
 Usage:
   python3 apply-role-contracts.py              # dry-run / summary
@@ -25,7 +25,7 @@ except ModuleNotFoundError:  # pragma: no cover
         import tomli as tomllib  # type: ignore
     except ImportError:
         print(
-            "error: need tomllib (Python 3.11+) or tomli to parse config.roles.toml",
+            "error: need tomllib (Python 3.11+) or tomli to parse config.agents.toml",
             file=sys.stderr,
         )
         sys.exit(2)
@@ -81,12 +81,12 @@ def main() -> int:
         "--roles-toml",
         type=Path,
         default=None,
-        help="path to config.roles.toml (default: do-harness/config.roles.toml)",
+        help="path to config.agents.toml (default: do-harness/config.agents.toml)",
     )
     args = ap.parse_args()
 
     _, harness = harness_paths()
-    roles_path = args.roles_toml or (harness / "config.roles.toml")
+    roles_path = args.roles_toml or (harness / "config.agents.toml")
     roles_dir = harness / "prompts" / "roles"
 
     if not roles_path.is_file():
@@ -158,7 +158,7 @@ def main() -> int:
         return 1
 
     if args.apply:
-        print("apply: no-op (roles from prompts/roles + config.roles.toml; no agents write)")
+        print("apply: no-op (roles from prompts/agents + config.agents.toml; no agents write)")
     elif not args.validate:
         print("dry-run ok (use --validate to enforce)")
     return 0

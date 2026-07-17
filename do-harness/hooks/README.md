@@ -58,7 +58,7 @@ Verify: `bash do-harness/scripts/verify-gates.sh`.
 | Pack | JSON | Engine | Gate ids (summary) |
 |------|------|--------|--------------------|
 | Dangerous shell (M0) | `guided-dangerous-shell.json` | `bin/guided-dangerous-shell.py` | `dangerous-shell-*` |
-| Path policy (M2) | `guided-path-policy.json` | `bin/guided-path-policy.py` | `path-policy-write-outside` |
+| Path policy (M2) | `guided-path-policy.json` | `bin/guided-path-policy.py` | `path-policy-write-outside` (shell denylist only; write tools not gated) |
 | Env expose (M2) | `guided-env-expose.json` | `bin/guided-env-expose.py` | `env-expose-dotenv`, `env-expose-printenv`, `env-expose-secret-echo` |
 
 ### Path policy behavior

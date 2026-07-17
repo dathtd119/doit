@@ -1,28 +1,30 @@
-# Product role contracts — source of truth for tools / model / color / floors.
-# Merge into ~/.config/doit/config.toml (and optionally project .doit/config.toml).
+# DEPRECATED as SoT — prefer config.agents.toml + [agents].
+# Kept for migration: same contracts under legacy [roles] short stems so older
+# merge scripts and docs that still say config.roles.toml keep working.
+# Runtime accepts both [agents] and [roles]; new installs should use [agents].
 #
-# Prompt mission text lives body-only under prompts/roles/<stem>.md.
-# Runtime loads bodies from prompts/roles (compile-time) + optional
-# .doit/prompts/roles or ~/.config/doit/prompts/roles overrides.
-# Agent dirs (.doit/agents, ~/.config/doit/agents) are user override only —
-# product does not install stock roles there.
-# Validate:
-#   bash do-harness/scripts/apply-role-contracts.sh --validate
-#
-# Sealed: D2 (plan 260716-2010). See docs/models-and-config.md § Role contracts.
-#
-# Media tools (image_gen / image_edit / image_to_video / reference_to_video)
-# are denied on every product role. File toolset is standard (no hashline_*).
+# See docs/agents-and-prompts.md.
 
 [roles]
 default = "intake"
+# order uses aliases for chrome; resolve maps to canonical names
+order = [
+  "intake",
+  "orchestrator",
+  "explore",
+  "worker",
+  "oracle",
+]
 
 [roles.intake]
+alias = "intake"
+name = "grok-build-ask-user"
 description = "do product intake — clarify intent; no implementation"
 model = "combo-big"
 color = "cyan"
 permission_mode = "plan"
 discover_skills = false
+allowed_subagents = ["explore"]
 tools = [
   "read_file",
   "list_dir",
@@ -45,11 +47,21 @@ disallowed_tools = [
 ]
 
 [roles.orchestrator]
+alias = "orchestrator"
+name = "grok-build-orchestrator"
 description = "do product orchestrator — continuum + spawn specialists; no bulk write"
 model = "combo-big"
 color = "blue"
 permission_mode = "default"
 discover_skills = false
+allowed_subagents = [
+  "explore",
+  "plan",
+  "grok-build-worker",
+  "grok-build-oracle",
+  "general-purpose",
+  "grok-build-ask-user",
+]
 tools = [
   "read_file",
   "list_dir",
@@ -62,10 +74,11 @@ tools = [
   "exit_plan_mode",
   "task",
   "Agent(explore)",
-  "Agent(explorer)",
-  "Agent(worker)",
-  "Agent(oracle)",
-  "Agent(intake)",
+  "Agent(plan)",
+  "Agent(grok-build-worker)",
+  "Agent(grok-build-oracle)",
+  "Agent(general-purpose)",
+  "Agent(grok-build-ask-user)",
 ]
 disallowed_tools = [
   "write",
@@ -76,12 +89,15 @@ disallowed_tools = [
   "reference_to_video",
 ]
 
-[roles.explorer]
+[roles.explore]
+alias = "explorer"
+name = "explore"
 description = "do product explorer — read-only scout / maps / citations"
 model = "combo-small"
 color = "green"
 permission_mode = "plan"
 discover_skills = false
+allowed_subagents = []
 tools = [
   "read_file",
   "list_dir",
@@ -102,17 +118,55 @@ disallowed_tools = [
   "exit_plan_mode",
   "update_goal",
   "todo_write",
-  "Agent(worker)",
-  "Agent(oracle)",
-  "Agent(orchestrator)",
+  "Agent(grok-build-worker)",
+  "Agent(grok-build-oracle)",
+  "Agent(grok-build-orchestrator)",
+]
+
+# Legacy key "explorer" → same as explore (sync may still write this)
+[roles.explorer]
+alias = "explorer"
+name = "explore"
+description = "do product explorer — read-only scout / maps / citations"
+model = "combo-small"
+color = "green"
+permission_mode = "plan"
+discover_skills = false
+allowed_subagents = []
+tools = [
+  "read_file",
+  "list_dir",
+  "grep",
+  "run_terminal_cmd",
+  "lsp",
+  "search_tool",
+  "use_tool",
+]
+disallowed_tools = [
+  "search_replace",
+  "write",
+  "image_gen",
+  "image_edit",
+  "image_to_video",
+  "reference_to_video",
+  "enter_plan_mode",
+  "exit_plan_mode",
+  "update_goal",
+  "todo_write",
+  "Agent(grok-build-worker)",
+  "Agent(grok-build-oracle)",
+  "Agent(grok-build-orchestrator)",
 ]
 
 [roles.worker]
+alias = "worker"
+name = "grok-build-worker"
 description = "do product worker — implement + verify; prefer search_replace/write"
 model = "combo-medium"
 color = "yellow"
 permission_mode = "default"
 discover_skills = false
+allowed_subagents = ["explore"]
 tools = [
   "read_file",
   "list_dir",
@@ -124,11 +178,10 @@ tools = [
   "todo_write",
   "update_goal",
   "Agent(explore)",
-  "Agent(explorer)",
 ]
 disallowed_tools = [
-  "Agent(oracle)",
-  "Agent(orchestrator)",
+  "Agent(grok-build-oracle)",
+  "Agent(grok-build-orchestrator)",
   "image_gen",
   "image_edit",
   "image_to_video",
@@ -136,12 +189,14 @@ disallowed_tools = [
 ]
 
 [roles.oracle]
+alias = "oracle"
+name = "grok-build-oracle"
 description = "do product oracle — architecture / trade-offs; no bulk edit"
 model = "combo-big-ultra"
-# AgentColor enum: purple (not magenta)
 color = "purple"
 permission_mode = "plan"
 discover_skills = false
+allowed_subagents = ["explore"]
 tools = [
   "read_file",
   "list_dir",
@@ -152,7 +207,6 @@ tools = [
   "search_tool",
   "use_tool",
   "Agent(explore)",
-  "Agent(explorer)",
 ]
 disallowed_tools = [
   "search_replace",
@@ -165,6 +219,6 @@ disallowed_tools = [
   "exit_plan_mode",
   "update_goal",
   "todo_write",
-  "Agent(worker)",
-  "Agent(orchestrator)",
+  "Agent(grok-build-worker)",
+  "Agent(grok-build-orchestrator)",
 ]

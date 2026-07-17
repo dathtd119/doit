@@ -3,7 +3,7 @@
 # agent + guided PreToolUse hook.
 #
 # Confirms proof assets sit on the **real** paths stock grok discovers:
-#   roles:  do-harness/prompts/roles/*.md (runtime product_role; no agents install)
+#   roles:  do-harness/prompts/agents/*.md (runtime product_role; no agents install)
 #   hooks:  <git-root>/.doit/hooks/*.json
 #           (crates/codegen/xai-grok-shell/src/util/hooks.rs — discover_hook_source_paths;
 #            crates/codegen/xai-grok-hooks/src/discovery.rs — HookSource::Directory)
@@ -59,12 +59,12 @@ resolve() {
 section "1. Source of truth (do-harness/)"
 # ---------------------------------------------------------------------------
 
-ROLE_SRC="$HARNESS_DIR/prompts/roles/intake.md"
+ROLE_SRC="$HARNESS_DIR/prompts/agents/intake.md"
 HOOK_JSON_SRC="$HARNESS_DIR/hooks/guided-dangerous-shell.json"
 HOOK_BIN_SRC="$HARNESS_DIR/hooks/bin/guided-dangerous-shell.py"
 
 if [[ -f "$ROLE_SRC" ]]; then
-  ok "do-harness/prompts/roles/intake.md exists"
+  ok "do-harness/prompts/agents/intake.md exists"
 else
   fail "missing $ROLE_SRC"
 fi
@@ -87,7 +87,7 @@ fi
 # ---------------------------------------------------------------------------
 section "2. Project discovery path (product .doit/ locations)"
 # ---------------------------------------------------------------------------
-# Product roles: prompts/roles (no .doit/agents install required).
+# Product roles: prompts/agents (no .doit/agents install required).
 # Hooks:  <git_root>/.doit/hooks (util/hooks.rs project.push(...join("hooks")))
 
 HOOK_JSON_DISC="$REPO_ROOT/.doit/hooks/guided-dangerous-shell.json"
@@ -123,7 +123,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-section "3. Role body shape (prompts/roles — body only, no product YAML)"
+section "3. Role body shape (prompts/agents — body only, no product YAML)"
 # ---------------------------------------------------------------------------
 
 python3 - "$ROLE_SRC" <<'PY'

@@ -1302,10 +1302,10 @@ pub struct Config {
     /// is used for all sessions (unless overridden by CLI flag or ACP meta).
     #[serde(default)]
     pub agent: AgentSelectionConfig,
-    /// Product primary-session role contracts (`[roles]` / `[roles.<stem>]`).
-    /// Source of truth for tools, model, color, permission floors (plan D2).
-    /// Seed: `do-harness/config.roles.toml`. Prompt bodies stay under prompts/roles/.
-    #[serde(default)]
+    /// Product primary-session agent contracts (`[agents]` preferred; `[roles]` alias).
+    /// Source of truth for tools, model, color, spawn floors. Seed: `do-harness/config.agents.toml`.
+    /// Prompt bodies stay under `prompts/agents/`.
+    #[serde(default, alias = "agents")]
     pub roles: RolesConfig,
     #[serde(default)]
     pub repo_changes_dedup: RepoChangesDedupConfig,
@@ -1632,9 +1632,12 @@ pub use xai_grok_shared::ui_config::{ContextualHints, UiConfig};
 /// deserializer: string values are meta fields; tables are per-role contracts.
 #[derive(Debug, Clone, Default, Serialize, PartialEq, Eq)]
 pub struct RolesConfig {
-    /// Default primary-session role stem (product: `intake`).
+    /// Default primary-session agent (alias or canonical).
     pub default: Option<String>,
-    /// Per-role contracts keyed by stem (`intake`, `worker`, …).
+    /// Optional Tab cycle order (alias or canonical names).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub order: Vec<String>,
+    /// Per-agent contracts keyed by stem (alias or canonical).
     pub contracts: std::collections::HashMap<String, RoleContract>,
 }
 
@@ -1642,17 +1645,29 @@ pub struct RolesConfig {
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(default)]
 pub struct RoleContract {
+    /// Optional chrome / file-stem alias (e.g. `worker`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub alias: Option<String>,
+    /// Optional canonical agent name override (e.g. `grok-build-worker`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub model: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub color: Option<String>,
-    /// Agent permission mode string (`plan`, `default`, …) — maps to agent frontmatter.
+    /// Agent permission mode string (`plan`, `default`, …).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub permission_mode: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub discover_skills: Option<bool>,
+    /// Stock base profile hint (`grok-build`, `explore`, …) — documentation / future inherit.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub base: Option<String>,
+    /// Native spawn allowlist (`subagent_type` / Agent(name)). Dynamic per parent.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub allowed_subagents: Vec<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub tools: Vec<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -1662,28 +1677,49 @@ pub struct RoleContract {
 }
 
 impl RolesConfig {
-    /// Product default role when `[roles].default` is unset: `intake`.
-    ///
-    /// Users configure cold-start role in `config.toml`:
-    /// ```toml
-    /// [roles]
-    /// default = "worker"
-    /// ```
-    /// Pair with a discoverable agent under `.doit/agents/` or
-    /// `~/.config/doit/agents/` (and optionally `[agent] name`).
+    /// Product default agent when `[agents|roles].default` is unset: `intake`.
     pub fn default_role(&self) -> &str {
         self.default.as_deref().unwrap_or("intake")
     }
 
     pub fn get(&self, stem: &str) -> Option<&RoleContract> {
-        self.contracts.get(stem)
+        if let Some(c) = self.contracts.get(stem) {
+            return Some(c);
+        }
+        // Try alias ↔ canonical lookup without hard-coding every key form.
+        for (k, c) in &self.contracts {
+            if k == stem {
+                return Some(c);
+            }
+            if let Some(ref n) = c.name {
+                if n == stem {
+                    return Some(c);
+                }
+            }
+            if let Some(ref a) = c.alias {
+                if a == stem {
+                    return Some(c);
+                }
+            }
+        }
+        None
     }
 
-    /// Model id pin for a role stem from `[roles.<stem>].model`, if set.
+    /// Model id pin for an agent stem from contract `.model`, if set.
     pub fn model_for_role(&self, stem: &str) -> Option<&str> {
         self.get(stem)
             .and_then(|c| c.model.as_deref())
             .filter(|s| !s.is_empty())
+    }
+
+    /// Tab cycle order: config `order` if non-empty, else sorted contract keys, else empty.
+    pub fn roster_order(&self) -> Vec<String> {
+        if !self.order.is_empty() {
+            return self.order.clone();
+        }
+        let mut keys: Vec<String> = self.contracts.keys().cloned().collect();
+        keys.sort();
+        keys
     }
 }
 
@@ -1708,6 +1744,7 @@ impl<'de> Deserialize<'de> for RolesConfig {
                 A: MapAccess<'de>,
             {
                 let mut default = None;
+                let mut order = Vec::new();
                 let mut contracts = std::collections::HashMap::new();
                 while let Some(key) = map.next_key::<String>()? {
                     match key.as_str() {
@@ -1715,8 +1752,10 @@ impl<'de> Deserialize<'de> for RolesConfig {
                             let v: String = map.next_value()?;
                             default = Some(v);
                         }
+                        "order" => {
+                            order = map.next_value()?;
+                        }
                         other => {
-                            // Per-role table or ignore non-table unknowns softly
                             let value: toml::Value = map.next_value()?;
                             match value {
                                 toml::Value::Table(t) => {
@@ -1736,7 +1775,11 @@ impl<'de> Deserialize<'de> for RolesConfig {
                         }
                     }
                 }
-                Ok(RolesConfig { default, contracts })
+                Ok(RolesConfig {
+                    default,
+                    order,
+                    contracts,
+                })
             }
         }
 

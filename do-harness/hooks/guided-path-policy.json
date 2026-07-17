@@ -2,7 +2,7 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "^(write|Write|search_replace|SearchReplace|str_replace|StrReplace|edit|Edit|create|Create|apply_patch|ApplyPatch|MultiEdit|hashline_edit|hashline_write|Bash|bash|run_terminal_command|run_terminal_cmd|Shell|shell)$",
+        "matcher": "^(Bash|bash|run_terminal_command|run_terminal_cmd|Shell|shell)$",
         "hooks": [
           {
             "type": "command",

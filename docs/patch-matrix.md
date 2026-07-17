@@ -301,7 +301,7 @@ Product semver is **not** locked to upstream monorepo `0.2.x`. Repo-root **`VERS
 
 | Date | ID | Status | Crate / path | Reason | Risk | Alternatives exhausted |
 |------|----|--------|--------------|--------|------|------------------------|
-| 2026-07-17 | **P-VERSION** | **applied** | root `VERSION`; `xai-grok-version` + `doit` + `xai-grok-pager` `build.rs` (`DOIT_VERSION` → `GROK_VERSION` → `VERSION` → pkg); package `doit`/`xai-grok-version` `0.1.0`; clap `name = "doit"`; `.github/workflows/release.yml` tag↔VERSION gate + `DOIT_VERSION` inject | Product builds/releases track **this** git history, not grok-build lockstep | Low–Med | Env-only version leaves local/CI drift; tag-from-Cargo alone fights upstream absorb |
+| 2026-07-17 | **P-VERSION** | **applied** | root `VERSION`; `xai-grok-version` + `doit` + `xai-grok-pager` `build.rs` (`DOIT_VERSION` → `GROK_VERSION` → `VERSION` → pkg); package `doit`/`xai-grok-version` `0.0.2`; clap `name = "doit"`; `.github/workflows/release.yml` tag↔VERSION gate + `DOIT_VERSION` inject | Product builds/releases track **this** git history, not grok-build lockstep | Low–Med | Env-only version leaves local/CI drift; tag-from-Cargo alone fights upstream absorb |
 
 ### Upstream sync — `8adf901` (2026-07-16, F-UPSTREAM-MERGE / VAL-UP-001..005)
 

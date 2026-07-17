@@ -24,7 +24,7 @@ Do this instead:
 | Family | When |
 |--------|------|
 | `dangerous-shell-*` | Destructive or privileged shell |
-| `path-policy-*` | Writes outside the session workspace |
+| `path-policy-*` | Shell writes into system/secret paths (not normal write tools) |
 | `env-expose-*` | Dumping secrets / full env / `.env` via shell |
 
 Follow **Do this instead**. Do not thrash the same blocked call. Do not invent shell workarounds around gates.

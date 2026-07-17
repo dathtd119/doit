@@ -157,7 +157,7 @@ bash do-harness/scripts/apply-models.sh --apply       # optional: YAML assignmen
 
 | Need | Config | Seed / docs |
 |------|--------|-------------|
-| **Cold-start role** | `[roles] default = "worker"` (+ optional `[agent] name`) | `do-harness/config.roles.toml` · chrome + shell both read this |
+| **Cold-start agent** | `[agents] default` / `[roles] default` (+ optional `[agent] name`) | `do-harness/config.agents.toml` · see `docs/agents-and-prompts.md` |
 | **Per-role model / color / tools** | `[roles.<stem>]` `model`, `color`, `tools`, `disallowed_tools`, `permission_mode` | same · D2 contracts |
 | **Default model** | `[models] default` + many `[model.<name>]` | `config.models.yaml` + stock TOML |
 | **Primary agent pin** | `[agent] name` or `definition` | aligned to `roles.default` by sync |
@@ -165,7 +165,7 @@ bash do-harness/scripts/apply-models.sh --apply       # optional: YAML assignmen
 | **Skills progressive vs firehose** | skills / role `discover_skills` | `config.skills.yaml` |
 | **Toolset floors** | toolset overlays | `config.toolset.toml` |
 | **Hooks / gates** | `.doit/hooks` + do-harness hooks pack | guided-block + continuation |
-| **Role mission text** | body-only `prompts/roles/<stem>.md` or agents `*.md` | **no** product config in prompt frontmatter |
+| **Agent mission text** | body-only `prompts/agents/<stem>.md` (user: `~/.config/doit/prompts/agents/`) | **no** product config in prompt frontmatter |
 | **Telemetry off** | `[features]` / `[telemetry]` | `config.defaults.toml` + P-NOTEL |
 
 Illustrative cold-start (edit `~/.config/doit/config.toml`):
@@ -180,7 +180,7 @@ name = "worker"
 [roles.worker]
 model = "combo-medium"
 color = "yellow"
-# tools / disallowed_tools / permission_mode — see config.roles.toml
+# tools / disallowed_tools / permission_mode / allowed_subagents — see config.agents.toml
 
 [models]
 default = "combo-big"
@@ -238,7 +238,7 @@ Prompt assembly / cold-start: [`docs/prompt-system.md`](./docs/prompt-system.md)
 When changing behavior, prefer (most user-customizable first):
 
 1. **User / project config** — `~/.config/doit/config.toml`, project `.doit/` (roles, models, agent, UI, plugins)
-2. **do-harness seeds** — `config.roles.toml`, `config.models.yaml`, agents, hooks, skills, prompts + apply/sync scripts
+2. **do-harness seeds** — `config.agents.toml` (legacy `config.roles.toml`), `config.models.yaml`, hooks, skills, `prompts/agents/` + apply/sync scripts
 3. **`register_tool_pack`** for new native tools
 4. **Surgical crate patches** (document in patch-matrix) — only when config cannot express the knob
 5. **Deep pager / TUI fork** last
@@ -347,10 +347,11 @@ Date: 2026-07-17
 - **PRIV privacy** — **sealed** (F-PRIV-SHIP): P-NOTEL fail-closed SpaceXAI telemetry; P-AUTH BYOK skip forced OAuth
 - **M1 harness control** — **sealed** (F-M1-SHIP): five agents; Tab lock; YAML apply-models; L0–L6 + workspace
 - **M0** — fork import, control plane, multi-model L13, inventory, patch-matrix — **sealed**
+- **Product agents (true-now)** — stock-native names (`grok-build-*` / `explore`); bodies `prompts/agents/`; contracts `config.agents.toml`; alias map + `allowed_subagents` — [`docs/agents-and-prompts.md`](./docs/agents-and-prompts.md) (**P-AGENTS-NATIVE**)
 - **Fork topology (true-now)** — **inject-first thin fork**: layer A `do-harness/` + layer B bounded crate pins (~3% product-touched crates); not pure overlay (no TS factories); not deep monorepo rewrite. Hotspot allowlist + must-survive pins in [`FORK.md`](./FORK.md) §2.1–§2.2
 - **Config root (true-now)** — user **`~/.config/doit`** (`$GROK_HOME` override) + project **`.doit/`** + `do-harness/` overlay; dual TOML registry + YAML assignment (no second runtime registry)
 - **Config-driven defaults (true-now)** — cold-start role = `[roles].default` (chrome + shell); per-role model/tools/color = `[roles.<stem>]`; stock `grok-build-plan` only if product agent not discoverable. Prefer editing config over hard-coding product stems
-- **Product version (true-now)** — root **`VERSION`** (`0.1.0`) is SoT for `doit --version`, GitHub tags `v{VERSION}`, and binstall archives. Upstream monorepo crate lines (e.g. pager/shell `0.2.x`) may differ — absorb must not overwrite product `VERSION` (P-VERSION)
+- **Product version (true-now)** — root **`VERSION`** (`0.0.2`) is SoT for `doit --version`, GitHub tags `v{VERSION}`, and binstall archives. Upstream monorepo crate lines (e.g. pager/shell `0.2.x`) may differ — absorb must not overwrite product `VERSION` (P-VERSION)
 - **Power tools (true-now)** — CodeGraph via MCP **`doit-codegraph`** + `xai-codebase-graph`; product hashline toolset overlay (stock Rust Default remains Standard until TOML merge)
 - **Process** — git at **`/home/datht/code/doit`**; commit every milestone; English + conventional commits; handoff needs `commitId` + `repoPath`
 - **Worktree (true-now)** — **implementation root = `/home/datht/code/doit` only**. Sibling `/home/datht/code/do` is **deprecated** as writable product root (do not edit; do not delete without user OK). Origin: `dathtd119/doit`. Config **`~/.config/doit`** + project **`.doit/`**; harness folder `do-harness/`; CLI package/binary **`doit`**
@@ -358,10 +359,10 @@ Date: 2026-07-17
 
 ### Next steps
 
-1. Finish role-kernel parity plan `260716-2010` (phases 02 body swap, 03 strict TOML tools, 07 verify) — see residual K1–K7 in [`docs/future-plan.md`](./docs/future-plan.md)
+1. Finish stock-native agent inject residuals (chrome Tab from `[agents].order`, sync auto-create contracts for new `prompts/agents/*`, full `[agents]` load path without dual `[roles]` if desired) — thesis [`docs/agents-and-prompts.md`](./docs/agents-and-prompts.md)
 2. Promote parking-lot items only when chosen (goal-as-mission from opencode-missions, side-ask dual stream, BM25 skill_search, multi-provider auth, OpenCode permission-rules YAML)
-3. Optional: cut first `v0.1.0` GitHub Release (tag must match `VERSION`) for prebuilt binstall assets; proactive first-message role-lock toast; CodeGraph in-process `tool_pack` if MCP friction forces it; remove host deprecation symlinks `~/.config/do` → `doit` when operators ready
-4. Optional inject-layer hardening (when chosen): ordered product inject inventory + skip double-load; package do-harness as formal grok plugin; thin composition-root `register_tool_pack` path; config-first `PRODUCT_ROSTER` (reduce crate hardcode)
+3. Optional: cut first `v0.0.2` GitHub Release (tag must match `VERSION`) for prebuilt binstall assets; proactive first-message role-lock toast; CodeGraph in-process `tool_pack` if MCP friction forces it; remove host deprecation symlinks `~/.config/do` → `doit` when operators ready
+4. Optional inject-layer hardening (when chosen): ordered product inject inventory + skip double-load; package do-harness as formal grok plugin; thin composition-root `register_tool_pack` path; drop compile-time `PRODUCT_ROSTER` hardcode when config order always present
 
 ### Future Plan
 

@@ -2754,7 +2754,7 @@ dependencies = [
 
 [[package]]
 name = "doit"
-version = "0.1.0"
+version = "0.0.2"
 dependencies = [
  "anyhow",
  "clap",
@@ -14018,7 +14018,7 @@ dependencies = [
 
 [[package]]
 name = "xai-grok-version"
-version = "0.1.0"
+version = "0.0.2"
 dependencies = [
  "semver",
 ]

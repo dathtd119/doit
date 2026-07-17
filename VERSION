@@ -2,4 +2,4 @@
 # GitHub Release tags (v{VERSION}), and cargo-binstall archives.
 # Bump this for product ships. Upstream monorepo crate versions (e.g. 0.2.x
 # on xai-grok-pager/shell) may differ — do not overwrite this from upstream absorb.
-0.1.0
+0.0.2

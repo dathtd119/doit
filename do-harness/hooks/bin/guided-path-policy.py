@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
-"""PreToolUse guard: deny writes outside the session workspace with guided blocks.
+"""PreToolUse guard: shell-only denylist for writes to protected system paths.
 
 F-M2-GATES / VAL-M2-GATE-001 — path-policy pack (beyond dangerous-shell).
+
+Policy stance (product):
+  - Write/edit tools (write, edit, apply_patch, hashline_*, …) are **not** gated
+    here. Stock permission UX (ask / auto-accept / yolo) owns those.
+  - Shell tools only: block redirects / mutate destinations that hit a small
+    denylist of system roots and home secret trees.
+  - Allow-by-default for everything else (workspace, home, /tmp, ~/.config/doit).
 
 Protocol (xai-grok-hooks command runner):
   - stdin: PreToolUse envelope JSON
@@ -23,14 +30,6 @@ from pathlib import Path
 # Same-dir import of shared guided_block (discovery runs from hooks/ as source_dir).
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from guided_block import format_guided_block, is_guided_shape  # noqa: E402
-
-# Write / edit tools that carry a path in toolInput
-WRITE_TOOL_RE = re.compile(
-    r"^(write|Write|search_replace|SearchReplace|str_replace|StrReplace|"
-    r"edit|Edit|create|Create|apply_patch|ApplyPatch|MultiEdit|"
-    r"hashline_edit|hashline_write)$",
-    re.IGNORECASE,
-)
 
 SHELL_TOOL_RE = re.compile(
     r"^(Bash|bash|run_terminal_command|run_terminal_cmd|Shell|shell)$",
@@ -54,6 +53,64 @@ SHELL_MUTATE_RE = re.compile(
 
 # Skip path tokens that are flags or shell meta
 SKIP_TOKENS = re.compile(r"^(-|\$|\||&|;|<|>)")
+
+# Exact paths that must never be shell-written.
+DENIED_EXACT_PATHS = frozenset(
+    {
+        "/",
+        "/etc",
+        "/usr",
+        "/bin",
+        "/sbin",
+        "/lib",
+        "/lib64",
+        "/boot",
+        "/dev",
+        "/proc",
+        "/sys",
+        "/root",
+        "/var/run",
+        "/run",
+    }
+)
+
+# Prefix roots: any path under these is denied for shell writes.
+DENIED_PREFIX_ROOTS = (
+    "/etc/",
+    "/usr/",
+    "/bin/",
+    "/sbin/",
+    "/lib/",
+    "/lib64/",
+    "/boot/",
+    "/dev/",
+    "/proc/",
+    "/sys/",
+    "/root/",
+)
+
+# Credential / secret trees under home that stay off-limits via shell.
+HOME_SECRET_NAMES = frozenset(
+    {
+        ".ssh",
+        ".gnupg",
+        ".aws",
+        ".azure",
+        ".kube",
+        ".netrc",
+        ".git-credentials",
+    }
+)
+HOME_SECRET_PATH_SUFFIXES = (
+    "/.docker/config.json",
+)
+
+
+def _product_config_home() -> str:
+    grok_home = os.environ.get("GROK_HOME")
+    if grok_home and grok_home.strip():
+        return os.path.abspath(os.path.expanduser(grok_home.strip()))
+    return os.path.abspath(os.path.expanduser("~/.config/doit"))
 
 
 def _tool_name(envelope: dict) -> str:
@@ -92,28 +149,6 @@ def _strip_quotes(token: str) -> str:
     return t
 
 
-def extract_write_path(tool_input: dict) -> str | None:
-    for key in (
-        "path",
-        "filePath",
-        "file_path",
-        "target",
-        "target_path",
-        "targetPath",
-        "filename",
-        "file",
-    ):
-        val = tool_input.get(key)
-        if isinstance(val, str) and val.strip():
-            return val.strip()
-    # apply_patch style optional
-    for key in ("new_path", "newPath", "to"):
-        val = tool_input.get(key)
-        if isinstance(val, str) and val.strip():
-            return val.strip()
-    return None
-
-
 def resolve_path(file_path: str, cwd: str) -> str:
     expanded = os.path.expanduser(file_path.strip())
     if os.path.isabs(expanded):
@@ -130,15 +165,24 @@ def is_under_root(resolved: str, root: str) -> bool:
     return target.startswith(prefix)
 
 
-def is_write_allowed(file_path: str, cwd: str) -> tuple[bool, str]:
-    """Return (allowed, resolved_or_reason)."""
-    if not file_path or not file_path.strip():
-        return False, "empty path"
-    # Disallow parent-escape attempts that normalize outside after resolve
-    resolved = resolve_path(file_path, cwd)
-    if is_under_root(resolved, cwd):
-        return True, resolved
-    return False, resolved
+def is_denied_path(resolved: str) -> bool:
+    """True only for hard-denied system / secret paths (shell targets)."""
+    target = os.path.normpath(resolved)
+    if target in DENIED_EXACT_PATHS:
+        return True
+    for prefix in DENIED_PREFIX_ROOTS:
+        if target == prefix.rstrip("/") or target.startswith(prefix):
+            return True
+    home = os.path.normpath(os.path.expanduser("~"))
+    if is_under_root(target, home):
+        for suf in HOME_SECRET_PATH_SUFFIXES:
+            if target == home + suf or target.endswith(suf):
+                return True
+        parts = target.split(os.sep)
+        for name in HOME_SECRET_NAMES:
+            if name in parts:
+                return True
+    return False
 
 
 def shell_write_paths(command: str) -> list[str]:
@@ -151,7 +195,7 @@ def shell_write_paths(command: str) -> list[str]:
         if not raw:
             continue
         path = _strip_quotes(raw)
-        # skip device / fd redirects
+        # skip device / fd redirects (device writes handled by dangerous-shell)
         if path.startswith("/dev/") or path in ("&1", "&2", "1", "2"):
             continue
         if SKIP_TOKENS.match(path):
@@ -159,7 +203,6 @@ def shell_write_paths(command: str) -> list[str]:
         found.append(path)
     for m in SHELL_MUTATE_RE.finditer(command):
         args = m.group("args") or ""
-        # Last non-flag arg is the destination for cp/mv/install etc.
         tokens = [t for t in re.split(r"\s+", args.strip()) if t]
         candidates = [
             _strip_quotes(t)
@@ -174,14 +217,15 @@ def shell_write_paths(command: str) -> list[str]:
 def path_policy_deny(resolved: str, cwd: str) -> str:
     return format_guided_block(
         "path-policy-write-outside",
-        f"Write outside the session workspace was blocked (target: {resolved}).",
+        f"Shell write to a protected system path was blocked (target: {resolved}).",
         [
-            f"Write only under the workspace root: {cwd}",
-            "Use relative paths inside the active project, or open the intended project as cwd.",
-            "If the path is intentional and outside the workspace, stop and ask the human to approve or re-open that directory.",
+            "Use dedicated write/edit tools for normal files (stock ask/auto permissions apply).",
+            "For shell: write under workspace, home project paths, /tmp, or ~/.config/doit — not system roots or secret trees.",
+            f"Session cwd for context: {cwd}",
+            "If a protected path is truly required, stop and ask the human to run the shell change.",
         ],
-        human="Approve out-of-workspace writes yourself if they are truly required.",
-        do_not="Retry the same absolute path outside the workspace or shell-bypass the path policy.",
+        human="Approve and run protected-path shell writes yourself if they are truly required.",
+        do_not="Retry the same shell write into system/secret paths or bypass this denylist.",
     )
 
 
@@ -190,41 +234,41 @@ def decide(envelope: dict) -> tuple[str, int]:
     tool_input = _tool_input(envelope)
     cwd = _cwd(envelope)
 
-    if WRITE_TOOL_RE.match(name):
-        path = extract_write_path(tool_input)
-        if not path:
+    # Write/edit tools: never hard-deny here — stock permission UX owns them.
+    if not SHELL_TOOL_RE.match(name):
+        # Unknown / empty name with a command may still be shell-shaped
+        if name and not SHELL_TOOL_RE.match(name):
             return json.dumps({"decision": "allow"}), 0
-        ok, resolved = is_write_allowed(path, cwd)
-        if ok:
-            return json.dumps({"decision": "allow"}), 0
-        reason = path_policy_deny(resolved, cwd)
-        return json.dumps({"decision": "deny", "reason": reason}), 2
 
-    if SHELL_TOOL_RE.match(name) or not name:
-        command = ""
-        for key in ("command", "cmd", "script", "input"):
-            val = tool_input.get(key)
-            if isinstance(val, str) and val.strip():
-                command = val
-                break
-        if not command.strip():
-            # No tool name and no command: allow (unknown surface)
-            if not name:
-                return json.dumps({"decision": "allow"}), 0
+    # Shell tools (or empty name + command)
+    command = ""
+    for key in ("command", "cmd", "script", "input"):
+        val = tool_input.get(key)
+        if isinstance(val, str) and val.strip():
+            command = val
+            break
+
+    if not SHELL_TOOL_RE.match(name):
+        # No recognized shell tool name: only inspect if a command is present
+        if not name and command.strip():
+            pass  # fall through
+        else:
             return json.dumps({"decision": "allow"}), 0
-        for path in shell_write_paths(command):
-            ok, resolved = is_write_allowed(path, cwd)
-            if not ok:
-                reason = path_policy_deny(resolved, cwd)
-                return json.dumps({"decision": "deny", "reason": reason}), 2
+
+    if not command.strip():
         return json.dumps({"decision": "allow"}), 0
 
+    for path in shell_write_paths(command):
+        resolved = resolve_path(path, cwd)
+        if is_denied_path(resolved):
+            reason = path_policy_deny(resolved, cwd)
+            return json.dumps({"decision": "deny", "reason": reason}), 2
     return json.dumps({"decision": "allow"}), 0
 
 
 def self_test() -> int:
     failures: list[str] = []
-    cwd = "/tmp/do-path-policy-workspace"
+    cwd = os.path.join(os.path.expanduser("~"), "code", "doit")
     Path(cwd).mkdir(parents=True, exist_ok=True)
 
     def expect_deny(envelope: dict, gate: str = "path-policy-write-outside") -> None:
@@ -247,58 +291,79 @@ def self_test() -> int:
         if code != 0 or payload.get("decision") != "allow":
             failures.append(f"expected allow for {envelope!r}, got {out!r} code={code}")
 
-    # Write tools outside workspace
-    expect_deny(
+    # Write/edit tools: always allow through path-policy (even /etc)
+    expect_allow(
         {
             "toolName": "write",
             "cwd": cwd,
             "toolInput": {"path": "/etc/passwd", "contents": "x"},
         }
     )
-    expect_deny(
+    expect_allow(
         {
             "toolName": "search_replace",
             "cwd": cwd,
-            "toolInput": {"file_path": "/home/other/secret.txt", "old_string": "a", "new_string": "b"},
+            "toolInput": {
+                "file_path": os.path.expanduser("~/.ssh/authorized_keys"),
+                "old_string": "a",
+                "new_string": "b",
+            },
         }
     )
-    expect_deny(
+    expect_allow(
         {
             "toolName": "hashline_edit",
             "cwd": cwd,
-            "toolInput": {"path": os.path.join(cwd, "..", "escape.txt")},
+            "toolInput": {"path": "/usr/local/bin/evil"},
         }
     )
-
-    # Write tools inside workspace
     expect_allow(
         {
             "toolName": "write",
             "cwd": cwd,
-            "toolInput": {"path": "src/main.rs", "contents": "fn main() {}"},
-        }
-    )
-    expect_allow(
-        {
-            "toolName": "Write",
-            "cwd": cwd,
-            "toolInput": {"filePath": os.path.join(cwd, "ok.txt"), "contents": "ok"},
+            "toolInput": {
+                "path": os.path.join(
+                    _product_config_home(),
+                    "sessions",
+                    "x",
+                    "plan.md",
+                ),
+                "contents": "# plan",
+            },
         }
     )
 
-    # Shell redirects outside / inside
-    expect_deny(
-        {
-            "toolName": "run_terminal_cmd",
-            "cwd": cwd,
-            "toolInput": {"command": "echo secret > /tmp/outside-path-policy.dat"},
-        }
-    )
+    # Shell: deny protected destinations
     expect_deny(
         {
             "toolName": "Bash",
             "cwd": cwd,
             "toolInput": {"command": "cp README.md /etc/do-path-policy-nope"},
+        }
+    )
+    expect_deny(
+        {
+            "toolName": "run_terminal_cmd",
+            "cwd": cwd,
+            "toolInput": {"command": "echo secret > /etc/outside-path-policy.dat"},
+        }
+    )
+    expect_deny(
+        {
+            "toolName": "run_terminal_command",
+            "cwd": cwd,
+            "toolInput": {
+                "command": f"echo x > {os.path.expanduser('~/.ssh/authorized_keys')}",
+            },
+        }
+    )
+
+    # Shell: allow normal destinations
+    expect_allow(
+        {
+            "toolName": "run_terminal_cmd",
+            "cwd": cwd,
+            "toolInput": {"command": "echo secret > /tmp/outside-path-policy.dat"},
         }
     )
     expect_allow(
@@ -315,8 +380,27 @@ def self_test() -> int:
             "toolInput": {"command": "git status"},
         }
     )
+    product_home = _product_config_home()
+    expect_allow(
+        {
+            "toolName": "Bash",
+            "cwd": cwd,
+            "toolInput": {
+                "command": f"echo ok > {product_home}/shell-allow.txt",
+            },
+        }
+    )
+    expect_allow(
+        {
+            "toolName": "run_terminal_cmd",
+            "cwd": cwd,
+            "toolInput": {
+                "command": f"echo ok > {os.path.expanduser('~/.serena.bak-removed-test')}",
+            },
+        }
+    )
 
-    # Read-only tools (no path policy)
+    # Read-only tools
     expect_allow(
         {
             "toolName": "read_file",
