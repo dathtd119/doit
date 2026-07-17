@@ -102,15 +102,14 @@ jobs:
       - name: Format check
         run: cargo fmt --all -- --check
 
-      # Cognitive complexity is deny-as-warning for product code locally, but
-      # `clippy -p doit` typechecks path deps (e.g. xai-computer-hub-sdk) that
-      # ship upstream over threshold=30. Allow that lint in CI so Quality gates
-      # measure product risk without forking hub-sdk actors (FORK thin surface).
-      - name: Clippy (-D warnings; allow cognitive_complexity for dep graph)
+      # Lint product package only. Path deps (shell/pager/hub-sdk) carry
+      # upstream style debt; dual-fixing them expands FORK surface. Keep
+      # -D warnings on `doit` itself. Smoke build still typechecks the graph.
+      - name: Clippy (product package, -D warnings)
         run: |
           cargo clippy -p doit --all-targets -- \
-            -D warnings \
-            -A clippy::cognitive_complexity
+            --no-deps \
+            -D warnings
 
       - name: Smoke build
         run: cargo check -p doit
