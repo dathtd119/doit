@@ -221,9 +221,13 @@ jobs:
               if command -v zip >/dev/null 2>&1; then
                 zip -q "${ARCHIVE_PATH}" ./*
               else
-                # PowerShell Compress-Archive fallback on Windows runners without zip.
+                # PowerShell Compress-Archive needs a Win32 path, not Git Bash /c/...
+                ARCHIVE_WIN="${ARCHIVE_PATH}"
+                if command -v cygpath >/dev/null 2>&1; then
+                  ARCHIVE_WIN="$(cygpath -w "${ARCHIVE_PATH}")"
+                fi
                 powershell.exe -NoProfile -Command \
-                  "Compress-Archive -Path * -DestinationPath '${ARCHIVE_PATH}'"
+                  "Compress-Archive -Path * -DestinationPath '${ARCHIVE_WIN}'"
               fi
             )
           else
