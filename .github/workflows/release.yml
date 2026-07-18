@@ -65,8 +65,10 @@ jobs:
             os: ubuntu-24.04-arm
             archive_ext: tar.gz
             bin_ext: ""
+          # macos-13 (Intel) runners are scarce/deprecated; cross-compile
+          # x86_64 from arm64 macos-latest (rustc target works for pure Rust).
           - target: x86_64-apple-darwin
-            os: macos-13
+            os: macos-latest
             archive_ext: tar.gz
             bin_ext: ""
           - target: aarch64-apple-darwin
